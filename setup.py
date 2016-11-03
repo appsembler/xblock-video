@@ -21,9 +21,9 @@ def package_data(pkg, roots):
 
 
 setup(
-    name='video-xblock',
+    name='wistiavideo-xblock',
     version='0.1',
-    description='video XBlock',   # TODO: write a better description.
+    description='wistiavideo XBlock',   # TODO: write a better description.
     license='GPL v3',
     packages=[
         'wistiavideo',
@@ -34,7 +34,7 @@ setup(
     ],
     entry_points={
         'xblock.v1': [
-            'video = wistiavideo:VideoXBlock',
+            'wistiavideo = wistiavideo:VideoXBlock',
         ]
     },
     package_data=package_data("wistiavideo", ["static", "public"]),
