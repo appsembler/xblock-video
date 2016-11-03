@@ -34,7 +34,7 @@ setup(
     ],
     entry_points={
         'xblock.v1': [
-            'video = video:VideoXBlock',
+            'video = wistiavideo:VideoXBlock',
         ]
     },
     package_data=package_data("wistiavideo", ["static", "public"]),
