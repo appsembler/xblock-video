@@ -12,7 +12,13 @@ from xblock.fields import Scope, Integer, String
 from xblock.fragment import Fragment
 from xblock.validation import ValidationMessage
 
+from django.template import Template, Context
+
 from xblockutils.studio_editable import StudioEditableXBlockMixin
+
+import HTMLParser
+
+html_parser = HTMLParser.HTMLParser()
 
 _ = lambda text: text
 
@@ -69,8 +75,15 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         when viewing courses.
         """
         if 'youtube' in self.href:
-            html = self.resource_string('static/html/youtube.html')
-            frag = Fragment(html)
+            html = Template(self.resource_string("static/html/youtube.html"))
+            frag = Fragment(
+                html_parser.unescape(
+                    html.render(Context({'url': self.href}))
+                )
+            )
+
+            # html = self.resource_string('static/html/youtube.html')
+            # frag = Fragment(html)
             frag.add_css(self.resource_string(
                 'static/bower_components/video.js/dist/video-js.min.css'
             ))
