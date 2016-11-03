@@ -1,1 +1,1 @@
-from .wistiavideo import WistiaVideoXBlock
+from .wistiavideo import VideoXBlock
