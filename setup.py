@@ -26,7 +26,7 @@ setup(
     description='video XBlock',   # TODO: write a better description.
     license='GPL v3',
     packages=[
-        'video',
+        'wistiavideo',
     ],
     install_requires=[
         'XBlock',
@@ -37,5 +37,5 @@ setup(
             'video = video:VideoXBlock',
         ]
     },
-    package_data=package_data("video", ["static", "public"]),
+    package_data=package_data("wistiavideo", ["static", "public"]),
 )
