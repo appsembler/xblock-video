@@ -72,13 +72,13 @@ class WistiaVideoXBlock(StudioEditableXBlockMixin, XBlock):
             html = self.resource_string('static/html/youtube.html')
             frag = Fragment(html)
             frag.add_css(self.resource_string(
-                'static/node_modules/video.js/dist/video-js.min.css'
+                'static/bower_components/video.js/dist/video-js.min.css'
             ))
             frag.add_javascript(self.resource_string(
-                'static/node_modules/video.js/dist/video.min.js'
+                'static/bower_components/video.js/dist/video.min.js'
             ))
             frag.add_javascript(self.resource_string(
-                'static/node_modules/videojs-youtube/dist/Youtube.min.js'
+                'static/bower_components/videojs-youtube/dist/Youtube.min.js'
             ))
         else:
             html = self.resource_string('static/html/wistiavideo.html')
