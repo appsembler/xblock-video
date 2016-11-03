@@ -23,7 +23,7 @@ VIDEO_URL_RE = re.compile(r'https?:\/\/(.+)?(wistia.com|wi.st)\/(medias|embed)\/
 YOUTUBE_VIDEO_URL_RE = re.compile(r'https?:\/\/(.+)?(wistia.com|wi.st)\/(medias|embed)\/.*')
 
 
-class WistiaVideoXBlock(StudioEditableXBlockMixin, XBlock):
+class VideoXBlock(StudioEditableXBlockMixin, XBlock):
 
     display_name = String(
         default='Wistia video',
