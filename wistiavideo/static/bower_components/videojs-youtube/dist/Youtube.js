@@ -23,8 +23,8 @@ THE SOFTWARE. */
 (function (root, factory) {
   if(typeof exports==='object' && typeof module!=='undefined') {
     module.exports = factory(require('video.js'));
-  } else if(typeof define === 'function' && define.amd) {
-    define(['videojs'], function(videojs){
+  } else if(typeof define === 'function' && define.amd&&false) {
+    define("vjs-youtube", ['videojs'], function(videojs){
       return (root.Youtube = factory(videojs));
     });
   } else {

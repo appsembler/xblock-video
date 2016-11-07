@@ -75,6 +75,7 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         when viewing courses.
         """
         if 'youtube' in self.href:
+            # html = Template(self.resource_string("static/html/iframe_youtube.html"))
             html = Template(self.resource_string("static/html/youtube.html"))
             frag = Fragment(
                 html_parser.unescape(
@@ -82,17 +83,19 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
                 )
             )
 
-            # html = self.resource_string('static/html/youtube.html')
-            # frag = Fragment(html)
+            html = self.resource_string('static/html/youtube.html')
+            frag = Fragment(html)
             frag.add_css(self.resource_string(
                 'static/bower_components/video.js/dist/video-js.min.css'
             ))
             frag.add_javascript(self.resource_string(
-                'static/bower_components/video.js/dist/video.min.js'
+                'static/bower_components/video.js/dist/video.js'
             ))
-            frag.add_javascript(self.resource_string(
-                'static/bower_components/videojs-youtube/dist/Youtube.min.js'
-            ))
+            frag.add_javascript(
+                self.resource_string(
+                    'static/bower_components/videojs-youtube/dist/Youtube.js'
+                )
+            )
         else:
             html = self.resource_string('static/html/wistiavideo.html')
             frag = Fragment(html.format(self=self))
