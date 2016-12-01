@@ -23,6 +23,7 @@ body {
     position: absolute;
     width: 100%;
     top: -.5em;
+    left: 0;
     height: 5px;
     background: none !important;
 }
