@@ -1,0 +1,10 @@
+<html>
+  <head>
+    {{ frag.head_html }}
+    {# Render JavaScripts before main content, since it depends on functions defined in JS #}
+    {{ frag.foot_html }}
+  </head>
+  <body>
+    {{ frag.body_html }}
+  </body>
+</html>

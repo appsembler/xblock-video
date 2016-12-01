@@ -1,0 +1,10 @@
+{
+  "name": "xblock-video",
+  "version": "0.2-dev",
+  "dependencies": {
+    "video-js": "5.13.1",
+    "videojs-youtube": "raccoongang/videojs-youtube#playback-rate-fix",
+    "videojs-wistia": "raccoongang/videojs-wistia#playback-toggle-fix"
+  },
+  "private": true
+}
