@@ -327,3 +327,50 @@ body {
     background: rgba(115,133,159,.5);
     border-radius: 0;
 }
+
+body .video-js {
+    overflow: visible;
+}
+
+body .video-js .vjs-menu-button-inline:hover, body .video-js.vjs-no-flex .vjs-menu-button-inline {
+    width: 12em;
+}
+
+body .video-js .vjs-big-play-button:active, body .video-js .vjs-big-play-button:focus, body .video-js:active .vjs-big-play-button, body .video-js:hover .vjs-big-play-button {
+    background-color: rgba(115, 133, 159, .5) !important;
+}
+
+body .video-js .vjs-load-progress div {
+    background: transparent !important;
+}
+
+body .video-js .vjs-big-play-button:active,
+body .video-js .vjs-big-play-button:focus,
+body .video-js:active .vjs-big-play-button,
+body .video-js:hover .vjs-big-play-button.video-js .vjs-big-play-button:focus {
+    outline: 0;
+    border-color: #fff;
+    background-color: #73859f !important;
+    background-color: rgba(115, 133, 159, .5) !important;
+}
+
+body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
+    width: 41px;
+    left: 30px;
+    background: #171a1b;
+}
+
+.vjs-mousebody .video-js .vjs-progress-control:hover .vjs-play-progress.vjs-slider-bar.vjs-keep-tooltips-inside:after {
+    width: 10px;
+}
+
+body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item {
+    font-weight: bold;
+}
+
+body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
+    text-shadow: none;
+    color: inherit;
+    background: rgba(115, 133, 159, .5);
+    border-radius: 0;
+}
