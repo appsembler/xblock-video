@@ -2,7 +2,7 @@ body {
     margin: 0;
 }
 .vjs-play-control.vjs-control.vjs-button:before {
-    padding: 8px 0 0 9px !important;
+    padding: 8px 0 0 0 !important;
 }
 .video-js .vjs-dock-text {
     display: none;
@@ -222,6 +222,7 @@ body {
     right: 83px;
     width: 42px;
 }
+.video-js .vjs-volume-menu-button.vjs-menu-button:focus,
 .video-js .vjs-volume-menu-button.vjs-menu-button:hover {
     width: 12em;
 }
@@ -327,6 +328,18 @@ body {
     background: rgba(115,133,159,.5);
     border-radius: 0;
 }
+.video-js .vjs-control {
+    width: 40px;
+}
+.video-js .vjs-control:focus {
+    outline: rgb(207, 216, 220) solid 1px;
+}
+.vjs-workinghover .vjs-menu-button-popup:focus .vjs-menu,
+.vjs-workinghover .vjs-menu-button-popup:hover .vjs-menu,
+.vjs-menu-button-popup .vjs-menu.vjs-lock-showing {
+    display: block;
+}
+
 
 body .video-js {
     overflow: visible;

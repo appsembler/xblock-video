@@ -31,7 +31,7 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
     icon_class = "video"
 
     display_name = String(
-        default='Video',
+        default=_('Video'),
         display_name=_('Component Display Name'),
         help=_('The name students see. This name appears in the course ribbon and as a header for the video.'),
         scope=Scope.content,
@@ -67,25 +67,25 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
     current_time = Integer(
         default=0,
         scope=Scope.user_state,
-        help='Seconds played back from the start'
+        help=_('Seconds played back from the start')
     )
 
     playback_rate = Float(
         default=1,
         scope=Scope.preferences,
-        help='Video playback speed: 0.5, 1, 1.5, 2'
+        help=_('Video playback speed: 0.5, 1, 1.5, 2')
     )
 
     volume = Float(
         default=1,
         scope=Scope.preferences,
-        help='Video volume: from 0 to 1'
+        help=_('Video volume: from 0 to 1')
     )
 
     muted = Boolean(
         default=False,
         scope=Scope.preferences,
-        help="Video muted or not"
+        help=_("Video muted or not")
     )
 
     handout = String(
@@ -166,12 +166,41 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
                 'static/html/student_view.html',
                 player_url=player_url,
                 display_name=self.display_name,
-                usage_id=self.location.to_deprecated_string()
+                usage_id=self.location.to_deprecated_string(),
+                handout=self.handout,
+                handout_file_name=self.get_handout_file_name()
             )
         )
         frag.add_javascript(self.resource_string("static/js/video_xblock.js"))
+        frag.add_css(self.resource_string("static/css/handout.css"))
         frag.initialize_js('VideoXBlockStudentViewInit')
         return frag
+
+    def studio_view(self, context):
+        """
+        Render a form for editing this XBlock
+        """
+        fragment = Fragment()
+        context = {
+            'fields': [],
+            'courseKey': self.location.course_key
+        }
+        # Build a list of all the fields that can be edited:
+        for field_name in self.editable_fields:
+            field = self.fields[field_name]
+            assert field.scope in (Scope.content, Scope.settings), (
+                "Only Scope.content or Scope.settings fields can be used with "
+                "StudioEditableXBlockMixin. Other scopes are for user-specific data and are "
+                "not generally created/configured by content authors in Studio."
+            )
+            field_info = self._make_field_info(field_name, field)
+            if field_info is not None:
+                context["fields"].append(field_info)
+        fragment.content = self.render_resource('static/html/studio_edit.html', **context)
+        fragment.add_css(self.resource_string("static/css/handout.css"))
+        fragment.add_javascript(self.resource_string("static/js/studio_edit.js"))
+        fragment.initialize_js('StudioEditableXBlock')
+        return fragment
 
     @XBlock.handler
     def render_player(self, request, suffix=''):
@@ -223,3 +252,22 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         """
         player = BaseVideoPlayer.load_class(self.player_name)
         return player()
+
+    def _make_field_info(self, field_name, field):
+        """
+        Overrides and extends data of built-in method
+        """
+        info = super(VideoXBlock, self)._make_field_info(field_name, field)
+        if field_name == 'handout':
+            info['type'] = 'file_uploader'
+            info['file_name'] = self.get_handout_file_name()
+        return info
+
+    def get_handout_file_name(self):
+        """
+        Field handout look like this:
+        asset-v1-RaccoonGang+1+2018+type@asset+block@<filename>
+
+        It returns only name of file with extension
+        """
+        return self.handout.split('@')[-1]

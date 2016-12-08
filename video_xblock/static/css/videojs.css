@@ -268,7 +268,7 @@ body {
     margin-left: 22px !important;
 }
 .video-js .vjs-play-control {
-    margin-right: 22px;
+    margin-right: 5px;
 }
 .vjs-playback-rate .vjs-playback-rate-value {
     top: 3px;
@@ -277,6 +277,7 @@ body {
 .vjs-volume-bar.vjs-slider-vertical {
     height: 100px;
 }
+.vjs-volume-menu-button-vertical:focus .vjs-menu-content,
 .vjs-volume-menu-button-vertical:hover .vjs-menu-content {
     height: 120px;
 }
@@ -284,3 +285,11 @@ body {
 .w-control-bar {
   display: none !important;
 }
+
+.video-js .vjs-control {
+    width: 39px;
+}
+.video-js .vjs-control:focus {
+    outline: rgb(207, 216, 220) solid 1px;
+}
+
