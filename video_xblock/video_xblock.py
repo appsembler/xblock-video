@@ -51,6 +51,13 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         scope=Scope.content,
     )
 
+    player_id = String(
+        default='default',
+        display_name=_('Player Id'),
+        help=_('Your Brightcove player id. Use "Luna" theme for all your players'),
+        scope=Scope.content,
+    )
+
     player_name = String(
         default='dummy-player',
         scope=Scope.content
@@ -88,7 +95,7 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         help=_('You can upload handout file for students')
     )
 
-    editable_fields = ('display_name', 'href', 'account_id', 'handout')
+    editable_fields = ('display_name', 'href', 'account_id', 'player_id', 'handout')
     player_state_fields = ('current_time', 'muted', 'playback_rate', 'volume')
 
     @property
@@ -204,7 +211,7 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         player = self.get_player()
         save_state_url = self.runtime.handler_url(self, 'save_player_state')
         return player.get_player_html(
-            url=self.href, autoplay=False, account_id=self.account_id,
+            url=self.href, autoplay=False, account_id=self.account_id, player_id=self.player_id,
             video_id=player.media_id(self.href),
             video_player_id='video_player_{}'.format(self.location.block_id),
             save_state_url=save_state_url,

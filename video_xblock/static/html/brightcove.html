@@ -1,20 +1,8 @@
-<style>
-    /*
-      styles for Brightcove's theme 'default', if we change theme's name, we must
-      change class name.
-    */
-    .bc-player-default_default .vjs-big-play-button:active,
-    .bc-player-default_default .vjs-big-play-button:focus,
-    .bc-player-default_default:active .vjs-big-play-button,
-    .bc-player-default_default:hover .vjs-big-play-button {
-        background-color: rgba(115, 133, 159, .5) !important;
-    }
-</style>
 <div>
     <video data-video-id="{{ video_id }}"
         id="{{ video_player_id }}"
         data-account="{{ account_id }}"
-        data-player="default"
+        data-player="{{player_id}}"
         data-embed="default"
         data-application-id
         data-setup='{"playbackRates": [0.5, 1, 1.5, 2] }'
@@ -23,5 +11,5 @@
         class="video-js"
         controls
     ></video>
-    <script src="//players.brightcove.net/{{ account_id }}/default_default/index.min.js"></script>
+    <script src="//players.brightcove.net/{{ account_id }}/{{ player_id }}_default/index.min.js"></script>
 </div>
