@@ -34,7 +34,8 @@ class YoutubePlayer(BaseVideoPlayer):
                 "videoJsResolutionSwitcher": {
                     "dynamicLabel": True,
                     "default": "low"
-                }
+                },
+                "xblockEventPlugin": {}
             }
         })
 

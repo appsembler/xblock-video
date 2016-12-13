@@ -39,7 +39,10 @@ class WistiaPlayer(BaseVideoPlayer):
                 "type": "video/wistia",
                 "src": context['url'] + "?controlsVisibleOnLoad=false"
             }],
-            "playbackRates": [0.5, 1, 1.5, 2]
+            "playbackRates": [0.5, 1, 1.5, 2],
+            "plugins": {
+                "xblockEventPlugin": {}
+            }
         })
 
         frag = super(WistiaPlayer, self).get_frag(**context)

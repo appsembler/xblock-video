@@ -12,4 +12,8 @@
         controls
     ></video>
     <script src="//players.brightcove.net/{{ account_id }}/{{ player_id }}_default/index.min.js"></script>
+    <script>
+        videojs.plugin('xblockEventPlugin', xblockEventPlugin);
+        videojs('{{ video_player_id }}').xblockEventPlugin();
+    </script>
 </div>

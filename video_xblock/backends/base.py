@@ -53,6 +53,9 @@ class BaseVideoPlayer(Plugin):
         frag.add_javascript(
             self.render_resource('../static/js/player_state.js', **context)
         )
+        frag.add_javascript(
+            self.render_resource('../static/js/videojs_event_plugin.js', **context)
+        )
 
         return frag
 

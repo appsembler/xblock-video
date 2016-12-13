@@ -233,6 +233,20 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         self.player_state = player_state
         return {'success': True}
 
+    @XBlock.json_handler
+    def publish_event(self, data, suffix=''):
+        """
+        Handler to publish XBlock event from frontend.
+        Called by student_view's JavaScript
+        """
+        try:
+            eventType = data.pop('eventType')
+        except KeyError:
+            return {'result': 'error', 'message': 'Missing eventType in JSON data'}
+
+        self.runtime.publish(self, eventType, data)
+        return {'result': 'success'}
+
     def clean_studio_edits(self, data):
         """
         Given POST data dictionary 'data', clean the data before validating it.
