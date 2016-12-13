@@ -9,7 +9,7 @@
           data-default="{% if field.type == 'boolean' %}{{ field.default|yesno:'1,0' }}{% else %}{{ field.default|default_if_none:"" }}{% endif %}"
           data-cast="{{field.type}}"
         >
-          <div class='wrapper-comp-setting {% if field.type == "set" %}metadata-list-enum{% endif %}  {% if field.type == "file_uploader" %}file-uploader{% endif %}'>
+          <div class='wrapper-comp-setting {% if field.type == "set" %}metadata-list-enum{% endif %} {% if field.type == "file_uploader" %}file-uploader{% endif %}{% if field.type == "transcript_uploader" %}metadata-video-translations{% endif %}'>
             <label class="label setting-label" for="xb-field-edit-{{field.name}}">{{field.display_name}}</label>
 
             {% if field.type == "boolean" %}
@@ -92,7 +92,50 @@
                   <a href="/{{ field.value }}" target="_blank" class="download-action download-setting" download="{{ field.file_name}}">{% trans "Download" %}</a>
                 {% endif %}
               </div>
+              <div class="status-upload"></div>
               <input type="hidden" class="field-data-control" data-field-name="{{field.name}}" id="metadata-file-uploader-{{ field.name }}" value="{{ field.value }}">
+
+            {% elif field.type == 'transcript_uploader' %}
+              <div class="wrapper-uploader-actions xblock-edit-settings wrapper-translations-settings">
+                  <ol class="list-settings language-transcript-selector">
+                    {% for transcript in transcripts %}
+                    <li class="list-settings-item">
+                      <select name="language" class="lang-select">
+                        <option></option>
+                        {% for language in languages %}
+                        <option value="{{ language.code }}" {% if language.code == transcript.lang %}selected{% endif %} data-lang-label="{{ language.label }}">{{ language.label }}</option>
+                        {% endfor %}
+                      </select>
+                      <a href="#" class="remove-action remove-setting" data-value=""><span class="icon fa fa-times-circle" aria-hidden="true"></span><span class="sr">Remove</span></a>
+                      <div class="list-settings-buttons">
+                        <a href="#" class="upload-setting upload-transcript {% if not transcript.lang %}is-hidden{% endif %}" data-change-field-name="{{field.name}}" data-lang-code="{{ transcript.lang }}" data-lang-label="{{ transcript.label }}">{% trans "Replace" %}</a>
+                        <a href="{{ transcript.url }}" class="download-transcript download-setting">Download</a>
+                      </div>
+                      <div class="status-upload"></div>
+                    </li>
+                    {% endfor %}
+                    <li class="list-settings-item is-hidden">
+                      <select name="language" class="lang-select">
+                        <option></option>
+                        {% for language in languages %}
+                        <option value="{{ language.code }}" data-lang-label="{{ language.label }}">{{ language.label }}</option>
+                        {% endfor %}
+                      </select>
+                      <a href="#" class="remove-action remove-setting" data-value=""><span class="icon fa fa-times-circle" aria-hidden="true"></span><span class="sr">Remove</span></a>
+                      <div class="list-settings-buttons">
+                        <a href="#" class="upload-setting upload-transcript is-hidden" data-change-field-name="{{field.name}}" data-lang-code="" data-lang-label="">{% trans "Upload" %}</a>
+                        <a href="#" class="download-transcript download-setting is-hidden">Download</a>
+                      </div>
+                      <div class="status-upload"></div>
+                    </li>
+
+                  </ol>
+                  <input type="hidden" class="field-data-control" data-field-name="{{field.name}}" id="metadata-transcript-uploader-{{ field.name }}" value='{{ field.value }}'>
+
+                <a href="#" class="add-transcript create-setting">
+                  <span class="icon fa fa-plus" aria-hidden="true"></span>{% trans 'Add' %}<span class="sr"></span>
+                </a>
+              </div>
                 <!-- End of Raccoongang addons -->
 
             {% else %}
@@ -112,8 +155,8 @@
       {% endfor %}
     </ul>
         <!-- Raccoongang addons -->
-    <form method="POST" action="/assets/{{ courseKey }}/" class="is-hidden" enctype="multipart/form-data">
-      <input class="input-file-uploader" name="file" type="file" data-change-field-name="">
+    <form method="POST" action="/assets/{{ courseKey }}/" class="file-uploader-form is-hidden" enctype="multipart/form-data">
+      <input class="input-file-uploader" name="file" type="file" accept="" data-change-field-name="" data-lang-code="" data-lang-label="">
     </form>
         <!-- End of Raccoongang addons -->
   </div>
