@@ -157,27 +157,6 @@ function StudioEditableXBlock(runtime, element) {
         studio_submit({values: values, defaults: notSet});
     });
 
-    // Raccoongang addons
-
-    var $fileUploader = $('.input-file-uploader', element);
-
-    $fileUploader.on('change', function(e) {
-        var fieldName = $fileUploader.data('change-field-name');
-        $('form', element).ajaxSubmit({
-            success: function(response, statusText, xhr, form) {
-                $('input[data-field-name=' + fieldName + ']').val(response['asset']['id']).change();
-            }
-        })
-    });
-
-    $('.upload-setting', element).on('click', function(e) {
-        e.preventDefault();
-        var fieldName = $(e.currentTarget).data('change-field-name');
-        $fileUploader.attr('data-change-field-name', fieldName);
-        $fileUploader.click();
-    });
-    // End of Raccoongang addons
-
     $(element).find('.cancel-button').bind('click', function(e) {
         // Remove TinyMCE instances to make sure jQuery does not try to access stale instances
         // when loading editor for another block:
@@ -190,4 +169,193 @@ function StudioEditableXBlock(runtime, element) {
         e.preventDefault();
         runtime.notify('cancel', {});
     });
+
+    // Raccoongang addons
+
+    var transcriptsValue = [];
+    var disabledLanguages = [];
+    var $fileUploader = $('.input-file-uploader', element);
+    var $langChoiceItem = $('.language-transcript-selector', element);
+    var gotTranscriptsValue = $('input[data-field-name="transcripts"]').val();
+
+    if(gotTranscriptsValue){
+        transcriptsValue = JSON.parse(gotTranscriptsValue);
+    }
+
+    transcriptsValue.forEach(function(transcriptValue, index, array) {
+        disabledLanguages.push(transcriptValue.lang)
+    });
+
+    var disableOption = function(){
+
+        $langChoiceItem.find('option').each(function(ind){
+            if(disabledLanguages.indexOf($(this).val()) > -1){
+                $(this).attr('disabled', true)
+            } else {
+                $(this).attr('disabled', false)
+            }
+        })
+    };
+
+    var pushTranscript = function (lang, label, url){
+        var indexLanguage;
+        for (var i=0; i < transcriptsValue.length; i++){
+            if (lang == transcriptsValue[i].lang){
+                indexLanguage = i;
+                break;
+            }
+        }
+        if (indexLanguage !== undefined){
+            transcriptsValue[indexLanguage].url = url
+        } else {
+            transcriptsValue.push({
+                lang: lang,
+                url: url,
+                label: label
+            })
+        }
+        $('.add-transcript').removeClass('is-disabled');
+    };
+
+    var clickUploader = function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        var $buttonBlock = $(event.currentTarget);
+        var indexOfParentLi = $('.language-transcript-selector').children().index($buttonBlock.closest('li'));
+        $fileUploader.attr({
+            'data-lang-code': $buttonBlock.attr('data-lang-code'),
+            'data-lang-label': $buttonBlock.attr('data-lang-label'),
+            'data-change-field-name': $buttonBlock.attr('data-change-field-name'),
+            'accept': $buttonBlock.attr('data-change-field-name') == 'transcripts' ? '.sjson, .srt, .vtt' : '',
+            'data-li-index': $buttonBlock.attr('data-change-field-name') == 'transcripts' ? indexOfParentLi : ''
+        });
+
+        $fileUploader.click();
+    };
+
+    var languageChecker = function (event) {
+        event.stopPropagation();
+        var $selectedOption = $(event.currentTarget).find('option:selected');
+        var selectedLanguage = $selectedOption.val();
+        var languageLabel = $selectedOption.attr('data-lang-label');
+        var $langSelectParent = $(event.currentTarget).parent('li');
+        var $uploadButton = $('.upload-transcript', $langSelectParent);
+        var oldLang = $uploadButton.data('lang-code');
+        if(selectedLanguage != oldLang && selectedLanguage != ''){
+            pushTranscript(selectedLanguage, languageLabel, '');
+            disabledLanguages.push(selectedLanguage);
+            if(oldLang != ''){
+                removeTranscript(oldLang);
+                removeLanguage(oldLang);
+            }
+            $uploadButton.data('lang-code', selectedLanguage);
+        } else if (selectedLanguage == '') {
+            $selectedOption.val($uploadButton.data('lang-code'));
+            $('.remove-action', $langSelectParent).trigger('click');
+        }
+        $uploadButton.attr({
+            'data-lang-code': selectedLanguage,
+            'data-lang-label': languageLabel
+        });
+        $uploadButton.removeClass('is-hidden').text('Upload');
+        disableOption();
+        pushTranscriptsValue();
+    };
+
+    var removeLanguage = function(language){
+        var index = disabledLanguages.indexOf(language);
+        disabledLanguages.splice(index, 1);
+    };
+
+    var removeTranscript = function(lang){
+        for (var i=0; i < transcriptsValue.length; i++){
+            if(lang == transcriptsValue[i].lang){
+                transcriptsValue.splice(i,1);
+                break;
+            }
+        }
+    };
+
+    var pushTranscriptsValue = function(){
+        transcriptsValue.forEach(function (transcriptValue, index, array){
+            if(transcriptValue.lang == "" || transcriptValue.label == "" || transcriptValue.url == ""){
+                transcriptsValue.splice(index, 1);
+            }
+        });
+        $('input[data-field-name="transcripts"]').val(JSON.stringify(transcriptsValue)).change();
+    };
+
+    var removeTranscriptBlock = function(event){
+        event.preventDefault();
+        event.stopPropagation();
+        var $currentBlock = $(event.currentTarget).closest('li');
+        var lang = $currentBlock.find('option:selected').val();
+        removeTranscript(lang);
+        if(!transcriptsValue.length){
+            $currentBlock.parents('li').removeClass('is-set').find('.setting-clear').removeClass('active').addClass('inactive');
+        }
+        removeLanguage(lang);
+        pushTranscriptsValue();
+        $('.add-transcript', element).removeClass('is-disabled');
+        $currentBlock.remove();
+        disableOption();
+
+    };
+
+    $fileUploader.on('change', function(event) {
+        var fieldName = $(event.currentTarget).attr('data-change-field-name');
+        var lang = $(event.currentTarget).attr('data-lang-code');
+        var label = $(event.currentTarget).attr('data-lang-label');
+        var currentLiIndex = $(event.currentTarget).attr('data-li-index');
+        var currentLiTag = $('.language-transcript-selector').children()[parseInt(currentLiIndex)];
+        $('.upload-setting', element).addClass('is-disabled');
+        $('.file-uploader-form', element).ajaxSubmit({
+            success: function(response, statusText, xhr, form) {
+                if(fieldName == "handout"){
+                    $('input[data-field-name=' + fieldName + ']').val(response['asset']['id']).change();
+                } else {
+                    var url = '/' + response['asset']['id'];
+                    pushTranscript(lang, label, url);
+                    $('input[data-field-name=' + fieldName + ']').val(JSON.stringify(transcriptsValue)).change();
+                    $(currentLiTag).find('.upload-transcript').text('Replace');
+                    $(currentLiTag).find('.download-transcript').removeClass('is-hidden').attr('href', url);
+                }
+                $(event.currentTarget).attr({
+                    'data-change-field-name': '',
+                    'data-lang-code': '',
+                    'data-lang-label': ''
+                });
+                $('.status-upload', $(currentLiTag)).text('File uploaded successfully').show();
+                setTimeout(function(){
+                    $('.status-upload', $(currentLiTag)).hide()
+                }, 2000);
+                $('.upload-setting', element).removeClass('is-disabled');
+            }
+        });
+    });
+
+    $('.add-transcript', element).on('click', function (event) {
+        event.preventDefault();
+        $(event.currentTarget).addClass('is-disabled');
+        var $templateItem = $('.list-settings-item:hidden').clone();
+        $templateItem.removeClass('is-hidden').appendTo($langChoiceItem);
+        $('.upload-transcript', $templateItem).on('click', clickUploader);
+        $('.lang-select', $templateItem).on('change', languageChecker);
+        $('.remove-action', element).on('click', removeTranscriptBlock);
+    });
+
+    $('.lang-select').on('change', languageChecker);
+
+    $('.upload-transcript, .upload-action', element).on('click', clickUploader);
+
+    $('.remove-action', element).on('click', removeTranscriptBlock);
+
+    $('.setting-clear').on('click', function (event){
+        var $currentBlock = $(event.currentTarget).closest('li');
+        $currentBlock.find('ol').find('li:visible').remove();
+    });
+    $().ready(function(){
+        disableOption();
+    });
+    // End of Raccoongang addons
 }
