@@ -48,14 +48,20 @@ class BaseVideoPlayer(Plugin):
             '../static/bower_components/video.js/dist/video.min.js'
         ))
         frag.add_javascript(self.resource_string(
+            '../static/bower_components/videojs-transcript/dist/videojs-transcript.js'
+        ))
+        frag.add_javascript(self.resource_string(
             '../static/js/video-speed.js'
         ))
         frag.add_javascript(
             self.render_resource('../static/js/player_state.js', **context)
         )
         frag.add_javascript(
-            self.render_resource('../static/js/videojs_event_plugin.js', **context)
+            self.render_resource('../static/js/video-transcript.js', **context)
         )
+        frag.add_javascript(self.render_resource(
+            '../static/js/videojs_event_plugin.js', **context
+        ))
 
         return frag
 
