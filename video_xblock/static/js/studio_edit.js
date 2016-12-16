@@ -226,7 +226,7 @@ function StudioEditableXBlock(runtime, element) {
             'data-lang-code': $buttonBlock.attr('data-lang-code'),
             'data-lang-label': $buttonBlock.attr('data-lang-label'),
             'data-change-field-name': $buttonBlock.attr('data-change-field-name'),
-            'accept': $buttonBlock.attr('data-change-field-name') == 'transcripts' ? '.sjson, .srt, .vtt' : '',
+            'accept': $buttonBlock.attr('data-change-field-name') == 'transcripts' ? '.srt, .vtt' : '',
             'data-li-index': $buttonBlock.attr('data-change-field-name') == 'transcripts' ? indexOfParentLi : ''
         });
 
@@ -302,6 +302,13 @@ function StudioEditableXBlock(runtime, element) {
 
     };
 
+    var showUploadStatus = function($element, filename){
+        $element.find('.status-upload').text('File ' + '"' + filename + '"' + ' uploaded successfully').show();
+        setTimeout(function(){
+            $('.status-upload', $element).hide()
+        }, 5000);
+    };
+
     $fileUploader.on('change', function(event) {
         var fieldName = $(event.currentTarget).attr('data-change-field-name');
         var lang = $(event.currentTarget).attr('data-lang-code');
@@ -309,29 +316,36 @@ function StudioEditableXBlock(runtime, element) {
         var currentLiIndex = $(event.currentTarget).attr('data-li-index');
         var currentLiTag = $('.language-transcript-selector').children()[parseInt(currentLiIndex)];
         $('.upload-setting', element).addClass('is-disabled');
-        $('.file-uploader-form', element).ajaxSubmit({
-            success: function(response, statusText, xhr, form) {
-                if(fieldName == "handout"){
-                    $('input[data-field-name=' + fieldName + ']').val(response['asset']['id']).change();
-                } else {
+        if($fileUploader.val()){
+            $('.file-uploader-form', element).ajaxSubmit({
+                success: function(response, statusText, xhr, form) {
                     var url = '/' + response['asset']['id'];
-                    pushTranscript(lang, label, url);
-                    $('input[data-field-name=' + fieldName + ']').val(JSON.stringify(transcriptsValue)).change();
-                    $(currentLiTag).find('.upload-transcript').text('Replace');
-                    $(currentLiTag).find('.download-transcript').removeClass('is-hidden').attr('href', url);
+                    var regExp = /.*@(.+\..+)/;
+                    var filename = regExp.exec(url)[1];
+                    if(fieldName == "handout"){
+                        var $parentDiv = $('.file-uploader', element);
+                        $('.download-setting', $parentDiv).attr({'href': url, 'download': filename}).removeClass('is-hidden');
+                        $('a[data-change-field-name=' + fieldName + ']').text('Replace');
+                        showUploadStatus($parentDiv, filename);
+                        $('input[data-field-name=' + fieldName + ']').val(url).change();
+                    } else {
+                        pushTranscript(lang, label, url);
+                        $('input[data-field-name=' + fieldName + ']').val(JSON.stringify(transcriptsValue)).change();
+                        $(currentLiTag).find('.upload-transcript').text('Replace');
+                        $(currentLiTag).find('.download-transcript')
+                            .removeClass('is-hidden')
+                            .attr({'href': url, 'download': filename});
+                        showUploadStatus($(currentLiTag), filename);
+                    }
+                    $(event.currentTarget).attr({
+                        'data-change-field-name': '',
+                        'data-lang-code': '',
+                        'data-lang-label': ''
+                    });
                 }
-                $(event.currentTarget).attr({
-                    'data-change-field-name': '',
-                    'data-lang-code': '',
-                    'data-lang-label': ''
-                });
-                $('.status-upload', $(currentLiTag)).text('File uploaded successfully').show();
-                setTimeout(function(){
-                    $('.status-upload', $(currentLiTag)).hide()
-                }, 2000);
-                $('.upload-setting', element).removeClass('is-disabled');
-            }
-        });
+            });
+        }
+        $('.upload-setting', element).removeClass('is-disabled');
     });
 
     $('.add-transcript', element).on('click', function (event) {
@@ -352,6 +366,10 @@ function StudioEditableXBlock(runtime, element) {
 
     $('.setting-clear').on('click', function (event){
         var $currentBlock = $(event.currentTarget).closest('li');
+        if($('.file-uploader', $currentBlock).length > 0){
+            $('.upload-setting', $currentBlock).text('Upload');
+            $('.download-setting', $currentBlock).addClass('is-hidden');
+        }
         $currentBlock.find('ol').find('li:visible').remove();
     });
     $().ready(function(){
