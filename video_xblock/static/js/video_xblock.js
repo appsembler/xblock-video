@@ -34,7 +34,7 @@ function VideoXBlockStudentViewInit(runtime, element) {
       data: JSON.stringify(data),
     })
     .done(function() {
-      console.log('Player event "' + data.event_type + '" published successfully.');
+      console.log('Player event "' + data.eventType + '" published successfully.');
     })
     .fail(function() {
       console.log('Failed to publish player event.');

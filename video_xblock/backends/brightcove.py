@@ -41,6 +41,9 @@ class BrightcovePlayer(BaseVideoPlayer):
         frag.add_javascript(self.render_resource(
             '../static/js/videojs_event_plugin.js', **context
         ))
+        frag.add_javascript(self.resource_string(
+            '../static/bower_components/videojs-offset/dist/videojs-offset.js'
+        ))
         frag.add_css(self.resource_string(
             '../static/css/brightcove.css'
         ))

@@ -4,7 +4,10 @@ supported platforms into your course.
 All you need to provide is video url, this XBlock does the rest for you.
 """
 
+import datetime
+import json
 import logging
+import os
 import pkg_resources
 import json
 import os
@@ -14,6 +17,7 @@ from xblock.fields import Scope, Boolean, Integer, Float, String
 from xblock.fragment import Fragment
 from xblock.validation import ValidationMessage
 from xblockutils.studio_editable import StudioEditableXBlockMixin
+from xmodule.fields import RelativeTime
 
 from django.template import Template, Context
 
@@ -66,6 +70,27 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         scope=Scope.content
     )
 
+    start_time = RelativeTime(  # datetime.timedelta object
+        help=_(
+            "Time you want the video to start if you don't want the entire video to play. "
+            "Not supported in the native mobile app: the full video file will play. "
+            "Formatted as HH:MM:SS. The maximum value is 23:59:59."
+        ),
+        display_name=_("Video Start Time"),
+        scope=Scope.content,
+        default=datetime.timedelta(seconds=0)
+    )
+    end_time = RelativeTime(  # datetime.timedelta object
+        help=_(
+            "Time you want the video to stop if you don't want the entire video to play. "
+            "Not supported in the native mobile app: the full video file will play. "
+            "Formatted as HH:MM:SS. The maximum value is 23:59:59."
+        ),
+        display_name=_("Video Stop Time"),
+        scope=Scope.content,
+        default=datetime.timedelta(seconds=0)
+    )
+
     # Playback state fields
     current_time = Integer(
         default=0,
@@ -105,7 +130,7 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         help=_('Add transcripts in different languages. Click below to specify a language and upload an .srt transcript file for that language.')
     )
 
-    editable_fields = ('display_name', 'href', 'account_id', 'handout', 'transcripts', 'player_id')
+    editable_fields = ('display_name', 'href', 'start_time', 'end_time', 'account_id', 'handout', 'transcripts', 'player_id')
     player_state_fields = ('current_time', 'muted', 'playback_rate', 'volume')
 
     @property
@@ -241,7 +266,9 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
             video_id=player.media_id(self.href),
             video_player_id='video_player_{}'.format(self.location.block_id),
             save_state_url=save_state_url,
-            player_state=self.player_state
+            player_state=self.player_state,
+            start_time=int(self.start_time.total_seconds()),
+            end_time=int(self.end_time.total_seconds()),
         )
 
     @XBlock.json_handler
@@ -298,6 +325,21 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         """
         Overrides and extends data of built-in method
         """
+        if field_name in ('start_time', 'end_time'):
+            # RelativeTime field doesn't supported by default.
+            return {
+                'name': field_name,
+                'display_name': _(field.display_name) if field.display_name else "",
+                'is_set': field.is_set_on(self),
+                'default': field.default,
+                'value': field.read_from(self),
+                'has_values': False,
+                'help': _(field.help) if field.help else "",
+                'allow_reset': field.runtime_options.get('resettable_editor', True),
+                'list_values': None,
+                'has_list_values': False,
+                'type': 'string',
+            }
         info = super(VideoXBlock, self)._make_field_info(field_name, field)
         if field_name == 'handout':
             info['type'] = 'file_uploader'
