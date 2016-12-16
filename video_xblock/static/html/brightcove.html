@@ -10,10 +10,17 @@
         height="511"
         class="video-js"
         controls
-    ></video>
+    >
+      {% for transcript in player_state.transcripts %}
+        <track kind="captions" src="{{ transcript.url }}" srclang="{{ transcript.lang }}" label="{{ transcript.label }}"
+        {% if forloop.first %}default{% endif %}>
+      {% endfor %}
+    </video>
     <script src="//players.brightcove.net/{{ account_id }}/{{ player_id }}_default/index.min.js"></script>
+    <script src="https://cdn.rawgit.com/walsh9/videojs-transcript/master/dist/videojs-transcript.min.js"></script>
     <script>
         videojs.plugin('xblockEventPlugin', xblockEventPlugin);
         videojs('{{ video_player_id }}').xblockEventPlugin();
     </script>
 </div>
+<div id="transcript"></div>

@@ -117,7 +117,8 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
             'current_time': self.current_time,
             'muted': self.muted,
             'playback_rate': self.playback_rate,
-            'volume': self.volume
+            'volume': self.volume,
+            'transcripts': json.loads(self.transcripts) if self.transcripts else [],
         }
 
     @player_state.setter
@@ -129,6 +130,7 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         self.muted = state.get('muted', self.muted)
         self.playback_rate = state.get('playback_rate', self.playback_rate)
         self.volume = state.get('volume', self.volume)
+        self.transcripts = state.get('transcripts', self.transcripts)
 
     def validate_field_data(self, validation, data):
         """
@@ -252,7 +254,8 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
             'current_time': request['currentTime'],
             'playback_rate': request['playbackRate'],
             'volume': request['volume'],
-            'muted': request['muted']
+            'muted': request['muted'],
+            'transcripts': self.transcripts
         }
         self.player_state = player_state
         return {'success': True}

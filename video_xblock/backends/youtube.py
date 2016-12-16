@@ -31,10 +31,6 @@ class YoutubePlayer(BaseVideoPlayer):
             "youtube": {"iv_load_policy": 1},
             "playbackRates": [0.5, 1, 1.5, 2],
             "plugins": {
-                "videoJsResolutionSwitcher": {
-                    "dynamicLabel": True,
-                    "default": "low"
-                },
                 "xblockEventPlugin": {}
             }
         })
