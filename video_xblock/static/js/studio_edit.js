@@ -309,42 +309,50 @@ function StudioEditableXBlock(runtime, element) {
         }, 5000);
     };
 
+    var successHandler = function(response, statusText, xhr, fieldName, lang, label, currentLiTag) {
+        var url = '/' + response['asset']['id'];
+        var regExp = /.*@(.+\..+)/;
+        var filename = regExp.exec(url)[1];
+        if(fieldName == "handout"){
+            var $parentDiv = $('.file-uploader', element);
+            $('.download-setting', $parentDiv).attr({'href': url, 'download': filename}).removeClass('is-hidden');
+            $('a[data-change-field-name=' + fieldName + ']').text('Replace');
+            showUploadStatus($parentDiv, filename);
+            $('input[data-field-name=' + fieldName + ']').val(url).change();
+        } else {
+            pushTranscript(lang, label, url);
+            $('input[data-field-name=' + fieldName + ']').val(JSON.stringify(transcriptsValue)).change();
+            $(currentLiTag).find('.upload-transcript').text('Replace');
+            $(currentLiTag).find('.download-transcript')
+                .removeClass('is-hidden')
+                .attr({'href': url, 'download': filename});
+            showUploadStatus($(currentLiTag), filename);
+        }
+        $(event.currentTarget).attr({
+            'data-change-field-name': '',
+            'data-lang-code': '',
+            'data-lang-label': ''
+        });
+    };
+
     $fileUploader.on('change', function(event) {
+        if (!$fileUploader.val()){
+            return;
+        };
         var fieldName = $(event.currentTarget).attr('data-change-field-name');
         var lang = $(event.currentTarget).attr('data-lang-code');
         var label = $(event.currentTarget).attr('data-lang-label');
         var currentLiIndex = $(event.currentTarget).attr('data-li-index');
         var currentLiTag = $('.language-transcript-selector').children()[parseInt(currentLiIndex)];
         $('.upload-setting', element).addClass('is-disabled');
-        if($fileUploader.val()){
-            $('.file-uploader-form', element).ajaxSubmit({
-                success: function(response, statusText, xhr, form) {
-                    var url = '/' + response['asset']['id'];
-                    var regExp = /.*@(.+\..+)/;
-                    var filename = regExp.exec(url)[1];
-                    if(fieldName == "handout"){
-                        var $parentDiv = $('.file-uploader', element);
-                        $('.download-setting', $parentDiv).attr({'href': url, 'download': filename}).removeClass('is-hidden');
-                        $('a[data-change-field-name=' + fieldName + ']').text('Replace');
-                        showUploadStatus($parentDiv, filename);
-                        $('input[data-field-name=' + fieldName + ']').val(url).change();
-                    } else {
-                        pushTranscript(lang, label, url);
-                        $('input[data-field-name=' + fieldName + ']').val(JSON.stringify(transcriptsValue)).change();
-                        $(currentLiTag).find('.upload-transcript').text('Replace');
-                        $(currentLiTag).find('.download-transcript')
-                            .removeClass('is-hidden')
-                            .attr({'href': url, 'download': filename});
-                        showUploadStatus($(currentLiTag), filename);
-                    }
-                    $(event.currentTarget).attr({
-                        'data-change-field-name': '',
-                        'data-lang-code': '',
-                        'data-lang-label': ''
-                    });
-                }
-            });
-        }
+        $('.file-uploader-form', element).ajaxSubmit({
+            success: function(response, statusText, xhr){
+                successHandler(response, statusText, xhr, fieldName, lang, label, currentLiTag)
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                runtime.notify('error', {title: gettext("Unable to update settings"), message: textStatus});
+            }
+        });
         $('.upload-setting', element).removeClass('is-disabled');
     });
 
