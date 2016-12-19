@@ -137,8 +137,9 @@ function StudioEditableXBlock(runtime, element) {
         });
     };
 
-    $('.save-button', element).bind('click', function(e) {
-        e.preventDefault();
+    // Raccoongang changes
+
+    var fillValues = function (e) {
         var values = {};
         var notSet = []; // List of field names that should be set to default values
         for (var i in fields) {
@@ -155,7 +156,27 @@ function StudioEditableXBlock(runtime, element) {
             }
         }
         studio_submit({values: values, defaults: notSet});
-    });
+    };
+
+    var validateTranscripts = function(e){
+        e.preventDefault();
+        var isValid = [];
+        var $visibleLangChoiceItems = $langChoiceItem.find('li:visible');
+        $visibleLangChoiceItems.each(function(idx, el){
+            var urls = $('.download-setting', $(el)).filter('.is-hidden');
+            if (urls.length){
+                $('.status-error', $(el))
+                    .text('Please upload the transcript file for this language or remove the language.')
+            } else {
+                isValid.push(1)
+            }
+        });
+        if (isValid.length == $visibleLangChoiceItems.length){
+            fillValues(e)
+        }
+    };
+
+    $('.save-button', element).bind('click', validateTranscripts);
 
     $(element).find('.cancel-button').bind('click', function(e) {
         // Remove TinyMCE instances to make sure jQuery does not try to access stale instances
@@ -169,6 +190,8 @@ function StudioEditableXBlock(runtime, element) {
         e.preventDefault();
         runtime.notify('cancel', {});
     });
+
+    // End of Raccoongang changes
 
     // Raccoongang addons
 
@@ -303,7 +326,8 @@ function StudioEditableXBlock(runtime, element) {
     };
 
     var showUploadStatus = function($element, filename){
-        $element.find('.status-upload').text('File ' + '"' + filename + '"' + ' uploaded successfully').show();
+        $('.status-error', $element).empty();
+        $('.status-upload', $element).text('File ' + '"' + filename + '"' + ' uploaded successfully').show();
         setTimeout(function(){
             $('.status-upload', $element).hide()
         }, 5000);
