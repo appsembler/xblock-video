@@ -178,7 +178,7 @@ function StudioEditableXBlock(runtime, element) {
     var $langChoiceItem = $('.language-transcript-selector', element);
     var gotTranscriptsValue = $('input[data-field-name="transcripts"]').val();
 
-    if(gotTranscriptsValue){
+    if (gotTranscriptsValue){
         transcriptsValue = JSON.parse(gotTranscriptsValue);
     }
 
@@ -189,7 +189,7 @@ function StudioEditableXBlock(runtime, element) {
     var disableOption = function(){
 
         $langChoiceItem.find('option').each(function(ind){
-            if(disabledLanguages.indexOf($(this).val()) > -1){
+            if (disabledLanguages.indexOf($(this).val()) > -1){
                 $(this).attr('disabled', true)
             } else {
                 $(this).attr('disabled', false)
@@ -241,10 +241,10 @@ function StudioEditableXBlock(runtime, element) {
         var $langSelectParent = $(event.currentTarget).parent('li');
         var $uploadButton = $('.upload-transcript', $langSelectParent);
         var oldLang = $uploadButton.data('lang-code');
-        if(selectedLanguage != oldLang && selectedLanguage != ''){
+        if (selectedLanguage != oldLang && selectedLanguage != ''){
             pushTranscript(selectedLanguage, languageLabel, '');
             disabledLanguages.push(selectedLanguage);
-            if(oldLang != ''){
+            if (oldLang != ''){
                 removeTranscript(oldLang);
                 removeLanguage(oldLang);
             }
@@ -269,7 +269,7 @@ function StudioEditableXBlock(runtime, element) {
 
     var removeTranscript = function(lang){
         for (var i=0; i < transcriptsValue.length; i++){
-            if(lang == transcriptsValue[i].lang){
+            if (lang == transcriptsValue[i].lang){
                 transcriptsValue.splice(i,1);
                 break;
             }
@@ -278,7 +278,7 @@ function StudioEditableXBlock(runtime, element) {
 
     var pushTranscriptsValue = function(){
         transcriptsValue.forEach(function (transcriptValue, index, array){
-            if(transcriptValue.lang == "" || transcriptValue.label == "" || transcriptValue.url == ""){
+            if (transcriptValue.lang == "" || transcriptValue.label == "" || transcriptValue.url == ""){
                 transcriptsValue.splice(index, 1);
             }
         });
@@ -291,7 +291,7 @@ function StudioEditableXBlock(runtime, element) {
         var $currentBlock = $(event.currentTarget).closest('li');
         var lang = $currentBlock.find('option:selected').val();
         removeTranscript(lang);
-        if(!transcriptsValue.length){
+        if (!transcriptsValue.length){
             $currentBlock.parents('li').removeClass('is-set').find('.setting-clear').removeClass('active').addClass('inactive');
         }
         removeLanguage(lang);
@@ -313,7 +313,7 @@ function StudioEditableXBlock(runtime, element) {
         var url = '/' + response['asset']['id'];
         var regExp = /.*@(.+\..+)/;
         var filename = regExp.exec(url)[1];
-        if(fieldName == "handout"){
+        if (fieldName == "handout"){
             var $parentDiv = $('.file-uploader', element);
             $('.download-setting', $parentDiv).attr({'href': url, 'download': filename}).removeClass('is-hidden');
             $('a[data-change-field-name=' + fieldName + ']').text('Replace');
@@ -374,7 +374,7 @@ function StudioEditableXBlock(runtime, element) {
 
     $('.setting-clear').on('click', function (event){
         var $currentBlock = $(event.currentTarget).closest('li');
-        if($('.file-uploader', $currentBlock).length > 0){
+        if ($('.file-uploader', $currentBlock).length > 0){
             $('.upload-setting', $currentBlock).text('Upload');
             $('.download-setting', $currentBlock).addClass('is-hidden');
         }
