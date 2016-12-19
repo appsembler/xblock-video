@@ -11,3 +11,8 @@
 .status-upload {
     color: green;
 }
+
+.status-error {
+    color: #b20610;
+    font-size: 14px;
+}

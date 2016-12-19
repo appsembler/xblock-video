@@ -105,6 +105,7 @@
                         {% endfor %}
                       </select>
                       <a href="#" class="remove-action remove-setting" data-value=""><span class="icon fa fa-times-circle" aria-hidden="true"></span><span class="sr">Remove</span></a>
+                      <div class="status-error"></div>
                       <div class="list-settings-buttons">
                         <a href="#" class="upload-setting upload-transcript {% if not transcript.lang %}is-hidden{% endif %}" data-change-field-name="{{field.name}}" data-lang-code="{{ transcript.lang }}" data-lang-label="{{ transcript.label }}">{% trans "Replace" %}</a>
                         <a href="{{ transcript.url }}" class="download-transcript download-setting">Download</a>
@@ -120,6 +121,7 @@
                         {% endfor %}
                       </select>
                       <a href="#" class="remove-action remove-setting" data-value=""><span class="icon fa fa-times-circle" aria-hidden="true"></span><span class="sr">Remove</span></a>
+                      <div class="status-error"></div>
                       <div class="list-settings-buttons">
                         <a href="#" class="upload-setting upload-transcript is-hidden" data-change-field-name="{{field.name}}" data-lang-code="" data-lang-label="">{% trans "Upload" %}</a>
                         <a href="#" class="download-transcript download-setting is-hidden">Download</a>
