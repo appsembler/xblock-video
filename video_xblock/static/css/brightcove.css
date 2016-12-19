@@ -328,7 +328,7 @@ body {
     background: rgba(115,133,159,.5);
     border-radius: 0;
 }
-.video-js .vjs-control {
+.video-js .vjs-play-control {
     width: 40px;
 }
 .video-js .vjs-control:focus {

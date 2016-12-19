@@ -286,10 +286,12 @@ body {
   display: none !important;
 }
 
-.video-js .vjs-control {
+.video-js .vjs-play-control {
     width: 39px;
 }
 .video-js .vjs-control:focus {
     outline: rgb(207, 216, 220) solid 1px;
 }
-
+.video-js {
+    width: 100% !important;
+}
