@@ -55,7 +55,8 @@ var saveState = function(){
   if (JSON.stringify(new_state) !== JSON.stringify(player_state)) {
     console.log('Starting saving player state');
     player_state = new_state;
-    parent.postMessage({'action': 'save_state', 'state': new_state, 'xblockUsageId': xblockUsageId}, document.origin);
+      parent.postMessage({'action': 'save_state', 'state': new_state, 'xblockUsageId': xblockUsageId},
+          document.location.protocol + "//" + document.location.host);
   }
 };
 

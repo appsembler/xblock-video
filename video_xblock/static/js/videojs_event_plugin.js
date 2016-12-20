@@ -133,7 +133,7 @@
                 'action': 'analytics',
                 'event_data': data,
                 'xblockUsageId': xblockUsageId
-            }, document.origin);
+            }, document.location.protocol + "//" + document.location.host);
         };
 
         return this;
