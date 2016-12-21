@@ -71,9 +71,6 @@ class BaseVideoPlayer(Plugin):
         frag.add_javascript(self.render_resource(
             '../static/js/videojs_event_plugin.js', **context
         ))
-        frag.add_javascript_url(
-            '//code.jquery.com/jquery-3.1.1.min.js'
-        )
 
         return frag
 
