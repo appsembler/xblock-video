@@ -10,6 +10,7 @@ function StudioEditableXBlock(runtime, element) {
         var $wrapper = $field.closest('li');
         var $resetButton = $wrapper.find('button.setting-clear');
         var type = $wrapper.data('cast');
+        var contextId = $wrapper.context.id;
         fields.push({
             name: $wrapper.data('field-name'),
             isSet: function() { return $wrapper.hasClass('is-set'); },
@@ -29,6 +30,10 @@ function StudioEditableXBlock(runtime, element) {
                         val = null;
                     else
                         val = JSON.parse(val); // TODO: handle parse errors
+                }
+                if (type == 'string' && (
+                    contextId == 'xb-field-edit-start_time' || contextId == 'xb-field-edit-end_time')) {
+                    return parseRelativeTime(val);
                 }
                 return val;
             },
@@ -407,5 +412,36 @@ function StudioEditableXBlock(runtime, element) {
     $().ready(function(){
         disableOption();
     });
+
+    var parseRelativeTime = function (value) {
+        // This function ensure you have two-digits
+        // By default max value of RelativeTime field on Backend is 23:59:59,
+        // that is 86399 seconds.
+        var maxTimeInSeconds = 86399;
+        var pad = function (number) {
+                return (number < 10) ? "0" + number : number;
+            };
+        // Removes all white-spaces and splits by `:`.
+        var list = value.replace(/\s+/g, '').split(':');
+        var seconds;
+        var date;
+
+        list = _.map(list, function (num) {
+            return Math.max(0, parseInt(num, 10) || 0);
+        }).reverse();
+
+        seconds = _.reduce(list, function (memo, num, index) {
+            return memo + num * Math.pow(60, index);
+        }, 0);
+
+        // multiply by 1000 because Date() requires milliseconds
+        date = new Date(Math.min(seconds, maxTimeInSeconds) * 1000);
+
+        return [
+            pad(date.getUTCHours()),
+            pad(date.getUTCMinutes()),
+            pad(date.getUTCSeconds())
+        ].join(':');
+    };
     // End of Raccoongang addons
 }
