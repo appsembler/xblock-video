@@ -61,4 +61,8 @@ class WistiaPlayer(BaseVideoPlayer):
             '../static/bower_components/videojs-offset/dist/videojs-offset.min.js'
         ))
 
+        frag.add_javascript(self.render_resource(
+            '../static/js/player-context-menu.js', **context)
+        )
+
         return frag
