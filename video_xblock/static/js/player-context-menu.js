@@ -16,38 +16,45 @@ domReady(function() {
   // VideoJS Player() object necessary for context menu creation
   var player = videojs('{{ video_player_id }}');
 
-  // Delegate creation of a nested submenu for a context menu
-  $(videoPlayer).on('mouseenter', 'li.vjs-menu-item:last', function(e) {
-    e.preventDefault();
+  function createNestedContextSubMenu(e) {
+    var target = e.target;
 
-    // Create nested submenu
-    if (e.target.classList.contains("vjs-menu-item") && !$(this).find('.vjs-contextmenu-ui-submenu').length) {
+    if (target.matches("li.vjs-menu-item")
+        && target.innerText == player.contextmenuUI.content[3].label
+        && !target.querySelector('.vjs-contextmenu-ui-submenu') ) {
+
+      // Create nested submenu
       var ulSubMenu = document.createElement('ul');
       ulSubMenu.className = 'vjs-contextmenu-ui-submenu';
-      document.querySelectorAll('.vjs-contextmenu-ui-menu .vjs-menu-item')[3].appendChild(ulSubMenu);
+      target.appendChild(ulSubMenu);
       for (var i = 0; i < playbackRates.length; i++) {
         var liSubMenu = document.createElement('li');
         liSubMenu.className = 'vjs-submenu-item';
         liSubMenu.innerHTML = playbackRates[i] + 'x';
         ulSubMenu.appendChild(liSubMenu);
         liSubMenu.onclick = function(){
-          player.playbackRate(parseFloat($(this).text()));
+          player.playbackRate(parseFloat(this.innerHTML));
         }
       }
+
+      // Hide nested submenu
+      var els = [target, ulSubMenu];
+      els.forEach(function(item){
+        item.onmouseout = function() { ulSubMenu.style.visibility = 'hidden' };
+      });
+
+      var liSpeedMenuItem = document.querySelectorAll('.vjs-contextmenu-ui-menu .vjs-menu-item')[3];
     }
 
     // Show nested submenu
-    $('ul.vjs-contextmenu-ui-submenu').show();
+    if (liSpeedMenuItem) {
+      liSpeedMenuItem.addEventListener('mouseover', function(){
+        document.querySelector('.vjs-contextmenu-ui-submenu').style.visibility = 'visible';
+      })}
+  }
 
-    // Hide nested submenu
-    $(this)
-      .add('ul.vjs-contextmenu-ui-submenu')
-      .add('div.vjs-contextmenu-ui-menu.vjs-menu-item')
-      .on('mouseleave', function() {
-        $('ul.vjs-contextmenu-ui-submenu').hide();
-      });
-
-  });
+  // Delegate creation of a nested submenu for a context menu
+  videoPlayer.addEventListener('mouseover', createNestedContextSubMenu);
 
   // Fire up vjs-contextmenu-ui plugin, add context menu options
   player.contextmenuUI({
