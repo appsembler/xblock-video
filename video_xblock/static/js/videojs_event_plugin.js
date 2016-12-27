@@ -141,6 +141,9 @@
     }
 
     window.xblockEventPlugin = XBlockEventPlugin;
-    window.videojs.plugin('xblockEventPlugin', xblockEventPlugin);
+    // add plugin if player has already initialized
+    if (window.videojs) {
+        window.videojs.plugin('xblockEventPlugin', xblockEventPlugin);
+    }
 
 }).call(this);

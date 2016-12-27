@@ -17,7 +17,7 @@
         {% if forloop.first %}default{% endif %}>
       {% endfor %}
     </video>
-    <script src="//players.brightcove.net/{{ account_id }}/{{ player_id }}_default/index.min.js"></script>
+    <script src="{{ brightcove_js_url }}"></script>
     <script src="https://cdn.rawgit.com/walsh9/videojs-transcript/master/dist/videojs-transcript.min.js"></script>
     <script>
         var player = videojs('{{ video_player_id }}');
