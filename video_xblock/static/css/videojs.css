@@ -236,8 +236,22 @@ body {
     position: absolute;
     right: 82px;
     border-left: 1px dotted #4f595d;
-    width: 41px;
+    width: 90px;
 }
+
+@media (max-width: 742px) {
+    .vjs-playback-rate-value:before {
+        display: none;
+    }
+    .video-js .vjs-playback-rate {
+        width: 41px;
+    }
+}
+
+.vjs-playback-rate-value:before {
+    content: 'Speed ';
+}
+
 .video-js .roller {
     height: 5px;
     width: 5px;

@@ -9,8 +9,7 @@ import json
 import logging
 import os
 import pkg_resources
-import json
-import os
+import requests
 
 from xblock.core import XBlock
 from xblock.fields import Scope, Boolean, Integer, Float, String
@@ -61,7 +60,8 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
     player_id = String(
         default='default',
         display_name=_('Player Id'),
-        help=_('Your Brightcove player id. Use "Luna" theme for all your players'),
+        help=_('Your Brightcove player id. Use "Luna" theme for all your players. You can choose one of your players'
+               ' from a <a href="https://studio.brightcove.com/products/videocloud/players" target="_blank">list</a>.'),
         scope=Scope.content,
     )
 
@@ -146,6 +146,16 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
             'transcripts': json.loads(self.transcripts) if self.transcripts else [],
         }
 
+    @staticmethod
+    def get_brightcove_js_url(account_id, player_id):
+        """
+        Returns url to brightcove player js file considering account_id and player_id
+        """
+        return "https://players.brightcove.net/{account_id}/{player_id}_default/index.min.js".format(
+            account_id=account_id,
+            player_id=player_id
+        )
+
     @player_state.setter
     def player_state(self, state):
         """
@@ -161,6 +171,19 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         """
         Validate data submitted via xblock edit pop-up
         """
+        if data.account_id and data.player_id:
+            try:
+                r = requests.head(VideoXBlock.get_brightcove_js_url(data.account_id, data.player_id))
+                if r.status_code != 200:
+                    validation.add(ValidationMessage(
+                        ValidationMessage.ERROR,
+                        _(u"Invalid Player Id, please recheck")
+                    ))
+            except requests.ConnectionError:
+                validation.add(ValidationMessage(
+                    ValidationMessage.ERROR,
+                    _(u"Can't validate submitted player id at the moment. Please try to save settings one more time.")
+                ))
 
         if data.href == '':
             return
@@ -269,6 +292,7 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
             player_state=self.player_state,
             start_time=int(self.start_time.total_seconds()),
             end_time=int(self.end_time.total_seconds()),
+            brightcove_js_url=VideoXBlock.get_brightcove_js_url(self.account_id, self.player_id)
         )
 
     @XBlock.json_handler
