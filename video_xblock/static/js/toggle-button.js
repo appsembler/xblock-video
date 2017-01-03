@@ -37,8 +37,8 @@ domReady(function() {
     onClick: function onClick(event) {
       var el = event.currentTarget;
       el.classList.toggle('vjs-control-enabled');
-      var _event = this.hasClass('vjs-control-enabled') ? this.enabledEventName() : this.disabledEventName();
-      this.trigger(_event);
+      var eventName = this.hasClass('vjs-control-enabled') ? this.enabledEventName() : this.disabledEventName();
+      this.player_.trigger(eventName);
     },
 
   });
