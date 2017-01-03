@@ -24,6 +24,7 @@ var player_state = {
   'currentTime': {{ player_state.current_time }},
   'playbackRate': {{ player_state.playback_rate }},
   'muted': {{ player_state.muted | yesno:"true,false" }},
+  'transcriptsEnabled': {{ player_state.transcripts_enabled | yesno:"true,false" }}
 };
 
 var xblockUsageId = window.location.hash.slice(1);
@@ -46,6 +47,7 @@ var setInitialState = function (player, state) {
         .volume(state.volume)
         .muted(state.muted)
         .playbackRate(state.playbackRate);
+    player.transcriptsEnabled = state.transcriptsEnabled;
 };
 
 /**
@@ -59,6 +61,7 @@ var saveState = function(){
     'currentTime': player.ended()? 0 : Math.floor(player.currentTime()),
     'playbackRate': player.playbackRate(),
     'muted': player.muted(),
+    'transcriptsEnabled': player.transcriptsEnabled
   };
 
   if (JSON.stringify(new_state) !== JSON.stringify(player_state)) {
@@ -97,7 +100,8 @@ domReady(function() {
       .on('ratechange', saveState)
       .on('play', saveState)
       .on('pause', saveState)
-      .on('ended', saveState);
+      .on('ended', saveState)
+      .on('transcriptstatechanged', saveState);
   });
 
 });

@@ -116,6 +116,12 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         help=_("Video muted or not")
     )
 
+    transcripts_enabled = Boolean(
+        default=False,
+        scope=Scope.preferences,
+        help=_("Transcript is enabled or not")
+    )
+
     handout = String(
         default='',
         scope=Scope.content,
@@ -131,7 +137,7 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
     )
 
     editable_fields = ('display_name', 'href', 'start_time', 'end_time', 'account_id', 'handout', 'transcripts', 'player_id')
-    player_state_fields = ('current_time', 'muted', 'playback_rate', 'volume')
+    player_state_fields = ('current_time', 'muted', 'playback_rate', 'volume', 'transcripts_enabled')
 
     @property
     def player_state(self):
@@ -144,6 +150,7 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
             'playback_rate': self.playback_rate,
             'volume': self.volume,
             'transcripts': json.loads(self.transcripts) if self.transcripts else [],
+            'transcripts_enabled': self.transcripts_enabled
         }
 
     @staticmethod
@@ -166,6 +173,7 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         self.playback_rate = state.get('playback_rate', self.playback_rate)
         self.volume = state.get('volume', self.volume)
         self.transcripts = state.get('transcripts', self.transcripts)
+        self.transcripts_enabled = state.get('transcripts_enabled', self.transcripts_enabled)
 
     def validate_field_data(self, validation, data):
         """
@@ -306,7 +314,8 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
             'playback_rate': request['playbackRate'],
             'volume': request['volume'],
             'muted': request['muted'],
-            'transcripts': self.transcripts
+            'transcripts': self.transcripts,
+            'transcripts_enabled': request['transcriptsEnabled']
         }
         self.player_state = player_state
         return {'success': True}
