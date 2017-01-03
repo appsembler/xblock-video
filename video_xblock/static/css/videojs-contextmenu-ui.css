@@ -8,12 +8,22 @@
     background-color: #2B333F;
     background-color: rgba(43, 51, 63, 0.9);
     border-radius: 0.3em;
-    padding: 0.25em; }
+    padding: 0.25em;
+}
+
 
 .vjs-contextmenu-ui-submenu {
     left: 100%;
     top: 7em;
     width: 50%;
+    display : none;
+}
+.vjs-contextmenu-ui-submenu:hover{
+    display : block;
+}
+
+.vjs-menu-item:last-of-type:hover .vjs-contextmenu-ui-submenu{
+    display : block;
 }
 
 .vjs-contextmenu-ui-menu .vjs-menu-item,
