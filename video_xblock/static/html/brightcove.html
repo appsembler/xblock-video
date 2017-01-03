@@ -29,6 +29,9 @@
             "start": {{ start_time }}, // do not use quotes for this properties for correct plugin work
             "end": {{ end_time }}
         });
+
+        videojs.plugin('videoJSSpeedHandler', window.videoJSSpeedHandler);
+        player.videoJSSpeedHandler();
     </script>
 </div>
 <div id="transcript"></div>

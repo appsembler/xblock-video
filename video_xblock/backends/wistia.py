@@ -45,7 +45,8 @@ class WistiaPlayer(BaseVideoPlayer):
                 "offset": {
                     "start": context['start_time'],
                     "end": context['end_time']
-                }
+                },
+                "videoJSSpeedHandler": {},
             }
         })
 
