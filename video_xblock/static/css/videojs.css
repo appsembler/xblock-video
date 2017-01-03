@@ -309,3 +309,12 @@ body {
 .video-js {
     width: 100% !important;
 }
+
+.video-js .vjs-captions-button {
+    display: none;
+}
+
+.video-js .vjs-control-enabled {
+  background-color: #171a1b;
+  color: #0ea6ec;
+}

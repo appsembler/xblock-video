@@ -1,3 +1,12 @@
+/**
+ * This part is responsible for the order tabindex.
+ * 
+ * Determine and call the function orderTabIndex.
+ * 
+ * orderTabIndex - is function what rearrange controlBar elements
+ * in right order
+ */
+
 domReady(function() {
   videojs('{{ video_player_id }}').ready(function() {
 
@@ -23,8 +32,6 @@ domReady(function() {
             'playbackRateMenuButton': _player.controlBar.childNameIndex_.playbackRateMenuButton.el_
           };
 
-        // Plugin resolution switcher doesn't add it's control to controlBar
-        controlBarActions.push('resolutionSwitcher');
         // Swith off tabIndex for volumeMenuButton and free slot for volumeBar
         _player.controlBar.childNameIndex_.volumeMenuButton.el_.tabIndex = -1;
 

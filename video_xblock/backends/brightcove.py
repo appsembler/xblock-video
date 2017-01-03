@@ -39,7 +39,10 @@ class BrightcovePlayer(BaseVideoPlayer):
             self.render_resource('../static/js/videojs-tabindex.js', **context)
         )
         frag.add_javascript(
-            self.render_resource('../static/js/video-transcript.js', **context)
+            self.resource_string('../static/js/toggle-button.js')
+        )
+        frag.add_javascript(
+            self.render_resource('../static/js/videojs-transcript.js', **context)
         )
         frag.add_javascript(self.render_resource(
             '../static/js/videojs_event_plugin.js', **context

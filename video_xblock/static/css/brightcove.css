@@ -387,3 +387,12 @@ body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
     background: rgba(115, 133, 159, .5);
     border-radius: 0;
 }
+
+.vjs-captions-button {
+    display: none;
+}
+
+.video-js .vjs-control-enabled {
+  background-color: #171a1b;
+  color: #0ea6ec;
+}
