@@ -122,6 +122,12 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         help=_("Transcript is enabled or not")
     )
 
+    captions_enabled = Boolean(
+        default=False,
+        scope=Scope.preferences,
+        help=_("Transcript is enabled or not")
+    )
+
     handout = String(
         default='',
         scope=Scope.content,
@@ -133,22 +139,31 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         default='',
         scope=Scope.content,
         display_name=_('Upload transcript'),
-        help=_('Add transcripts in different languages. Click below to specify a language and upload an .srt transcript'
-               ' file for that language.')
+        help=_(
+            'Add transcripts in different languages. Click below to specify a language and upload an .srt transcript'
+            ' file for that language.'
+        )
     )
 
     download_transcript_allowed = Boolean(
         default=False,
         scope=Scope.content,
         display_name=_('Download Transcript Allowed'),
-        help=_("Allow students to download the timed transcript. A link to download the file appears below the video."
-               " By default, the transcript is an .srt or .txt file. If you want to provide the transcript for download"
-               " in a different format, upload a file by using the Upload Handout field.")
+        help=_(
+            "Allow students to download the timed transcript. A link to download the file appears below the video."
+            " By default, the transcript is an .srt or .txt file. If you want to provide the transcript for download"
+            " in a different format, upload a file by using the Upload Handout field."
+        )
     )
 
-    editable_fields = ('display_name', 'href', 'start_time', 'end_time', 'account_id', 'player_id', 'handout',
-                       'transcripts', 'download_transcript_allowed')
-    player_state_fields = ('current_time', 'muted', 'playback_rate', 'volume', 'transcripts_enabled')
+    editable_fields = (
+        'display_name', 'href', 'start_time', 'end_time', 'account_id',
+        'player_id', 'handout', 'transcripts', 'download_transcript_allowed'
+    )
+    player_state_fields = (
+        'current_time', 'muted', 'playback_rate', 'volume',
+        'transcripts_enabled', 'captions_enabled'
+    )
 
     @property
     def player_state(self):
@@ -161,7 +176,8 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
             'playback_rate': self.playback_rate,
             'volume': self.volume,
             'transcripts': json.loads(self.transcripts) if self.transcripts else [],
-            'transcripts_enabled': self.transcripts_enabled
+            'transcripts_enabled': self.transcripts_enabled,
+            'captions_enabled': self.captions_enabled
         }
 
     @staticmethod
@@ -185,6 +201,7 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         self.volume = state.get('volume', self.volume)
         self.transcripts = state.get('transcripts', self.transcripts)
         self.transcripts_enabled = state.get('transcripts_enabled', self.transcripts_enabled)
+        self.captions_enabled = state.get('captions_enabled', self.captions_enabled)
 
     def validate_field_data(self, validation, data):
         """
@@ -328,7 +345,8 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
             'volume': request['volume'],
             'muted': request['muted'],
             'transcripts': self.transcripts,
-            'transcripts_enabled': request['transcriptsEnabled']
+            'transcripts_enabled': request['transcriptsEnabled'],
+            'captions_enabled': request['captionsEnabled']
         }
         self.player_state = player_state
         return {'success': True}

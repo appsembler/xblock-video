@@ -27,13 +27,41 @@ domReady(function() {
       this.trigger('transcriptstatechanged');
     });
 
+    var captionContainer = document.getElementsByClassName('vjs-text-track-display');
+
+    // Show or hide the captions block depending on the caption state
+    if (!this.captionsEnabled){
+      Array.from(captionContainer).forEach(function(caption) {
+        caption.className += " is-hidden";
+      });
+    };
+
+    this.on('captionenabled', function(){
+      Array.from(captionContainer).forEach(function(caption) {
+        caption.classList.toggle('is-hidden', false);
+      });
+      this.captionsEnabled = true;
+      this.trigger('captionstatechanged');
+    });
+    this.on('captiondisabled', function(){
+      Array.from(captionContainer).forEach(function(caption) {
+        caption.classList.toggle('is-hidden', true);
+      });
+      this.captionsEnabled = false;
+      this.trigger('captionstatechanged');
+    });
+
+    var cssClasses = "vjs-custom-caption-button vjs-control";
+    if (this.captionsEnabled){
+      cssClasses += ' vjs-control-enabled';
+    };
     this.toggleButton({
       style: "fa-cc",
       enabledEvent: "captionenabled",
       disabledEvent: "captiondisabled",
-      cssClasses: "vjs-custom-caption-button vjs-control",
+      cssClasses: cssClasses,
     });
-    var cssClasses = "vjs-custom-transcript-button vjs-control";
+    cssClasses = "vjs-custom-transcript-button vjs-control";
     if (this.transcriptsEnabled){
       cssClasses += ' vjs-control-enabled';
     };
