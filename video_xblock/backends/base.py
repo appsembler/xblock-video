@@ -135,3 +135,9 @@ class BaseVideoPlayer(Plugin):
             return cls.url_re.search(href)
         elif isinstance(cls.url_re, basestring):
             return re.search(cls.url_re, href, re.I)
+
+    def add_js_content(self, path, **context):
+        """
+        Helper for adding javascript code inside <body> section.
+        """
+        return '<script>' + self.render_resource(path, **context) + '</script>'

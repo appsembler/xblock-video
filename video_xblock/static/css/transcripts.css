@@ -16,3 +16,38 @@
     color: #b20610;
     font-size: 14px;
 }
+
+.display-flex {
+  display: flex;
+}
+
+#transcript {
+  max-height: 100%;
+  overflow: scroll;
+  padding: 0 0 0 20px;
+  font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 14px;
+  background-color: inherit;
+}
+
+.transcript-line {
+  margin-bottom: 8px;
+  border: 0;
+  padding: 0;
+  color: #0074b5;
+  line-height: 1.41575em;
+}
+
+.transcript-line.is-active {
+  color: #333;
+  font-weight: 700;
+}
+
+.transcript-line:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.transcript-timestamp {
+  display: none;
+}

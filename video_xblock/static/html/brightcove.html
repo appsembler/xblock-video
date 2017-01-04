@@ -1,4 +1,4 @@
-<div>
+<div class="display-flex">
     <video data-video-id="{{ video_id }}"
         id="{{ video_player_id }}"
         data-account="{{ account_id }}"
@@ -19,20 +19,5 @@
       {% endfor %}
     </video>
     <script src="{{ brightcove_js_url }}"></script>
-    <script src="https://cdn.rawgit.com/walsh9/videojs-transcript/master/dist/videojs-transcript.min.js"></script>
-    <script>
-        var player = videojs('{{ video_player_id }}');
-        videojs.plugin('xblockEventPlugin', window.xblockEventPlugin);
-        player.xblockEventPlugin();
-        videojs.plugin('offset', window.vjsoffset);
-
-        player.offset({
-            "start": {{ start_time }}, // do not use quotes for this properties for correct plugin work
-            "end": {{ end_time }}
-        });
-
-        videojs.plugin('videoJSSpeedHandler', window.videoJSSpeedHandler);
-        player.videoJSSpeedHandler();
-    </script>
+    <div id="transcript"></div>
 </div>
-<div id="transcript"></div>
