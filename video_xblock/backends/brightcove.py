@@ -33,19 +33,20 @@ class BrightcovePlayer(BaseVideoPlayer):
             'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'
         )
         frag.add_content(
-            self.add_js_content('../static/bower_components/videojs-transcript/dist/videojs-transcript.js')
-        )
-        frag.add_content(
             self.add_js_content('../static/js/player_state.js', **context)
         )
+        if context['player_state']['transcripts']:
+            frag.add_content(
+                self.add_js_content('../static/bower_components/videojs-transcript/dist/videojs-transcript.js')
+            )
+            frag.add_content(
+                self.add_js_content('../static/js/videojs-transcript.js', **context)
+            )
         frag.add_content(
             self.add_js_content('../static/js/videojs-tabindex.js', **context)
         )
         frag.add_content(
             self.add_js_content('../static/js/toggle-button.js')
-        )
-        frag.add_content(
-            self.add_js_content('../static/js/videojs-transcript.js', **context)
         )
         frag.add_content(
             self.add_js_content('../static/js/videojs_event_plugin.js', **context)

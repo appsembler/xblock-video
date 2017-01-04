@@ -1,6 +1,5 @@
 domReady(function() {
   videojs('{{ video_player_id }}').ready(function(){
-
     // fire up the plugin
     var transcript = this.transcript({
       'showTrackSelector': false,

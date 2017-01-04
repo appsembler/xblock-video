@@ -323,10 +323,13 @@ body {
 #transcript {
   max-height: 100%;
   overflow: scroll;
-  padding: 0 0 0 20px;
   font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
   font-size: 14px;
   background-color: inherit;
+}
+
+.transcript-body {
+  padding: 0 0 0 20px;
 }
 
 .transcript-line {
