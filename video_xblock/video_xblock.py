@@ -140,8 +140,8 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         scope=Scope.content,
         display_name=_('Upload transcript'),
         help=_(
-            'Add transcripts in different languages. Click below to specify a language and upload an .srt transcript'
-            ' file for that language.'
+            'Add transcripts in different languages. Click below to specify a language and upload an .vtt transcript'
+            ' file for that language. You can convert .srt to .vtt <a href="https://atelier.u-sub.net/srt2vtt/">here</a>.'
         )
     )
 
@@ -151,7 +151,7 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         display_name=_('Download Transcript Allowed'),
         help=_(
             "Allow students to download the timed transcript. A link to download the file appears below the video."
-            " By default, the transcript is an .srt or .txt file. If you want to provide the transcript for download"
+            " By default, the transcript is a .vtt file. If you want to provide the transcript for download"
             " in a different format, upload a file by using the Upload Handout field."
         )
     )

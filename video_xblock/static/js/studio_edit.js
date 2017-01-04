@@ -254,7 +254,7 @@ function StudioEditableXBlock(runtime, element) {
             'data-lang-code': $buttonBlock.attr('data-lang-code'),
             'data-lang-label': $buttonBlock.attr('data-lang-label'),
             'data-change-field-name': $buttonBlock.attr('data-change-field-name'),
-            'accept': $buttonBlock.attr('data-change-field-name') == 'transcripts' ? '.srt, .vtt' : '',
+            'accept': $buttonBlock.attr('data-change-field-name') == 'transcripts' ? '.vtt' : '',
             'data-li-index': $buttonBlock.attr('data-change-field-name') == 'transcripts' ? indexOfParentLi : ''
         });
 
