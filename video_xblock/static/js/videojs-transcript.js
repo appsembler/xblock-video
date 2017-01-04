@@ -77,7 +77,6 @@ domReady(function() {
       disabledEvent: "captiondisabled",
       cssClasses: cssClasses,
     });
-
     cssClasses = "vjs-custom-transcript-button vjs-menu-button vjs-menu-button-popup vjs-control vjs-button";
     if (this.transcriptsEnabled){
       cssClasses += ' vjs-control-enabled';
