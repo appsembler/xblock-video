@@ -50,7 +50,24 @@ domReady(function() {
       this.trigger('captionstatechanged');
     });
 
-    var cssClasses = "vjs-custom-caption-button vjs-control";
+
+    this.on('changelanguagetranscripts', function(event) {
+      var tracks = this.player_.textTracks();
+      for (var i = 0; i < tracks.length; i++) {
+        var track = tracks[i];
+        // Find the English captions track and mark it as "showing".
+        if (track.kind === 'captions' && track.language === this.player_.caption_lang) {
+          track.mode = 'showing';
+        } else if (track.kind === 'captions') {
+          track.mode = 'disabled';
+        }
+      }
+      this.player_.trigger('captionstrackchange');
+      this.player_.trigger('subtitlestrackchange');
+    });
+
+
+    var cssClasses = "vjs-custom-caption-button vjs-menu-button vjs-menu-button-popup vjs-control vjs-button";
     if (this.captionsEnabled){
       cssClasses += ' vjs-control-enabled';
     };
@@ -60,7 +77,7 @@ domReady(function() {
       disabledEvent: "captiondisabled",
       cssClasses: cssClasses,
     });
-    cssClasses = "vjs-custom-transcript-button vjs-control";
+    cssClasses = "vjs-custom-transcript-button vjs-menu-button vjs-menu-button-popup vjs-control vjs-button";
     if (this.transcriptsEnabled){
       cssClasses += ' vjs-control-enabled';
     };
