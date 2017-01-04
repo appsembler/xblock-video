@@ -91,3 +91,5 @@ ENV/
 # Bower components
 bower_components/
 
+#Pycharm
+.idea/

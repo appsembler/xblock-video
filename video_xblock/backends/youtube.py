@@ -28,8 +28,16 @@ class YoutubePlayer(BaseVideoPlayer):
                 "type": "video/youtube",
                 "src": context['url']
             }],
-            "youtube": { "iv_load_policy": 1 },
-            "playbackRates": [0.5, 1, 1.5, 2]
+            "youtube": {"iv_load_policy": 1},
+            "playbackRates": [0.5, 1, 1.5, 2],
+            "plugins": {
+                "xblockEventPlugin": {},
+                "offset": {
+                    "start": context['start_time'],
+                    "end": context['end_time']
+                },
+                "videoJSSpeedHandler": {},
+            }
         })
 
         frag = super(YoutubePlayer, self).get_frag(**context)
@@ -39,6 +47,10 @@ class YoutubePlayer(BaseVideoPlayer):
 
         frag.add_javascript(self.resource_string(
             '../static/bower_components/videojs-youtube/dist/Youtube.min.js'
+        ))
+
+        frag.add_javascript(self.resource_string(
+            '../static/bower_components/videojs-offset/dist/videojs-offset.min.js'
         ))
 
         return frag

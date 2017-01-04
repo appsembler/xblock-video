@@ -2,7 +2,7 @@ body {
     margin: 0;
 }
 .vjs-play-control.vjs-control.vjs-button:before {
-    padding: 8px 0 0 9px !important;
+    padding: 8px 0 0 0 !important;
 }
 .video-js .vjs-dock-text {
     display: none;
@@ -222,6 +222,7 @@ body {
     right: 83px;
     width: 42px;
 }
+.video-js .vjs-volume-menu-button.vjs-menu-button:focus,
 .video-js .vjs-volume-menu-button.vjs-menu-button:hover {
     width: 12em;
 }
@@ -326,4 +327,72 @@ body {
     color: inherit;
     background: rgba(115,133,159,.5);
     border-radius: 0;
+}
+.video-js .vjs-play-control {
+    width: 40px;
+}
+.video-js .vjs-control:focus {
+    outline: rgb(207, 216, 220) solid 1px;
+}
+.vjs-workinghover .vjs-menu-button-popup:focus .vjs-menu,
+.vjs-workinghover .vjs-menu-button-popup:hover .vjs-menu,
+.vjs-menu-button-popup .vjs-menu.vjs-lock-showing {
+    display: block;
+}
+
+
+body .video-js {
+    overflow: visible;
+}
+
+body .video-js .vjs-menu-button-inline:hover, body .video-js.vjs-no-flex .vjs-menu-button-inline {
+    width: 12em;
+}
+
+body .video-js .vjs-big-play-button:active, body .video-js .vjs-big-play-button:focus, body .video-js:active .vjs-big-play-button, body .video-js:hover .vjs-big-play-button {
+    background-color: rgba(115, 133, 159, .5) !important;
+}
+
+body .video-js .vjs-load-progress div {
+    background: transparent !important;
+}
+
+body .video-js .vjs-big-play-button:active,
+body .video-js .vjs-big-play-button:focus,
+body .video-js:active .vjs-big-play-button,
+body .video-js:hover .vjs-big-play-button.video-js .vjs-big-play-button:focus {
+    outline: 0;
+    border-color: #fff;
+    background-color: #73859f !important;
+    background-color: rgba(115, 133, 159, .5) !important;
+}
+
+body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
+    width: 41px;
+    left: 30px;
+    background: #171a1b;
+}
+
+.vjs-mousebody .video-js .vjs-progress-control:hover .vjs-play-progress.vjs-slider-bar.vjs-keep-tooltips-inside:after {
+    width: 10px;
+}
+
+body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item {
+    font-weight: bold;
+}
+
+body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
+    text-shadow: none;
+    color: inherit;
+    background: rgba(115, 133, 159, .5);
+    border-radius: 0;
+}
+
+.vjs-captions-button {
+    display: none;
+}
+
+.video-js .vjs-control-enabled {
+  background-color: #171a1b;
+  color: #0ea6ec;
 }

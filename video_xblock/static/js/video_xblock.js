@@ -1,16 +1,21 @@
 
 /** Javascript for VideoXBlock.student_view() */
 function VideoXBlockStudentViewInit(runtime, element) {
-  var handlerUrl = runtime.handlerUrl(element, 'save_player_state');
-  window.videoXBlockSaveHandlers = window.videoXBlockSaveHandlers || {};
-  window.videoXBlockSaveHandlers[element.attributes['data-usage-id'].value] = handlerUrl;
+  var stateHandlerUrl = runtime.handlerUrl(element, 'save_player_state');
+  window.videoXBlockSaveStateHandlers = window.videoXBlockSaveStateHandlers || {};
+  window.videoXBlockSaveStateHandlers[element.attributes['data-usage-id'].value] = stateHandlerUrl;
+
+  var eventHandlerUrl = runtime.handlerUrl(element, 'publish_event');
+  window.videoXBlockSaveEventHandlers = window.videoXBlockSaveEventHandlers || {};
+  window.videoXBlockSaveEventHandlers[element.attributes['data-usage-id'].value] = eventHandlerUrl;
+
   window.videoXBlockListenerRegistered = window.videoXBlockListenerRegistered || false;
 
-  /** Save video player satate by POSTing it to VideoXBlock handler */
-  function saveState(handlerUrl, state) {
+  /** Save video player state by POSTing it to VideoXBlock handler */
+  function saveState(stateHandlerUrl, state) {
     $.ajax({
       type: "POST",
-      url: handlerUrl,
+      url: stateHandlerUrl,
       data: JSON.stringify(state),
     })
     .done(function() {
@@ -18,6 +23,21 @@ function VideoXBlockStudentViewInit(runtime, element) {
     })
     .fail(function() {
       console.log('Failed to save player state.');
+    });
+  }
+
+  /** Save video player analytic event by POSTing it to VideoXBlock handler */
+  function publishEvent(eventHandlerUrl, data) {
+    $.ajax({
+      type: "POST",
+      url: eventHandlerUrl,
+      data: JSON.stringify(data),
+    })
+    .done(function() {
+      console.log('Player event "' + data.eventType + '" published successfully.');
+    })
+    .fail(function() {
+      console.log('Failed to publish player event.');
     });
   }
 
@@ -35,12 +55,16 @@ function VideoXBlockStudentViewInit(runtime, element) {
    */
   function receiveMessage(event) {
     var origin = event.origin || event.originalEvent.origin; // For Chrome, the origin property is in the event.originalEvent object.
-    if (origin !== document.origin)
+    if (origin !== document.location.protocol + "//" + document.location.host)
       // Discard a message received from another domain
       return;
     if (event.data && event.data.action === 'save_state' &&
-        window.videoXBlockSaveHandlers[event.data.xblockUsageId]) {
-      saveState(window.videoXBlockSaveHandlers[event.data.xblockUsageId], event.data.state);
+        window.videoXBlockSaveStateHandlers[event.data.xblockUsageId]) {
+      saveState(window.videoXBlockSaveStateHandlers[event.data.xblockUsageId], event.data.state);
+    }
+    if (event.data && event.data.action === 'analytics' &&
+        window.videoXBlockSaveEventHandlers[event.data.xblockUsageId]) {
+      publishEvent(window.videoXBlockSaveEventHandlers[event.data.xblockUsageId], event.data.event_data)
     }
   }
 }

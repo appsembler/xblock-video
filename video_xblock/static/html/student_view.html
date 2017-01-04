@@ -1,4 +1,4 @@
-{# To avoid interferrence with other video players and JavaScript modules (e.g. RequireJS in Studio) we wrap video player's code inside an iframe. #}
+{% load i18n %}
 <h3 class="hd hd-2">{{display_name}}</h3>
 <iframe
     src="{{player_url}}#{{usage_id}}"
@@ -7,7 +7,39 @@
     allowfullscreen
     mozallowfullscreen
     webkitallowfullscreen
-    width="891px"
+    width="100%"
     height="600px"
 >
 </iframe>
+<ul class="wrapper-downloads-custom">
+    {% if handout %}
+        <li class="video-handout video-download-button-custom">
+            <a href="{{ handout }}" class="download-handout" download="{{ handout_file_name }}">{% trans 'Download Handout' %}</a>
+        </li>
+    {% endif %}
+    {% if download_transcript_allowed and transcripts %}
+        <li class="video-transcript video-download-button-custom">
+            <a  class="download-transcript" id="download-transcript-link" href="#">{% trans 'Download transcript' %}</a>
+            <script>
+                var transcripts = {
+                {% for transcript in transcripts %}
+                 '{{transcript.lang}}': {
+                        'label': '{{transcript.label}}',
+                        'url': '{{transcript.url}}',
+                 },
+                {% endfor %}
+                };
+
+                /** Change download link consider selected transcript's language */
+                function chooseTransciptForDownload(language){
+                    language = language || 'en';
+                    var currentTranscript = transcripts[language] || transcripts[Object.keys(transcripts)[0]]
+                    document.getElementById('download-transcript-link').href=currentTranscript.url;
+                }
+                // TODO Load current transcript from state and send it as paramenter of function below
+                chooseTransciptForDownload();
+            </script>
+        </li>
+    {% endif %}
+</ul>
+

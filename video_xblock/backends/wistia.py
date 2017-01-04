@@ -39,7 +39,15 @@ class WistiaPlayer(BaseVideoPlayer):
                 "type": "video/wistia",
                 "src": context['url'] + "?controlsVisibleOnLoad=false"
             }],
-            "playbackRates": [0.5, 1, 1.5, 2]
+            "playbackRates": [0.5, 1, 1.5, 2],
+            "plugins": {
+                "xblockEventPlugin": {},
+                "offset": {
+                    "start": context['start_time'],
+                    "end": context['end_time']
+                },
+                "videoJSSpeedHandler": {},
+            }
         })
 
         frag = super(WistiaPlayer, self).get_frag(**context)
@@ -49,5 +57,13 @@ class WistiaPlayer(BaseVideoPlayer):
         frag.add_javascript(self.resource_string(
             '../static/bower_components/videojs-wistia/src/wistia.js'
         ))
+
+        frag.add_javascript(self.resource_string(
+            '../static/bower_components/videojs-offset/dist/videojs-offset.min.js'
+        ))
+
+        frag.add_javascript(self.render_resource(
+            '../static/js/player-context-menu.js', **context)
+        )
 
         return frag
