@@ -1,6 +1,5 @@
 domReady(function() {
   videojs('{{ video_player_id }}').ready(function(){
-
     // fire up the plugin
     var transcript = this.transcript({
       'showTrackSelector': false,
@@ -27,13 +26,59 @@ domReady(function() {
       this.trigger('transcriptstatechanged');
     });
 
+    var captionContainer = document.getElementsByClassName('vjs-text-track-display');
+
+    // Show or hide the captions block depending on the caption state
+    if (!this.captionsEnabled){
+      Array.from(captionContainer).forEach(function(caption) {
+        caption.className += " is-hidden";
+      });
+    };
+
+    this.on('captionenabled', function(){
+      Array.from(captionContainer).forEach(function(caption) {
+        caption.classList.toggle('is-hidden', false);
+      });
+      this.captionsEnabled = true;
+      this.trigger('captionstatechanged');
+    });
+    this.on('captiondisabled', function(){
+      Array.from(captionContainer).forEach(function(caption) {
+        caption.classList.toggle('is-hidden', true);
+      });
+      this.captionsEnabled = false;
+      this.trigger('captionstatechanged');
+    });
+
+
+    this.on('changelanguagetranscripts', function(event) {
+      var tracks = this.player_.textTracks();
+      for (var i = 0; i < tracks.length; i++) {
+        var track = tracks[i];
+        // Find the English captions track and mark it as "showing".
+        if (track.kind === 'captions' && track.language === this.player_.caption_lang) {
+          track.mode = 'showing';
+        } else if (track.kind === 'captions') {
+          track.mode = 'disabled';
+        }
+      }
+      this.player_.trigger('captionstrackchange');
+      this.player_.trigger('subtitlestrackchange');
+    });
+
+
+    var cssClasses = "vjs-custom-caption-button vjs-menu-button vjs-menu-button-popup vjs-control vjs-button";
+    if (this.captionsEnabled){
+      cssClasses += ' vjs-control-enabled';
+    };
     this.toggleButton({
       style: "fa-cc",
       enabledEvent: "captionenabled",
       disabledEvent: "captiondisabled",
-      cssClasses: "vjs-custom-caption-button vjs-control",
+      cssClasses: cssClasses,
     });
-    var cssClasses = "vjs-custom-transcript-button vjs-control";
+
+    cssClasses = "vjs-custom-transcript-button vjs-menu-button vjs-menu-button-popup vjs-control vjs-button";
     if (this.transcriptsEnabled){
       cssClasses += ' vjs-control-enabled';
     };

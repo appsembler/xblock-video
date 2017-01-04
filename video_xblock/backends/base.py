@@ -54,9 +54,6 @@ class BaseVideoPlayer(Plugin):
             '../static/js/videojs-speed-handler.js', **context
         ))
         frag.add_javascript(self.resource_string(
-            '../static/bower_components/videojs-transcript/dist/videojs-transcript.js'
-        ))
-        frag.add_javascript(self.resource_string(
             '../static/bower_components/videojs-contextmenu/dist/videojs-contextmenu.min.js'
         ))
         frag.add_javascript(self.resource_string(
@@ -68,14 +65,18 @@ class BaseVideoPlayer(Plugin):
         frag.add_javascript(
             self.render_resource('../static/js/player_state.js', **context)
         )
+        if context['player_state']['transcripts']:
+            frag.add_javascript(self.resource_string(
+                '../static/bower_components/videojs-transcript/dist/videojs-transcript.js'
+            ))
+            frag.add_javascript(
+                self.render_resource('../static/js/videojs-transcript.js', **context)
+            )
         frag.add_javascript(
             self.render_resource('../static/js/videojs-tabindex.js', **context)
         )
         frag.add_javascript(
             self.resource_string('../static/js/toggle-button.js')
-        )
-        frag.add_javascript(
-            self.render_resource('../static/js/videojs-transcript.js', **context)
         )
         frag.add_javascript(self.render_resource(
             '../static/js/videojs_event_plugin.js', **context
@@ -135,3 +136,9 @@ class BaseVideoPlayer(Plugin):
             return cls.url_re.search(href)
         elif isinstance(cls.url_re, basestring):
             return re.search(cls.url_re, href, re.I)
+
+    def add_js_content(self, path, **context):
+        """
+        Helper for adding javascript code inside <body> section.
+        """
+        return '<script>' + self.render_resource(path, **context) + '</script>'
