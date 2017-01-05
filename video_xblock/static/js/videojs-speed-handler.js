@@ -13,6 +13,9 @@
 
         var playbackRateMenuButton = videojs.getComponent('PlaybackRateMenuButton');
         var controlBar = videojs.getComponent('ControlBar');
+        var menuButton = videojs.getComponent('MenuButton');
+        var button = videojs.getComponent('Button');
+        var videojsPlayer = videojs('{{ video_player_id }}');
 
         /**
          * The custom component for controlling the playback rate.
@@ -57,7 +60,13 @@
         videojs.registerComponent('PlaybackRateMenuButton', playbackRateMenuButtonExtended);
 
         // Charge the component into videojs
-        controlBar.prototype.options_.children.push('PlaybackRateMenuButton');
+        if (this.tagAttributes.brightcove !== undefined) {
+            this.controlBar.customControlSpacer.addChild('PlaybackRateMenuButton', options);
+            // Add the new component as a default player child
+            videojsPlayer.addChild('PlaybackRateMenuButton');
+        } else {
+            controlBar.prototype.options_.children.push('PlaybackRateMenuButton');
+        }
 
         return this;
     }
