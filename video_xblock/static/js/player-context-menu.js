@@ -21,10 +21,27 @@ domReady(function() {
   var player = videojs('{{ video_player_id }}');
 
   /**
+   * Cross-browser wrapper for element.matches
+   * Source: https://gist.github.com/dalgard/7817372
+   */
+  function matchesSelector(dom_element, selector) {
+    var matchesSelector =
+      dom_element.matches ||
+      dom_element.matchesSelector ||
+      dom_element.webkitMatchesSelector ||
+      dom_element.mozMatchesSelector ||
+      dom_element.msMatchesSelector ||
+      dom_element.oMatchesSelector;
+    return matchesSelector.call(dom_element, selector);
+  }
+
+  /**
    * Create elements of nested context submenu.
    */
   function createNestedContextSubMenu(e) {
     var target = e.target;
+    var labelElement = target.innerText;
+    var labelItem = getItem('speed').label;
 
     // Generate nested submenu elements as document fragment
     var ulSubMenu = document.createElement('ul');
@@ -40,10 +57,24 @@ domReady(function() {
     });
     docfrag.appendChild(ulSubMenu);
 
+    // Check conditions to be met for delegation of the popup submenu creation
+    var menuItemClicked = matchesSelector(target, "li.vjs-menu-item");
+    var noSubmenuClicked = !target.querySelector('.vjs-contextmenu-ui-submenu');
+    var menuItemsLabelsEqual = (labelElement === labelItem);
+
+    // Wrap into conditional statement to avoid unnecessary variables initialization
+    if (menuItemClicked && noSubmenuClicked) {
+      var labelLength = labelElement.length;
+      const lineFeedCode = 10;
+      // Check if the last character is an escaped one (line feed to get rid of) which is the case for Microsoft Edge
+      if (labelElement.charCodeAt(labelLength-1) === lineFeedCode) {
+        var labelElementSliced = labelElement.slice(0, -1);
+        menuItemsLabelsEqual = (labelElementSliced === labelItem);
+      }
+    }
+
     // Create nested submenu
-    if (target.matches("li.vjs-menu-item")
-        && target.innerText == getItem('speed').label
-        && !target.querySelector('.vjs-contextmenu-ui-submenu') ) {
+    if (menuItemClicked && noSubmenuClicked && menuItemsLabelsEqual){
       target.appendChild(docfrag);
     }
   }
