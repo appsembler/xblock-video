@@ -382,7 +382,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         save_state_url = self.runtime.handler_url(self, 'save_player_state')
         transcripts = self.render_resource(
             'static/html/transcripts.html',
-            transcripts=json.loads(self.transcripts) if self.transcripts else []
+            transcripts=self.route_transcripts(self.transcripts)
         )
         return player.get_player_html(
             url=self.href, autoplay=False, account_id=self.account_id, player_id=self.player_id,
