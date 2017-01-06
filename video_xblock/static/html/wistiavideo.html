@@ -7,9 +7,6 @@
   data-setup='{{ data_setup }}'
 >
 <!-- height="560" it's height of iframe minus height of control bar -->
-  {% for transcript in player_state.transcripts %}
-    <track kind="captions" src="{{ transcript.url }}" srclang="{{ transcript.lang }}" label="{{ transcript.label }}"
-    {% if forloop.first %}default{% endif %}>
-  {% endfor %}
+  {{ transcripts }}
 </video>
 <div id="transcript"></div>

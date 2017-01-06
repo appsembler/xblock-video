@@ -3,6 +3,9 @@
 This is the common settings file, intended to set defaults
 """
 
+# Source:
+#  https://github.com/edx/edx-platform/blob/master/lms/envs/common.py#L2457
+
 ALL_LANGUAGES = (
     [u"aa", u"Afar"],
     [u"ab", u"Abkhazian"],

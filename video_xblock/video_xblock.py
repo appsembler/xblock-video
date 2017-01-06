@@ -24,7 +24,7 @@ from pycaption import detect_format, WebVTTWriter
 from webob import Response
 
 from backends.base import BaseVideoPlayer, html_parser
-from . import settings
+from settings import ALL_LANGUAGES
 
 
 _ = lambda text: text
@@ -153,37 +153,37 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
     current_time = Integer(
         default=0,
         scope=Scope.user_state,
-        help=_('Seconds played back from the start')
+        help='Seconds played back after the start'
     )
 
     playback_rate = Float(
         default=1,
         scope=Scope.preferences,
-        help=_('Video playback speed: 0.5, 1, 1.5, 2')
+        help='Supported video playbacks speeds are: 0.5, 1, 1.5, 2'
     )
 
     volume = Float(
         default=1,
         scope=Scope.preferences,
-        help=_('Video volume: from 0 to 1')
+        help='Video volume: from 0 to 1'
     )
 
     muted = Boolean(
         default=False,
         scope=Scope.preferences,
-        help=_("Video muted or not")
+        help="Video is muted or not"
     )
 
     transcripts_enabled = Boolean(
         default=False,
         scope=Scope.preferences,
-        help=_("Transcript is enabled or not")
+        help="Transcript is enabled or not"
     )
 
     captions_enabled = Boolean(
         default=False,
         scope=Scope.preferences,
-        help=_("Transcript is enabled or not")
+        help="Transcript is enabled or not"
     )
 
     handout = String(
@@ -337,7 +337,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         Render a form for editing this XBlock
         """
         fragment = Fragment()
-        languages = [{'label': label, 'code': lang} for lang, label in settings.ALL_LANGUAGES]
+        languages = [{'label': label, 'code': lang} for lang, label in ALL_LANGUAGES]
         languages.sort(key=lambda l: l['label'])
         transcripts = json.loads(self.transcripts) if self.transcripts else []
         context = {
@@ -380,6 +380,10 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         """
         player = self.get_player()
         save_state_url = self.runtime.handler_url(self, 'save_player_state')
+        transcripts = self.render_resource(
+            'static/html/transcripts.html',
+            transcripts=json.loads(self.transcripts) if self.transcripts else []
+        )
         return player.get_player_html(
             url=self.href, autoplay=False, account_id=self.account_id, player_id=self.player_id,
             video_id=player.media_id(self.href),
@@ -388,7 +392,8 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             player_state=self.player_state,
             start_time=int(self.start_time.total_seconds()),
             end_time=int(self.end_time.total_seconds()),
-            brightcove_js_url=VideoXBlock.get_brightcove_js_url(self.account_id, self.player_id)
+            brightcove_js_url=VideoXBlock.get_brightcove_js_url(self.account_id, self.player_id),
+            transcripts=transcripts
         )
 
     @XBlock.json_handler
@@ -466,7 +471,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         if field_name == 'handout':
             info['type'] = 'file_uploader'
             info['file_name'] = self.get_handout_file_name()
-            info['value'] = self.get_url_for(self.handout)
+            info['value'] = self.get_path_for(self.handout)
         if field_name == 'transcripts':
             info['type'] = 'transcript_uploader'
         return info
@@ -480,10 +485,12 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         """
         return self.handout.split('@')[-1]
 
-    def get_url_for(self, field):
+    def get_path_for(self, file_field):
         """
-        Returns downloaded asset url
+        Url retrieved after storing file field in mongoDB look like this:
+            'asset-v1-RaccoonGang+1+2018+type@asset+block@<filename>'
+        Returns downloaded asset url with slash in start of it
         """
-        if field:
-            return os.path.join('/', field)
+        if file_field:
+            return os.path.join('/', file_field)
         return ''

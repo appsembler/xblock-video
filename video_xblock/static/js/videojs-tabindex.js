@@ -10,7 +10,7 @@
 domReady(function() {
   videojs('{{ video_player_id }}').ready(function() {
 
-    // order tabIndex in player control
+    /** Order tabIndex in player control */
     var orderTabIndex = function orderTabIndex(_player) {
         var controlBar;
         if (_player.tagAttributes.brightcove === undefined){

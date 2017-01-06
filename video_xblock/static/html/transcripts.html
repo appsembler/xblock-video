@@ -1,0 +1,4 @@
+{% for transcript in transcripts %}
+  <track kind="captions" src="{{ transcript.url }}" srclang="{{ transcript.lang }}" label="{{ transcript.label }}"
+  {% if forloop.first %}default{% endif %}>
+{% endfor %}
