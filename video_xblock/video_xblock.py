@@ -11,6 +11,7 @@ import os
 import pkg_resources
 import requests
 
+from io import StringIO
 from xblock.core import XBlock
 from xblock.fields import Scope, Boolean, Integer, Float, String
 from xblock.fragment import Fragment
@@ -19,6 +20,8 @@ from xblockutils.studio_editable import StudioEditableXBlockMixin
 from xmodule.fields import RelativeTime
 
 from django.template import Template, Context
+from pycaption import detect_format, WebVTTWriter
+from webob import Response
 
 from backends.base import BaseVideoPlayer, html_parser
 from . import settings
@@ -28,7 +31,62 @@ _ = lambda text: text
 log = logging.getLogger(__name__)
 
 
-class VideoXBlock(StudioEditableXBlockMixin, XBlock):
+class TranscriptsMixin(XBlock):
+    """
+    TranscriptsMixin class to encapsulate transcripts-related logic
+    """
+
+    @staticmethod
+    def convert_caps_to_vtt(caps):
+        """
+        Utility method converts any supported transcripts into WebVTT format.
+        Supported input formats: DFXP/TTML - SAMI - SCC - SRT - WebVTT
+
+        Arguments:
+            caps (unicode): Raw transcripts.
+        Returns:
+            unicode: Transcripts converted into WebVTT format.
+        """
+
+        reader = detect_format(caps)
+        if reader:
+            return WebVTTWriter().write(reader().read(caps))
+        else:
+            return u''
+
+    def route_transcripts(self, transcripts):
+        """
+        Re-routes non .vtt transcripts to `str_to_vtt` handler.
+        """
+
+        transcripts = json.loads(transcripts) if transcripts else []
+        for tran in transcripts:
+            if not tran['url'].endswith('.vtt'):
+                tran['url'] = self.runtime.handler_url(
+                    self, 'srt_to_vtt', query=tran['url']
+                )
+            yield tran
+
+    @XBlock.handler
+    def srt_to_vtt(self, request, suffix=''):
+        """
+        Fetches raw transcripts, converts them into WebVTT format and returns back.
+
+        Path to raw transcripts is passed in as `request.query_string`.
+
+        Arguments:
+            request (webob.Request): The request to handle
+            suffix (string): The remainder of the url, after the handler url prefix, if available
+
+        Returns:
+            webob.Response: WebVTT transcripts wrapped in Response object.
+        """
+        caps_path = request.query_string
+        caps = requests.get(request.host_url + caps_path).text
+        return Response(self.convert_caps_to_vtt(caps))
+
+
+class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
     """
     Main VideoXBlock class.
     Responsible for saving video settings and rendering it for students.
@@ -140,8 +198,8 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         scope=Scope.content,
         display_name=_('Upload transcript'),
         help=_(
-            'Add transcripts in different languages. Click below to specify a language and upload an .vtt transcript'
-            ' file for that language. You can convert .srt to .vtt <a href="https://atelier.u-sub.net/srt2vtt/">here</a>.'
+            'Add transcripts in different languages. Click below to specify a language and upload an .srt transcript'
+            ' file for that language.'
         )
     )
 
@@ -151,7 +209,7 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
         display_name=_('Download Transcript Allowed'),
         help=_(
             "Allow students to download the timed transcript. A link to download the file appears below the video."
-            " By default, the transcript is a .vtt file. If you want to provide the transcript for download"
+            " By default, the transcript is an .vtt or .srt file. If you want to provide the transcript for download"
             " in a different format, upload a file by using the Upload Handout field."
         )
     )
@@ -175,7 +233,7 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
             'muted': self.muted,
             'playback_rate': self.playback_rate,
             'volume': self.volume,
-            'transcripts': json.loads(self.transcripts) if self.transcripts else [],
+            'transcripts': self.route_transcripts(self.transcripts),
             'transcripts_enabled': self.transcripts_enabled,
             'captions_enabled': self.captions_enabled
         }
@@ -264,7 +322,7 @@ class VideoXBlock(StudioEditableXBlockMixin, XBlock):
                 display_name=self.display_name,
                 usage_id=self.location.to_deprecated_string(),
                 handout=self.handout,
-                transcripts=json.loads(self.transcripts) if self.transcripts else [],
+                transcripts=self.route_transcripts(self.transcripts),
                 download_transcript_allowed=self.download_transcript_allowed,
                 handout_file_name=self.get_handout_file_name()
             )

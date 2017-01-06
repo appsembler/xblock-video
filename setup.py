@@ -30,7 +30,8 @@ setup(
     ],
     install_requires=[
         'XBlock',
-        'xblock-utils'
+        'xblock-utils',
+        'pycaptions<1',  # The latest Python 2.7 compatible version
     ],
     entry_points={
         'xblock.v1': [
