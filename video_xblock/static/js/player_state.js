@@ -25,7 +25,8 @@ var player_state = {
   'playbackRate': {{ player_state.playback_rate }},
   'muted': {{ player_state.muted | yesno:"true,false" }},
   'transcriptsEnabled': {{ player_state.transcripts_enabled | yesno:"true,false" }},
-  'captionsEnabled': {{ player_state.captions_enabled | yesno:"true,false" }}
+  'captionsEnabled': {{ player_state.captions_enabled | yesno:"true,false" }},
+  'captionsLanguage': '{{ player_state.captions_language }}',
 };
 
 var xblockUsageId = window.location.hash.slice(1);
@@ -50,6 +51,7 @@ var setInitialState = function (player, state) {
         .playbackRate(state.playbackRate);
     player.transcriptsEnabled = state.transcriptsEnabled;
     player.captionsEnabled = state.captionsEnabled;
+    player.captionsLanguage = state.captionsLanguage;
 };
 
 /**
@@ -64,7 +66,8 @@ var saveState = function(){
     'playbackRate': player.playbackRate(),
     'muted': player.muted(),
     'transcriptsEnabled': player.transcriptsEnabled,
-    'captionsEnabled': player.captionsEnabled
+    'captionsEnabled': player.captionsEnabled,
+    'captionsLanguage': player.captionsLanguage,
   };
 
   if (JSON.stringify(new_state) !== JSON.stringify(player_state)) {
@@ -105,7 +108,8 @@ domReady(function() {
       .on('pause', saveState)
       .on('ended', saveState)
       .on('transcriptstatechanged', saveState)
-      .on('captionstatechanged', saveState);
+      .on('captionstatechanged', saveState)
+      .on('currentlanguagechanged', saveState);
   });
 
 });

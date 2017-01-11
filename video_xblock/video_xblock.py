@@ -174,6 +174,12 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         help="Video is muted or not"
     )
 
+    captions_language = String(
+        default='',
+        scope=Scope.preferences,
+        help="ISO code current language for captions and transcripts"
+    )
+
     transcripts_enabled = Boolean(
         default=False,
         scope=Scope.preferences,
@@ -220,7 +226,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
     )
     player_state_fields = (
         'current_time', 'muted', 'playback_rate', 'volume',
-        'transcripts_enabled', 'captions_enabled'
+        'transcripts_enabled', 'captions_enabled', 'captions_language'
     )
 
     @property
@@ -228,6 +234,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         """
         Returns video player state as a dictionary
         """
+        course = self.runtime.modulestore.get_course(self.course_id)
         return {
             'current_time': self.current_time,
             'muted': self.muted,
@@ -235,7 +242,8 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             'volume': self.volume,
             'transcripts': self.route_transcripts(self.transcripts),
             'transcripts_enabled': self.transcripts_enabled,
-            'captions_enabled': self.captions_enabled
+            'captions_enabled': self.captions_enabled,
+            'captions_language': self.captions_language or course.language
         }
 
     @staticmethod
@@ -260,6 +268,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         self.transcripts = state.get('transcripts', self.transcripts)
         self.transcripts_enabled = state.get('transcripts_enabled', self.transcripts_enabled)
         self.captions_enabled = state.get('captions_enabled', self.captions_enabled)
+        self.captions_language = state.get('captions_language', self.captions_language)
 
     def validate_field_data(self, validation, data):
         """
@@ -409,7 +418,8 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             'muted': request['muted'],
             'transcripts': self.transcripts,
             'transcripts_enabled': request['transcriptsEnabled'],
-            'captions_enabled': request['captionsEnabled']
+            'captions_enabled': request['captionsEnabled'],
+            'captions_language': request['captionsLanguage']
         }
         self.player_state = player_state
         return {'success': True}

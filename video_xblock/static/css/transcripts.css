@@ -54,3 +54,9 @@
 .transcript-timestamp {
   display: none;
 }
+
+.vjs-custom-caption-button .vjs-menu .vjs-menu-content,
+.vjs-custom-transcript-button .vjs-menu .vjs-menu-content {
+  width: 80px !important;
+  bottom: 2.5em;
+}

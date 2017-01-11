@@ -357,3 +357,29 @@ body {
 .is-hidden {
   display: none !important;
 }
+
+.is-visible {
+  display: block !important;
+}
+
+
+.vjs-custom-caption-button .vjs-menu-button-popup .vjs-menu,
+.vjs-custom-transcript-button .vjs-menu-button-popup .vjs-menu {
+  left: 0em;
+}
+
+.vjs-custom-caption-button .vjs-menu,
+.vjs-custom-transcript-button .vjs-menu {
+  left: 0em;
+}
+
+.vjs-custom-caption-button .vjs-menu .vjs-menu-content,
+.vjs-custom-transcript-button .vjs-menu .vjs-menu-content {
+  width: 80px;
+}
+
+.vjs-custom-caption-button .vjs-menu .vjs-menu-content li,
+.vjs-custom-transcript-button .vjs-menu .vjs-menu-content li {
+  text-align: left;
+  margin-left: 8px;
+}

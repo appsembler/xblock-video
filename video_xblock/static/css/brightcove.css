@@ -410,3 +410,7 @@ body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
   background-color: #171a1b;
   color: #0ea6ec;
 }
+
+.is-visible {
+  display: block !important;
+}
