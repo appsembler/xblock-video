@@ -504,7 +504,8 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         """
         Returns link for downloading transcript of the current captions language if it exists
         """
-        for transcript in json.loads(self.transcripts):
+        transcripts = json.loads(self.transcripts) if self.transcripts else []
+        for transcript in transcripts:
             if transcript.get('lang') == self.captions_language:
                 return transcript.get('url')
         return '#'
