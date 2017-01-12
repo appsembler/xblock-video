@@ -366,17 +366,11 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             field_info = self._make_field_info(field_name, field)
             if field_info is not None:
                 context["fields"].append(field_info)
-        path_to_images = self.runtime.local_resource_url(self, 'public/images/')
-        path_to_fonts = self.runtime.local_resource_url(self, 'public/fonts/')
 
         fragment.content = self.render_resource('static/html/studio_edit.html', **context)
         fragment.add_css(self.resource_string("static/css/handout.css"))
         fragment.add_css(self.resource_string("static/css/transcripts.css"))
-        fragment.add_css(self.render_resource("static/css/studio-main-v1.css",
-            path_to_images=path_to_images,
-            path_to_fonts=path_to_fonts
-            )
-        )
+        fragment.add_css(self.resource_string("static/css/studio-edit.css"))
         fragment.add_javascript(self.resource_string("static/js/studio_edit.js"))
         fragment.initialize_js('StudioEditableXBlock')
         return fragment

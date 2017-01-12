@@ -44,5 +44,5 @@ setup(
             'dummy-player = video_xblock.backends.dummy:DummyPlayer',
         ]
     },
-    package_data=package_data("video_xblock", ["static", "public"]),
+    package_data=package_data("video_xblock", ["static",]),
 )

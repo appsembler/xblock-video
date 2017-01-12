@@ -1,0 +1,69 @@
+.wrapper-translations-settings .list-settings .list-settings-item select {
+  width: 80%;
+  margin-right: 10px;
+}
+
+.metadata-video-translations .wrapper-translations-settings .list-settings .list-settings-item li {
+  margin-bottom: 10px;
+}
+
+.list-settings-buttons {
+  padding: 10px 0;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.upload-transcript,
+.download-transcript {
+  display: inline-block;
+  width: 46%;
+  border: 1px solid #009fe6;
+  border-radius: 5px;
+  padding: 6px 0;
+  text-align: center;
+  margin-right: 2%;
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+.download-transcript {
+  border: none;
+}
+
+.add-transcript {
+  display: block;
+  padding: 10px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  background-color: #fff;
+  color: #009fe6;
+  transition: all 0.15s;
+  text-align: center;
+  border-radius: 5px;
+  border: 1px solid #0075b4;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.upload-transcript:hover,
+ .add-transcript:hover {
+  border: 1px solid #009fe6;
+  background-color: #009fe6;
+  color: #fff;
+}
+
+.download-transcript:hover {
+  background-color: #009fe6;
+  color: #fff;
+}
+
+.icon {
+  margin-right: 5px;
+}
+
+.fa-plus::before {
+  content: "\f067";
+}
+
+.wrapper-comp-settings .list-input.settings-list .action.setting-clear {
+  vertical-align: top;
+}
