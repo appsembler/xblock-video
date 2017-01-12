@@ -183,13 +183,13 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
     transcripts_enabled = Boolean(
         default=False,
         scope=Scope.preferences,
-        help="Transcript is enabled or not"
+        help="Transcripts is enabled or not"
     )
 
     captions_enabled = Boolean(
         default=False,
         scope=Scope.preferences,
-        help="Transcript is enabled or not"
+        help="Captions is enabled or not"
     )
 
     handout = String(
@@ -333,7 +333,8 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
                 handout=self.handout,
                 transcripts=self.route_transcripts(self.transcripts),
                 download_transcript_allowed=self.download_transcript_allowed,
-                handout_file_name=self.get_handout_file_name()
+                handout_file_name=self.get_handout_file_name(),
+                transcript_download_link=self.get_transcript_download_link()
             )
         )
         frag.add_javascript(self.resource_string("static/js/video_xblock.js"))
@@ -498,3 +499,12 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         if file_field:
             return os.path.join('/', file_field)
         return ''
+
+    def get_transcript_download_link(self):
+        """
+        Returns link for downloading transcript of the current captions language if it exists
+        """
+        for transcript in json.loads(self.transcripts):
+            if transcript.get('lang') == self.captions_language:
+                return transcript.get('url')
+        return '#'

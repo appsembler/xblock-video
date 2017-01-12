@@ -46,6 +46,10 @@ function VideoXBlockStudentViewInit(runtime, element) {
       // Discard a message received from another domain
       return;
     try {
+      if (event.data.action === "saveState") {
+        updateTranscriptDownloadUrl(event.data.downloadTranscriptUrl);
+      };
+
       var url = handlers[event.data.action][event.data.xblockUsageId];
       if (url) {
         sendData(url, event.data.info);
@@ -53,5 +57,12 @@ function VideoXBlockStudentViewInit(runtime, element) {
     } catch (err){
       console.log(err)
     }
+  };
+  /** Updates transcript download url if it is enabled */
+  function updateTranscriptDownloadUrl(downloadTranscriptUrl) {
+    try {
+      var downloadTranscriptUrl = downloadTranscriptUrl ? downloadTranscriptUrl : '#';
+      document.getElementById('download-transcript-link').href = downloadTranscriptUrl;
+    } catch (err){}
   }
 }
