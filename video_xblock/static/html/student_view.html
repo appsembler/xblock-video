@@ -19,7 +19,9 @@
     {% endif %}
     {% if download_transcript_allowed and transcripts %}
         <li class="video-transcript video-download-button-custom">
-            <a  class="download-transcript" id="download-transcript-link" href="{{ transcript_download_link }}">{% trans 'Download transcript' %}</a>
+            <a  class="download-transcript"
+                id="download-transcript-link"
+                href="{{ download_transcript_handler_url }}{{ transcript_download_link }}">{% trans 'Download transcript' %}</a>
         </li>
     {% endif %}
 </ul>

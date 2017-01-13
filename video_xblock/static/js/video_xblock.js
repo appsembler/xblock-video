@@ -3,6 +3,7 @@
 function VideoXBlockStudentViewInit(runtime, element) {
   var stateHandlerUrl = runtime.handlerUrl(element, 'save_player_state');
   var eventHandlerUrl = runtime.handlerUrl(element, 'publish_event');
+  var downloadTranscriptHandlerUrl = runtime.handlerUrl(element, 'download_transcript');
   var usageId = element.attributes['data-usage-id'].value;
 
   window.videoXBlockState = window.videoXBlockState || {};
@@ -61,8 +62,8 @@ function VideoXBlockStudentViewInit(runtime, element) {
   /** Updates transcript download url if it is enabled */
   function updateTranscriptDownloadUrl(downloadTranscriptUrl) {
     try {
-      var downloadTranscriptUrl = downloadTranscriptUrl ? downloadTranscriptUrl : '#';
-      document.getElementById('download-transcript-link').href = downloadTranscriptUrl;
+      var downloadLinkEl = document.getElementById('download-transcript-link');
+      downloadLinkEl.href = downloadTranscriptHandlerUrl + '?' + downloadTranscriptUrl;
     } catch (err){}
   }
 }

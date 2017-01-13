@@ -3,7 +3,7 @@
   margin-right: 10px;
 }
 
-.metadata-video-translations .wrapper-translations-settings .list-settings .list-settings-item li {
+.metadata-video-translations .wrapper-translations-settings .list-settings li.list-settings-item {
   margin-bottom: 10px;
 }
 
@@ -13,7 +13,7 @@
 }
 
 .upload-transcript,
-.download-transcript {
+.download-setting {
   display: inline-block;
   width: 46%;
   border: 1px solid #009fe6;
@@ -25,7 +25,7 @@
   font-size: 1.2rem;
 }
 
-.download-transcript {
+.download-setting {
   border: none;
 }
 
@@ -51,7 +51,7 @@
   color: #fff;
 }
 
-.download-transcript:hover {
+.download-setting:hover {
   background-color: #009fe6;
   color: #fff;
 }

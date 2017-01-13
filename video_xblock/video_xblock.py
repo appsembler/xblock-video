@@ -240,7 +240,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             'muted': self.muted,
             'playback_rate': self.playback_rate,
             'volume': self.volume,
-            'transcripts': self.route_transcripts(self.transcripts),
+            'transcripts': json.loads(self.transcripts) if self.transcripts else [],
             'transcripts_enabled': self.transcripts_enabled,
             'captions_enabled': self.captions_enabled,
             'captions_language': self.captions_language or course.language
@@ -324,6 +324,8 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         """
 
         player_url = self.runtime.handler_url(self, 'render_player')
+        transcript_download_link = self.get_transcript_download_link()
+        download_transcript_handler_url = self.runtime.handler_url(self, 'download_transcript')
         frag = Fragment(
             self.render_resource(
                 'static/html/student_view.html',
@@ -333,8 +335,9 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
                 handout=self.handout,
                 transcripts=self.route_transcripts(self.transcripts),
                 download_transcript_allowed=self.download_transcript_allowed,
-                handout_file_name=self.get_handout_file_name(),
-                transcript_download_link=self.get_transcript_download_link()
+                handout_file_name=self.get_file_name_from_path(self.handout),
+                transcript_download_link=transcript_download_link,
+                download_transcript_handler_url=download_transcript_handler_url
             )
         )
         frag.add_javascript(self.resource_string("static/js/video_xblock.js"))
@@ -350,11 +353,13 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         languages = [{'label': label, 'code': lang} for lang, label in ALL_LANGUAGES]
         languages.sort(key=lambda l: l['label'])
         transcripts = json.loads(self.transcripts) if self.transcripts else []
+        download_transcript_handler_url = self.runtime.handler_url(self, 'download_transcript')
         context = {
             'fields': [],
             'courseKey': self.location.course_key,
             'languages': languages,
-            'transcripts': transcripts
+            'transcripts': transcripts,
+            'download_transcript_handler_url': download_transcript_handler_url
         }
         # Build a list of all the fields that can be edited:
         for field_name in self.editable_fields:
@@ -475,20 +480,25 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         info = super(VideoXBlock, self)._make_field_info(field_name, field)
         if field_name == 'handout':
             info['type'] = 'file_uploader'
-            info['file_name'] = self.get_handout_file_name()
+            info['file_name'] = self.get_file_name_from_path(self.handout)
             info['value'] = self.get_path_for(self.handout)
         if field_name == 'transcripts':
             info['type'] = 'transcript_uploader'
         return info
 
-    def get_handout_file_name(self):
+    def get_file_name_from_path(self, field):
         """
-        Field handout look like this:
-        asset-v1-RaccoonGang+1+2018+type@asset+block@<filename>
+        Helper for getting filename from string with path to mongoDB storage.
+        Example of string:
+            asset-v1-RaccoonGang+1+2018+type@asset+block@<filename>
 
-        It returns only name of file with extension
+        Args:
+            field: The path to file.
+
+        Returns:
+            The name of file with an extension.
         """
-        return self.handout.split('@')[-1]
+        return field.split('@')[-1]
 
     def get_path_for(self, file_field):
         """
@@ -509,3 +519,21 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             if transcript.get('lang') == self.captions_language:
                 return transcript.get('url')
         return '#'
+
+    @XBlock.handler
+    def download_transcript(self, request, suffix=''):
+        """
+        Function for downloading a transcripts.
+        Returns:
+            The file with the correct name
+        """
+        trans_path = self.get_path_for(request.query_string)
+        result = requests.get(request.host_url + request.query_string).text
+        filename = self.get_file_name_from_path(trans_path)
+        response = Response(result)
+        headerlist = [
+            ('Content-Type', 'text/plain'),
+            ('Content-Disposition', 'attachment; filename={}'.format(filename))
+        ]
+        response.headerlist = headerlist
+        return response
