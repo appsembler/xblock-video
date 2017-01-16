@@ -90,10 +90,10 @@ domReady(function() {
       var item = getItem('play');
       if (player.paused()) {
         player.play();
-        item['label'] = 'Pause';
+        item.label = 'Pause';
       } else {
         player.pause();
-        item['label'] = 'Play';
+        item.label = 'Play';
       }
     }}, {
     id: "mute",
@@ -102,10 +102,10 @@ domReady(function() {
       var item = getItem('mute');
       if (player.muted()){
         player.muted(false);
-        item['label'] = 'Mute';
-     } else {
+        item.label = 'Mute';
+      } else {
         player.muted(true);
-        item['label'] = 'Unmute';
+        item.label = 'Unmute';
       }
     }}, {
     id: "fullscreen",
@@ -114,10 +114,10 @@ domReady(function() {
       var item = getItem('fullscreen');
       if (player.isFullscreen()){
         player.exitFullscreen();
-        item['label'] = 'Fill browser';
-    } else {
+        item.label = 'Fill browser';
+      } else {
         player.requestFullscreen();
-        item['label'] = 'Unfill browser';
+        item.label = 'Unfill browser';
       }
     }}, {
     // Nested submenu creation is delegated to the player
