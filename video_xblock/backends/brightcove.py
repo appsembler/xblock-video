@@ -1,3 +1,7 @@
+"""
+Brightcove Video player plugin
+"""
+
 import re
 
 from xblock.fragment import Fragment
