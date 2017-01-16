@@ -30,6 +30,7 @@ function StudioEditableXBlock(runtime, element) {
                         val = null;
                     else
                         val = JSON.parse(val); // TODO: handle parse errors
+                    return val;
                 }
                 if (type == 'string' && (
                     contextId == 'xb-field-edit-start_time' || contextId == 'xb-field-edit-end_time')) {
