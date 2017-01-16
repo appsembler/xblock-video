@@ -1,9 +1,28 @@
 domReady(function() {
-  videojs('{{ video_player_id }}').ready(function(){
+  videojs('{{ video_player_id }}').ready(function() {
+
+    var tracks = this.textTracks();
+    var enableTrack = false;
+    for (var i = 0; i < tracks.length; i++) {
+      var track = tracks[i];
+      if (track.kind === 'captions') {
+        if (track.language === this.captionsLanguage) {
+          track.mode = 'showing';
+          enableTrack = true;
+        } else {
+          track.mode = 'disabled';
+        }
+      };
+    };
+    if (!enableTrack && track.kind === 'captions') {
+      tracks[0].mode = 'showing';
+    }
+
     // fire up the plugin
     var transcript = this.transcript({
       'showTrackSelector': false,
-      'showTitle': false
+      'showTitle': false,
+      'followPlayerTrack': true
     });
 
     // attach the widget to the page
@@ -50,23 +69,6 @@ domReady(function() {
       this.trigger('captionstatechanged');
     });
 
-
-    this.on('changelanguagetranscripts', function(event) {
-      var tracks = this.player_.textTracks();
-      for (var i = 0; i < tracks.length; i++) {
-        var track = tracks[i];
-        // Find the English captions track and mark it as "showing".
-        if (track.kind === 'captions' && track.language === this.player_.caption_lang) {
-          track.mode = 'showing';
-        } else if (track.kind === 'captions') {
-          track.mode = 'disabled';
-        }
-      }
-      this.player_.trigger('captionstrackchange');
-      this.player_.trigger('subtitlestrackchange');
-    });
-
-
     var cssClasses = "vjs-custom-caption-button vjs-menu-button vjs-menu-button-popup vjs-control vjs-button";
     if (this.captionsEnabled){
       cssClasses += ' vjs-control-enabled';
@@ -87,5 +89,6 @@ domReady(function() {
       disabledEvent: "transcriptdisabled",
       cssClasses: cssClasses,
     });
+
   });
 });

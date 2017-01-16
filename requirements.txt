@@ -1,4 +1,7 @@
 git+https://github.com/edx/XBlock.git#egg=XBlock==0.4.12
 git+https://github.com/edx/xblock-utils.git#egg=xblock-utils==1.0.2
 django==1.8.12
+edx-lint==0.5.1
 pycaption<1.0 # The latest Python 2.7 compatible version
+pylint==1.4.5
+requests==2.9.1

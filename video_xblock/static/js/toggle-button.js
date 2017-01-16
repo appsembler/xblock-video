@@ -29,23 +29,55 @@ domReady(function() {
     },
     onClick: function onClick(event) {
       var menuItem = this.$$('.vjs-menu-item', this.el_.parentNode);
+      var el = event.currentTarget;
       Array.from(menuItem).forEach(function(caption) {
         caption.classList.remove('vjs-selected');
       });
-      var el = event.currentTarget;
       el.classList.add('vjs-selected');
-      this.player_.caption_lang = this.el_.dataset.lang;
-      this.player_.trigger('changelanguagetranscripts');
-    },
+
+      var tracks = this.player_.textTracks();
+      for (var i = 0; i < tracks.length; i++) {
+        var track = tracks[i];
+        if (track.kind === 'captions') {
+          this.player_.captionsLanguage = el.dataset.lang;
+          track.mode = track.language === this.player_.captionsLanguage ? 'showing': 'disabled';
+        }
+      }
+      this.player_.trigger('captionstrackchange');
+      this.player_.trigger('subtitlestrackchange');
+      this.player_.trigger('currentlanguagechanged');
+    }
   });
 
   var MenuButton = videojs.getComponent('MenuButton');
+  var ClickableComponent = videojs.getComponent('ClickableComponent');
+
   var ToggleButton = videojs.extend(MenuButton, {
     // base class for create buttons for caption and transcripts
     constructor: function constructor(player, options) {
       this.kind_ = 'captions';
-      MenuButton.call(this, player, options);
+
+      ClickableComponent.call(this, player, options);
+
+      if (!this.player_.singleton_menu) {
+        this.update();
+        this.player_.singleton_menu = this.menu;
+      } else {
+        this.menu = this.player_.singleton_menu;
+      }
+
+      this.enabled_ = true;
+      this.el_.setAttribute('aria-haspopup', 'true');
+      this.el_.setAttribute('role', 'menuitem');
+
       this.on('click', this.onClick);
+      this.on('mouseenter', function(event) {
+        this.menu.el_.classList.add('is-visible');
+      });
+      this.on('mouseout', function(event) {
+        this.menu.el_.classList.remove('is-visible');
+      });
+
       this.createEl();
     },
 
@@ -92,6 +124,8 @@ domReady(function() {
       el.setAttribute('role', 'menuitem');
       el.setAttribute('aria-live', 'polite');
       el.classList += ' icon fa ' + this.styledSpan();
+      el.classList.add('vjs-singleton');
+
       return el;
     },
     onClick: function onClick(event) {

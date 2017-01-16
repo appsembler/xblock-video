@@ -30,6 +30,7 @@ function StudioEditableXBlock(runtime, element) {
                         val = null;
                     else
                         val = JSON.parse(val); // TODO: handle parse errors
+                    return val;
                 }
                 if (type == 'string' && (
                     contextId == 'xb-field-edit-start_time' || contextId == 'xb-field-edit-end_time')) {
@@ -205,6 +206,7 @@ function StudioEditableXBlock(runtime, element) {
     var $fileUploader = $('.input-file-uploader', element);
     var $langChoiceItem = $('.language-transcript-selector', element);
     var gotTranscriptsValue = $('input[data-field-name="transcripts"]').val();
+    var downloadTranscriptHandlerUrl = runtime.handlerUrl(element, 'download_transcript');
 
     if (gotTranscriptsValue){
         transcriptsValue = JSON.parse(gotTranscriptsValue);
@@ -224,23 +226,30 @@ function StudioEditableXBlock(runtime, element) {
             }
         })
     };
-
-    var pushTranscript = function (lang, label, url){
+    /** Replaces an existing transcript to transcriptsValue or adds new */
+    var pushTranscript = function (lang, label, url, oldLang, $uploadButton){
         var indexLanguage;
         for (var i=0; i < transcriptsValue.length; i++){
-            if (lang == transcriptsValue[i].lang){
+            if (oldLang == transcriptsValue[i].lang || lang == transcriptsValue[i].lang){
                 indexLanguage = i;
                 break;
             }
         }
         if (indexLanguage !== undefined){
-            transcriptsValue[indexLanguage].url = url
+            transcriptsValue[indexLanguage].lang = lang;
+            transcriptsValue[indexLanguage].label = label;
+            if (url) {
+              transcriptsValue[indexLanguage].url = url;
+            }
         } else {
             transcriptsValue.push({
                 lang: lang,
                 url: url,
                 label: label
-            })
+            });
+            if ($uploadButton) {
+              $uploadButton.removeClass('is-hidden');
+            }
         }
         $('.add-transcript').removeClass('is-disabled');
     };
@@ -270,10 +279,9 @@ function StudioEditableXBlock(runtime, element) {
         var $uploadButton = $('.upload-transcript', $langSelectParent);
         var oldLang = $uploadButton.data('lang-code');
         if (selectedLanguage != oldLang && selectedLanguage != ''){
-            pushTranscript(selectedLanguage, languageLabel, '');
+            pushTranscript(selectedLanguage, languageLabel, undefined, oldLang, $uploadButton);
             disabledLanguages.push(selectedLanguage);
             if (oldLang != ''){
-                removeTranscript(oldLang);
                 removeLanguage(oldLang);
             }
             $uploadButton.data('lang-code', selectedLanguage);
@@ -285,7 +293,6 @@ function StudioEditableXBlock(runtime, element) {
             'data-lang-code': selectedLanguage,
             'data-lang-label': languageLabel
         });
-        $uploadButton.removeClass('is-hidden').text('Upload');
         disableOption();
         pushTranscriptsValue();
     };
@@ -342,9 +349,10 @@ function StudioEditableXBlock(runtime, element) {
         var url = '/' + response['asset']['id'];
         var regExp = /.*@(.+\..+)/;
         var filename = regExp.exec(url)[1];
+        var downloadUrl = downloadTranscriptHandlerUrl + '?' + url;
         if (fieldName == "handout"){
             var $parentDiv = $('.file-uploader', element);
-            $('.download-setting', $parentDiv).attr({'href': url, 'download': filename}).removeClass('is-hidden');
+            $('.download-setting', $parentDiv).attr('href', downloadUrl).removeClass('is-hidden');
             $('a[data-change-field-name=' + fieldName + ']').text('Replace');
             showUploadStatus($parentDiv, filename);
             $('input[data-field-name=' + fieldName + ']').val(url).change();
@@ -354,7 +362,7 @@ function StudioEditableXBlock(runtime, element) {
             $(currentLiTag).find('.upload-transcript').text('Replace');
             $(currentLiTag).find('.download-transcript')
                 .removeClass('is-hidden')
-                .attr({'href': url, 'download': filename});
+                .attr('href', downloadUrl);
             showUploadStatus($(currentLiTag), filename);
         }
         $(event.currentTarget).attr({

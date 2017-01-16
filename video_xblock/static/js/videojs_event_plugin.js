@@ -97,7 +97,6 @@
         this.onHideCaptions = function () {
             this.log('closed_captions.hidden', {current_time: this.currentTime()});
         };
-
         this.logEvent = function (event_type) {
             if (this.events.indexOf(event_type) == -1 || typeof this[event_type] !== 'function') {
                 return;
@@ -116,7 +115,7 @@
                 this.logEvent('onSpeedChange')
             })
             .on('play', function () {
-                this.logEvent('onPlay')
+              this.logEvent('onPlay');
             })
             .on('pause', function () {
                 this.logEvent('onPause')

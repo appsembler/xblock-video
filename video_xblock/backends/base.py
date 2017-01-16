@@ -1,3 +1,10 @@
+"""
+Backend classes are responsible for video platform specific logic such as
+validation, interaction with the platform via API and player rendering to end user.
+
+Base Video player plugin
+"""
+
 import abc
 import pkg_resources
 import re
@@ -10,7 +17,7 @@ from xblock.plugin import Plugin
 from django.template import Template, Context
 
 
-html_parser = HTMLParser()
+html_parser = HTMLParser()  #pylint: disable=invalid-name
 
 
 class BaseVideoPlayer(Plugin):

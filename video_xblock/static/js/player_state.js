@@ -25,10 +25,30 @@ var player_state = {
   'playbackRate': {{ player_state.playback_rate }},
   'muted': {{ player_state.muted | yesno:"true,false" }},
   'transcriptsEnabled': {{ player_state.transcripts_enabled | yesno:"true,false" }},
-  'captionsEnabled': {{ player_state.captions_enabled | yesno:"true,false" }}
+  'captionsEnabled': {{ player_state.captions_enabled | yesno:"true,false" }},
+  'captionsLanguage': '{{ player_state.captions_language }}',
 };
 
 var xblockUsageId = window.location.hash.slice(1);
+var transcripts = {
+  {% for transcript in player_state.transcripts %}
+   '{{transcript.lang}}': {
+          'label': '{{transcript.label}}',
+          'url': '{{transcript.url}}',
+   },
+  {% endfor %}
+};
+
+/** Get transcript url for current caption language */
+var getDownloadTranscriptUrl = function (player){
+  var downloadTranscriptUrl;
+  if (transcripts[player.captionsLanguage]){
+    downloadTranscriptUrl = transcripts[player.captionsLanguage].url;
+  } else {
+    downloadTranscriptUrl = '#';
+  };
+  return downloadTranscriptUrl;
+}
 
 /** Restore default or previously saved player state */
 var setInitialState = function (player, state) {
@@ -50,6 +70,11 @@ var setInitialState = function (player, state) {
         .playbackRate(state.playbackRate);
     player.transcriptsEnabled = state.transcriptsEnabled;
     player.captionsEnabled = state.captionsEnabled;
+    player.captionsLanguage = state.captionsLanguage;
+    // To switch off transcripts and captions state if doesn`t have transcripts with current captions language
+    if (!transcripts[player.captionsLanguage]){
+      player.captionsEnabled = player.transcriptsEnabled = false;
+    };
 };
 
 /**
@@ -64,14 +89,20 @@ var saveState = function(){
     'playbackRate': player.playbackRate(),
     'muted': player.muted(),
     'transcriptsEnabled': player.transcriptsEnabled,
-    'captionsEnabled': player.captionsEnabled
+    'captionsEnabled': player.captionsEnabled,
+    'captionsLanguage': player.captionsLanguage
   };
-
   if (JSON.stringify(new_state) !== JSON.stringify(player_state)) {
     console.log('Starting saving player state');
     player_state = new_state;
-      parent.postMessage({'action': 'saveState', 'info': new_state, 'xblockUsageId': xblockUsageId},
-          document.location.protocol + "//" + document.location.host);
+    parent.postMessage({
+      'action': 'saveState',
+      'info': new_state,
+      'xblockUsageId': xblockUsageId,
+      'downloadTranscriptUrl': getDownloadTranscriptUrl(player)
+      },
+      document.location.protocol + "//" + document.location.host
+    );
   }
 };
 
@@ -105,7 +136,8 @@ domReady(function() {
       .on('pause', saveState)
       .on('ended', saveState)
       .on('transcriptstatechanged', saveState)
-      .on('captionstatechanged', saveState);
+      .on('captionstatechanged', saveState)
+      .on('currentlanguagechanged', saveState);
   });
 
 });
