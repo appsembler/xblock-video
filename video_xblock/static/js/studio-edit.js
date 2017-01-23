@@ -1,8 +1,16 @@
+/**
+    StudioEditableXBlock function for setting up the Video xblock.
+    This function was copied from xblock-utils by link
+        https://github.com/edx/xblock-utils/blob/master/xblockutils/templates/studio_edit.html
+    and extended by Raccoon Gang company
+    It is responsible for a validating and sending data to backend
+*/
 function StudioEditableXBlock(runtime, element) {
-    "use strict";
+    'use strict';
 
     var fields = [];
-    var tinyMceAvailable = (typeof $.fn.tinymce !== 'undefined'); // Studio includes a copy of tinyMCE and its jQuery plugin
+    // Studio includes a copy of tinyMCE and its jQuery plugin
+    var tinyMceAvailable = (typeof $.fn.tinymce !== 'undefined');
     var datepickerAvailable = (typeof $.fn.datepicker !== 'undefined'); // Studio includes datepicker jQuery plugin
 
     $(element).find('.field-data-control').each(function() {
@@ -18,24 +26,31 @@ function StudioEditableXBlock(runtime, element) {
             val: function() {
                 var val = $field.val();
                 // Cast values to the appropriate type so that we send nice clean JSON over the wire:
-                if (type == 'boolean')
-                    return (val == 'true' || val == '1');
-                if (type == "integer")
+                if (type == 'boolean') {  // eslint-disable-line
+                    return (val == 'true' || val == '1');  // eslint-disable-line
+                }
+                if (type == 'integer') {  // eslint-disable-line
                     return parseInt(val, 10);
-                if (type == "float")
+                }
+                if (type == 'float') {  // eslint-disable-line
                     return parseFloat(val);
-                if (type == "generic" || type == "list" || type == "set") {
+                }
+                if (type == 'generic' || type == 'list' || type == 'set') {  // eslint-disable-line
                     val = val.trim();
-                    if (val === "")
+                    if (val === '') {
                         val = null;
-                    else
+                    } else {
                         val = JSON.parse(val); // TODO: handle parse errors
+                    }
                     return val;
                 }
+                /* eslint-disable */
                 if (type == 'string' && (
-                    contextId == 'xb-field-edit-start_time' || contextId == 'xb-field-edit-end_time')) {
+                    contextId == 'xb-field-edit-start_time'
+                    || contextId == 'xb-field-edit-end_time')) {
                     return parseRelativeTime(val);
                 }
+                /* eslint-disable */
                 return val;
             },
             removeEditor: function() {
@@ -47,27 +62,27 @@ function StudioEditableXBlock(runtime, element) {
             $wrapper.addClass('is-set');
             $resetButton.removeClass('inactive').addClass('active');
         };
-        $field.bind("change input paste", fieldChanged);
+        $field.bind('change input paste', fieldChanged);
         $resetButton.click(function() {
             $field.val($wrapper.attr('data-default')); // Use attr instead of data to force treating the default value as a string
             $wrapper.removeClass('is-set');
             $resetButton.removeClass('active').addClass('inactive');
         });
         if (type == 'html' && tinyMceAvailable) {
-            tinyMCE.baseURL = baseUrl + "/js/vendor/tinymce/js/tinymce";
+            tinyMCE.baseURL = baseUrl + '/js/vendor/tinymce/js/tinymce';
             $field.tinymce({
                 theme: 'modern',
                 skin: 'studio-tmce4',
                 height: '200px',
                 formats: { code: { inline: 'code' } },
-                codemirror: { path: "" + baseUrl + "/js/vendor" },
+                codemirror: { path: "" + baseUrl + '/js/vendor' },
                 convert_urls: false,
-                plugins: "link codemirror",
+                plugins: 'link codemirror',
                 menubar: false,
                 statusbar: false,
                 toolbar_items_size: 'small',
-                toolbar: "formatselect | styleselect | bold italic underline forecolor wrapAsCode | bullist numlist outdent indent blockquote | link unlink | code",
-                resize: "both",
+                toolbar: 'formatselect | styleselect | bold italic underline forecolor wrapAsCode | bullist numlist outdent indent blockquote | link unlink | code',
+                resize: 'both',
                 setup : function(ed) {
                     ed.on('change', fieldChanged);
                 }
@@ -76,7 +91,7 @@ function StudioEditableXBlock(runtime, element) {
 
         if (type == 'datepicker' && datepickerAvailable) {
             $field.datepicker('destroy');
-            $field.datepicker({dateFormat: "m/d/yy"});
+            $field.datepicker({dateFormat: 'm/d/yy'});
         }
     });
 
@@ -85,6 +100,11 @@ function StudioEditableXBlock(runtime, element) {
         var $checkboxes = $(this).find('input');
         var $wrapper = $optionList.closest('li');
         var $resetButton = $wrapper.find('button.setting-clear');
+        var fieldChanged = function() {
+            // Field value has been modified:
+            $wrapper.addClass('is-set');
+            $resetButton.removeClass('inactive').addClass('active');
+        };
 
         fields.push({
             name: $wrapper.data('field-name'),
@@ -100,12 +120,7 @@ function StudioEditableXBlock(runtime, element) {
                 return val;
             }
         });
-        var fieldChanged = function() {
-            // Field value has been modified:
-            $wrapper.addClass('is-set');
-            $resetButton.removeClass('inactive').addClass('active');
-        };
-        $checkboxes.bind("change input", fieldChanged);
+        $checkboxes.bind('change input', fieldChanged);
 
         $resetButton.click(function() {
             var defaults = JSON.parse($wrapper.attr('data-default'));
@@ -120,26 +135,26 @@ function StudioEditableXBlock(runtime, element) {
 
     var studio_submit = function(data) {
         var handlerUrl = runtime.handlerUrl(element, 'submit_studio_edits');
-        runtime.notify('save', {state: 'start', message: gettext("Saving")});
+        runtime.notify('save', {state: 'start', message: gettext('Saving')});
         $.ajax({
-            type: "POST",
+            type: 'POST',
             url: handlerUrl,
             data: JSON.stringify(data),
-            dataType: "json",
+            dataType: 'json',
             global: false,  // Disable Studio's error handling that conflicts with studio's notify('save') and notify('cancel') :-/
             success: function(response) { runtime.notify('save', {state: 'end'}); }
         }).fail(function(jqXHR) {
-            var message = gettext("This may be happening because of an error with our server or your internet connection. Try refreshing the page or making sure you are online.");
+            var message = gettext('This may be happening because of an error with our server or your internet connection. Try refreshing the page or making sure you are online.');
             if (jqXHR.responseText) { // Is there a more specific error message we can show?
                 try {
                     message = JSON.parse(jqXHR.responseText).error;
-                    if (typeof message === "object" && message.messages) {
+                    if (typeof message === 'object' && message.messages) {
                         // e.g. {"error": {"messages": [{"text": "Unknown user 'bob'!", "type": "error"}, ...]}} etc.
                         message = $.map(message.messages, function(msg) { return msg.text; }).join(", ");
                     }
                 } catch (error) { message = jqXHR.responseText.substr(0, 300); }
             }
-            runtime.notify('error', {title: gettext("Unable to update settings"), message: message});
+            runtime.notify('error', {title: gettext('Unable to update settings'), message: message});
         });
     };
 
@@ -164,7 +179,7 @@ function StudioEditableXBlock(runtime, element) {
         studio_submit({values: values, defaults: notSet});
     };
 
-    var validateTranscripts = function(e){
+    var validateTranscripts = function(e) {
         e.preventDefault();
         var isValid = [];
         var $visibleLangChoiceItems = $langChoiceItem.find('li:visible');
@@ -177,7 +192,7 @@ function StudioEditableXBlock(runtime, element) {
                 isValid.push(1)
             }
         });
-        if (isValid.length == $visibleLangChoiceItems.length){
+        if (isValid.length == $visibleLangChoiceItems.length) {
             fillValues(e)
         }
     };
@@ -227,15 +242,15 @@ function StudioEditableXBlock(runtime, element) {
         })
     };
     /** Replaces an existing transcript to transcriptsValue or adds new */
-    var pushTranscript = function (lang, label, url, oldLang, $uploadButton){
+    var pushTranscript = function (lang, label, url, oldLang, $uploadButton) {
         var indexLanguage;
-        for (var i=0; i < transcriptsValue.length; i++){
-            if (oldLang == transcriptsValue[i].lang || lang == transcriptsValue[i].lang){
+        for (var i=0; i < transcriptsValue.length; i++) {
+            if (oldLang == transcriptsValue[i].lang || lang == transcriptsValue[i].lang) {
                 indexLanguage = i;
                 break;
             }
         }
-        if (indexLanguage !== undefined){
+        if (indexLanguage !== undefined) {
             transcriptsValue[indexLanguage].lang = lang;
             transcriptsValue[indexLanguage].label = label;
             if (url) {
@@ -254,7 +269,7 @@ function StudioEditableXBlock(runtime, element) {
         $('.add-transcript').removeClass('is-disabled');
     };
 
-    var clickUploader = function(event){
+    var clickUploader = function(event) {
         event.preventDefault();
         event.stopPropagation();
         var $buttonBlock = $(event.currentTarget);
@@ -278,10 +293,10 @@ function StudioEditableXBlock(runtime, element) {
         var $langSelectParent = $(event.currentTarget).parent('li');
         var $uploadButton = $('.upload-transcript', $langSelectParent);
         var oldLang = $uploadButton.data('lang-code');
-        if (selectedLanguage != oldLang && selectedLanguage != ''){
+        if (selectedLanguage != oldLang && selectedLanguage != '') {
             pushTranscript(selectedLanguage, languageLabel, undefined, oldLang, $uploadButton);
             disabledLanguages.push(selectedLanguage);
-            if (oldLang != ''){
+            if (oldLang != '') {
                 removeLanguage(oldLang);
             }
             $uploadButton.data('lang-code', selectedLanguage);
@@ -297,36 +312,36 @@ function StudioEditableXBlock(runtime, element) {
         pushTranscriptsValue();
     };
 
-    var removeLanguage = function(language){
+    var removeLanguage = function(language) {
         var index = disabledLanguages.indexOf(language);
         disabledLanguages.splice(index, 1);
     };
 
-    var removeTranscript = function(lang){
-        for (var i=0; i < transcriptsValue.length; i++){
-            if (lang == transcriptsValue[i].lang){
+    var removeTranscript = function(lang) {
+        for (var i=0; i < transcriptsValue.length; i++) {
+            if (lang == transcriptsValue[i].lang) {
                 transcriptsValue.splice(i,1);
                 break;
             }
         }
     };
 
-    var pushTranscriptsValue = function(){
-        transcriptsValue.forEach(function (transcriptValue, index, array){
-            if (transcriptValue.lang == "" || transcriptValue.label == "" || transcriptValue.url == ""){
+    var pushTranscriptsValue = function() {
+        transcriptsValue.forEach(function (transcriptValue, index, array) {
+            if (transcriptValue.lang == '' || transcriptValue.label == '' || transcriptValue.url == '') {
                 transcriptsValue.splice(index, 1);
             }
         });
         $('input[data-field-name="transcripts"]').val(JSON.stringify(transcriptsValue)).change();
     };
 
-    var removeTranscriptBlock = function(event){
+    var removeTranscriptBlock = function(event) {
         event.preventDefault();
         event.stopPropagation();
         var $currentBlock = $(event.currentTarget).closest('li');
         var lang = $currentBlock.find('option:selected').val();
         removeTranscript(lang);
-        if (!transcriptsValue.length){
+        if (!transcriptsValue.length) {
             $currentBlock.parents('li').removeClass('is-set').find('.setting-clear').removeClass('active').addClass('inactive');
         }
         removeLanguage(lang);
@@ -337,11 +352,11 @@ function StudioEditableXBlock(runtime, element) {
 
     };
 
-    var showUploadStatus = function($element, filename){
+    var showUploadStatus = function($element, filename) {
         $('.status-error', $element).empty();
         $('.status-upload', $element).text('File ' + '"' + filename + '"' + ' uploaded successfully').show();
-        setTimeout(function(){
-            $('.status-upload', $element).hide()
+        setTimeout(function() {
+            $('.status-upload', $element).hide();
         }, 5000);
     };
 
@@ -350,7 +365,7 @@ function StudioEditableXBlock(runtime, element) {
         var regExp = /.*@(.+\..+)/;
         var filename = regExp.exec(url)[1];
         var downloadUrl = downloadTranscriptHandlerUrl + '?' + url;
-        if (fieldName == "handout"){
+        if (fieldName == 'handout') {
             var $parentDiv = $('.file-uploader', element);
             $('.download-setting', $parentDiv).attr('href', downloadUrl).removeClass('is-hidden');
             $('a[data-change-field-name=' + fieldName + ']').text('Replace');
@@ -373,7 +388,7 @@ function StudioEditableXBlock(runtime, element) {
     };
 
     $fileUploader.on('change', function(event) {
-        if (!$fileUploader.val()){
+        if (!$fileUploader.val()) {
             return;
         };
         var fieldName = $(event.currentTarget).attr('data-change-field-name');
@@ -383,20 +398,20 @@ function StudioEditableXBlock(runtime, element) {
         var currentLiTag = $('.language-transcript-selector').children()[parseInt(currentLiIndex)];
         $('.upload-setting', element).addClass('is-disabled');
         $('.file-uploader-form', element).ajaxSubmit({
-            success: function(response, statusText, xhr){
+            success: function(response, statusText, xhr) {
                 successHandler(response, statusText, xhr, fieldName, lang, label, currentLiTag)
             },
-            error: function(jqXHR, textStatus, errorThrown){
-                runtime.notify('error', {title: gettext("Unable to update settings"), message: textStatus});
+            error: function(jqXHR, textStatus, errorThrown) {
+                runtime.notify('error', {title: gettext('Unable to update settings'), message: textStatus});
             }
         });
         $('.upload-setting', element).removeClass('is-disabled');
     });
 
     $('.add-transcript', element).on('click', function (event) {
+        var $templateItem = $('.list-settings-item:hidden').clone();
         event.preventDefault();
         $(event.currentTarget).addClass('is-disabled');
-        var $templateItem = $('.list-settings-item:hidden').clone();
         $templateItem.removeClass('is-hidden').appendTo($langChoiceItem);
         $('.upload-transcript', $templateItem).on('click', clickUploader);
         $('.lang-select', $templateItem).on('change', languageChecker);
@@ -409,15 +424,15 @@ function StudioEditableXBlock(runtime, element) {
 
     $('.remove-action', element).on('click', removeTranscriptBlock);
 
-    $('.setting-clear').on('click', function (event){
+    $('.setting-clear').on('click', function (event) {
         var $currentBlock = $(event.currentTarget).closest('li');
-        if ($('.file-uploader', $currentBlock).length > 0){
+        if ($('.file-uploader', $currentBlock).length > 0) {
             $('.upload-setting', $currentBlock).text('Upload');
             $('.download-setting', $currentBlock).addClass('is-hidden');
         }
         $currentBlock.find('ol').find('li:visible').remove();
     });
-    $().ready(function(){
+    $().ready(function() {
         disableOption();
     });
 
@@ -427,7 +442,7 @@ function StudioEditableXBlock(runtime, element) {
         // that is 86399 seconds.
         var maxTimeInSeconds = 86399;
         var pad = function (number) {
-                return (number < 10) ? "0" + number : number;
+                return (number < 10) ? '0' + number : number;
             };
         // Removes all white-spaces and splits by `:`.
         var list = value.replace(/\s+/g, '').split(':');

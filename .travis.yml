@@ -2,5 +2,13 @@ language: python
 python:
   - "2.7"
 
+before_install:
+  # Install latest stable NodeJS version. Required for eslint.
+  - nvm install stable
+
+before_script:
+  - npm install eslint eslint-config-edx
+
 script:
   - "pylint video_xblock"
+  - "eslint video_xblock/static/js/"

@@ -6,15 +6,14 @@
  *
  */
 
-(function () {
-
-    "use strict";
+(function() {
+    'use strict';
+    /**
+        Videojs speed handler
+    */
     function videoJSSpeedHandler(options) {
-
         var playbackRateMenuButton = videojs.getComponent('PlaybackRateMenuButton');
         var controlBar = videojs.getComponent('ControlBar');
-        var menuButton = videojs.getComponent('MenuButton');
-        var button = videojs.getComponent('Button');
         var videojsPlayer = videojs('{{ video_player_id }}');
 
         /**
@@ -27,7 +26,7 @@
          */
         var playbackRateMenuButtonExtended = videojs.extend(playbackRateMenuButton, {
             /** @constructor */
-            constructor: function (player, options) {
+            constructor: function(player, options) {  // eslint-disable-line no-shadow
                 playbackRateMenuButton.call(this, player, options);
                 this.on('ratechange', this.updateLabel);
                 this.on('click', this.handleClick);
@@ -40,7 +39,7 @@
          *
          * @method updateLabel
          */
-        playbackRateMenuButtonExtended.prototype.updateLabel = function(event){
+        playbackRateMenuButtonExtended.prototype.updateLabel = function() {
             var speed = this.player().playbackRate() || 1;
             this.labelEl_.innerHTML = speed + 'x';
         };
@@ -51,7 +50,7 @@
          *
          * @method handleClick
          */
-        playbackRateMenuButtonExtended.prototype.handleClick = function(event){
+        playbackRateMenuButtonExtended.prototype.handleClick = function() {
             // FIXME for Brightcove
             return false;
         };
@@ -67,12 +66,9 @@
         } else {
             controlBar.prototype.options_.children.push('PlaybackRateMenuButton');
         }
-
         return this;
     }
-
     // Export plugin to the root
     window.videoJSSpeedHandler = videoJSSpeedHandler;
     window.videojs.plugin('videoJSSpeedHandler', videoJSSpeedHandler);
-
 }).call(this);
