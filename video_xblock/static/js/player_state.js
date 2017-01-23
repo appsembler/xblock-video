@@ -56,8 +56,7 @@ var setInitialState = function (player, state) {
     var playbackProgress = localStorage.getItem('playbackProgress');
     if (playbackProgress){
         playbackProgress=JSON.parse(playbackProgress);
-        if (playbackProgress['{{ video_player_id }}'] && 
-            playbackProgress['{{ video_player_id }}'] > stateCurrentTime) {
+        if (playbackProgress['{{ video_player_id }}']) {
             stateCurrentTime = playbackProgress['{{ video_player_id }}'];
         }
     }
