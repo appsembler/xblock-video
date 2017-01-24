@@ -1,7 +1,7 @@
 language: python
 python:
   - "2.7"
-
+cache: pip
 before_install:
   # Install latest stable NodeJS version. Required for eslint.
   - nvm install stable
@@ -17,6 +17,6 @@ before_script:
 script:
   - "pylint video_xblock"
   - "eslint video_xblock/static/js/"
-  - "nosetests video_xblock"
+  - "nosetests video_xblock --with-coverage --cover-package=video_xblock"
 after_success:
   - coveralls

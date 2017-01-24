@@ -2,3 +2,4 @@ django==1.8.12
 edx-lint==0.5.1
 pylint==1.4.5
 mako==1.0.2
+coveralls==1.1
