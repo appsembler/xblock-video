@@ -8,7 +8,7 @@
         "no-underscore-dangle": [
             "error", {"allow": [
                 // VideoJS components' attributes
-                "childNameIndex_", "el_", "kind_", "labelEl_", "options_", "player_"
+                "childNameIndex_", "el_", "kind_", "labelEl_", "options_", "player_", "tracks_"
             ]}
         ],
         "require-jsdoc": ["error", {

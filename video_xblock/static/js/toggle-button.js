@@ -21,8 +21,7 @@ domReady(function() {
             return this.options_.disabledEvent;
         },
         createEl: function createEl(type, props, attributes) {
-            var el = MenuItem.prototype.createEl.call(this, arguments.tag, props, attributes);
-            props = props || {};  // eslint-disable-line no-param-reassign
+            var el = MenuItem.prototype.createEl.call(this, arguments.tag, props || {}, attributes);
             el.setAttribute('role', 'menuitem');
             el.setAttribute('aria-live', 'polite');
             el.setAttribute('data-lang', this.options_.track.language);
@@ -31,26 +30,26 @@ domReady(function() {
         onClick: function onClick(event) {
             var menuItem = this.$$('.vjs-menu-item', this.el_.parentNode);
             var el = event.currentTarget;
+            var self = this;
             var tracks = this.player_.textTracks();
             Array.from(menuItem).forEach(function(caption) {
                 caption.classList.remove('vjs-selected');
             });
             el.classList.add('vjs-selected');
 
-            for (var i = 0; i < tracks.length; i++) {  // eslint-disable-line vars-on-top
-                var track = tracks[i];                 // eslint-disable-line vars-on-top
+            tracks.tracks_.forEach(function(track) {
                 if (track.kind === 'captions') {
-                    this.player_.captionsLanguage = el.dataset.lang;
-                    if (track.language === this.player_.captionsLanguage) {
-                        track.mode = 'showing';
+                    self.player_.captionsLanguage = el.dataset.lang;
+                    if (track.language === self.player_.captionsLanguage) {
+                        track.mode = 'showing';  // eslint-disable-line no-param-reassign
                     } else {
-                        track.mode = 'disabled';
+                        track.mode = 'disabled';  // eslint-disable-line no-param-reassign
                     }
                 }
-            }
+            });
             this.player_.trigger('captionstrackchange');
             this.player_.trigger('subtitlestrackchange');
-            this.player_.trigger('currentlanguagechanged');
+            this.player_.trigger('languagechange');
         }
     });
 
@@ -70,45 +69,53 @@ domReady(function() {
             } else {
                 this.menu = this.player_.singleton_menu;
             }
-            // This variable uses in videojs library
-            this.enabled_ = true;  // eslint-disable-line no-underscore-dangle
             this.el_.setAttribute('aria-haspopup', 'true');
             this.el_.setAttribute('role', 'menuitem');
 
+            // This variable uses in videojs library
+            this.enabled_ = true;  // eslint-disable-line no-underscore-dangle
+            // Events of ToggleButton
             this.on('click', this.onClick);
             this.on('mouseenter', function() {
+                var caretButton = this.$$('.vjs-custom-caret-button', this.el_.parentNode);
                 this.menu.el_.classList.add('is-visible');
+                if (caretButton.length > 0) {
+                    caretButton[0].classList.add('fa-caret-up');
+                    caretButton[0].classList.remove('fa-caret-left');
+                }
             });
-            this.on('mouseout', function() {
+            this.on('mouseleave', function() {
+                var caretButton = this.$$('.vjs-custom-caret-button', this.el_.parentNode);
                 this.menu.el_.classList.remove('is-visible');
+                if (caretButton.length > 0) {
+                    caretButton[0].classList.remove('fa-caret-up');
+                    caretButton[0].classList.add('fa-caret-left');
+                }
             });
 
             this.createEl();
         },
-
         createItems: function createItems() {
             var items = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+            var self = this;
             var tracks = this.player_.textTracks();
-
             if (!tracks) {
                 return items;
             }
-            for (var i = 0; i < tracks.length; i++) {  // eslint-disable-line vars-on-top
-                var track = tracks[i];                 // eslint-disable-line vars-on-top
+            tracks.tracks_.forEach(function(track) {  // eslint-disable-line no-param-reassign
                 // only add tracks that are of the appropriate kind and have a label
-                if (track.kind === this.kind_) {
-                    items.push(new ToggleMenuItem(this.player_, {
+                if (track.kind === self.kind_) {
+                    items.push(new ToggleMenuItem(self.player_, {
                         // MenuItem is selectable
                         track: track,
                         label: track.label,
-                        enabledEvent: this.enabledEventName(),
-                        disabledEvent: this.disabledEventName()
+                        enabledEvent: self.enabledEventName(),
+                        disabledEvent: self.disabledEventName()
                     }));
                 }
-            }
+            });
             return items;
         },
-
         styledSpan: function styledSpan() {
             return this.options_.style;
         },
@@ -122,8 +129,7 @@ domReady(function() {
             return this.options_.cssClasses;
         },
         createEl: function createEl(props, attributes) {
-            var el = MenuButton.prototype.createEl.call(this, arguments.tag, props, attributes);
-            props = props || {};  // eslint-disable-line no-param-reassign
+            var el = MenuButton.prototype.createEl.call(this, arguments.tag, props || {}, attributes);
             props.className = this.buildCSSClass() +   // eslint-disable-line no-param-reassign
                 ' icon fa ' + this.styledSpan();
             props.tabIndex = 0;  // eslint-disable-line no-param-reassign
@@ -131,7 +137,6 @@ domReady(function() {
             el.setAttribute('aria-live', 'polite');
             el.classList += ' icon fa ' + this.styledSpan();
             el.classList.add('vjs-singleton');
-
             return el;
         },
         onClick: function onClick(event) {
