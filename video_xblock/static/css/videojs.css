@@ -220,39 +220,62 @@ body {
     display: none;
 }
 
+.video-js .vjs-custom-caret-button {
+    position: absolute;
+    right: 0px;
+    width: 20px;
+}
+
+.video-js .vjs-custom-transcript-button {
+    position: absolute;
+    right: 20px;
+    width: 40px;
+}
+
+.video-js .vjs-custom-caption-button {
+    position: absolute;
+    right: 61px;
+    width: 40px;
+}
+
 .video-js .vjs-fullscreen-control {
     position: absolute;
-    right: 0;
+    right: 100;
     border-left: 1px dotted #4f595d;
+    border-right: 1px dotted #4f595d;
     width: 41px;
 }
 
 .video-js .vjs-volume-menu-button {
     position: absolute;
-    right: 41px;
+    right: 141px;
     border-left: 1px dotted #4f595d;
     width: 41px;
 }
+
 .video-js .vjs-playback-rate {
     position: absolute;
-    right: 82px;
+    right: 182px;
     border-left: 1px dotted #4f595d;
-    width: 90px;
+    width: 120px;
 }
 
 @media (max-width: 742px) {
-    .vjs-playback-rate-value:before {
+    .vjs-playback-rate-value .label {
         display: none;
     }
     .video-js .vjs-playback-rate {
         width: 41px;
     }
 }
-
 .vjs-playback-rate-value:before {
-    content: 'Speed ';
+    content: '\f0da  Speed ';
+    font-family: FontAwesome;
 }
-
+.vjs-playback-rate-value:hover:before {
+    content: '\f0d8  Speed ';
+    font-family: FontAwesome;
+}
 .video-js .roller {
     height: 5px;
     width: 5px;
@@ -362,24 +385,28 @@ body {
   display: block !important;
 }
 
-
 .vjs-custom-caption-button .vjs-menu-button-popup .vjs-menu,
 .vjs-custom-transcript-button .vjs-menu-button-popup .vjs-menu {
-  left: 0em;
+  left: 0;
 }
 
 .vjs-custom-caption-button .vjs-menu,
 .vjs-custom-transcript-button .vjs-menu {
-  left: 0em;
+  left: 0;
 }
 
 .vjs-custom-caption-button .vjs-menu .vjs-menu-content,
 .vjs-custom-transcript-button .vjs-menu .vjs-menu-content {
-  width: 80px;
+  width: 100px;
+}
+
+.vjs-playback-rate .vjs-menu .vjs-menu-content {
+  width: 120px;
 }
 
 .vjs-custom-caption-button .vjs-menu .vjs-menu-content li,
-.vjs-custom-transcript-button .vjs-menu .vjs-menu-content li {
+.vjs-custom-transcript-button .vjs-menu .vjs-menu-content li,
+.vjs-playback-rate .vjs-menu .vjs-menu-content li {
   text-align: left;
   margin-left: 8px;
 }

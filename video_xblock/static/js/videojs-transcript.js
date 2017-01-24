@@ -1,37 +1,49 @@
 domReady(function() {
     'use strict';
+
     videojs('{{ video_player_id }}').ready(function() {
-        var tracks = this.textTracks();
         var enableTrack = false;
+        var player_ = this;
         var cssClasses = 'vjs-custom-caption-button vjs-menu-button vjs-menu-button-popup vjs-control vjs-button';
-        // fire up the plugin
-        var transcript = this.transcript({
-            showTrackSelector: false,
-            showTitle: false,
-            followPlayerTrack: true
-        });
         // attach the widget to the page
         var transcriptContainer = document.getElementById('transcript');
         var captionContainer = document.getElementsByClassName('vjs-text-track-display');
-        for (var i = 0; i < tracks.length; i++) {  //  eslint-disable-line vars-on-top
-            var track = tracks[i];                 //  eslint-disable-line vars-on-top
-            if (track.kind === 'captions') {
-                if (track.language === this.captionsLanguage) {
-                    track.mode = 'showing';
-                    enableTrack = true;
-                } else {
-                    track.mode = 'disabled';
+        /** This function is wrapper for initial brightcove's captions. */
+        var initCaptions = function initCaptions() {
+            var transcript;
+            var tracks = player_.textTracks().tracks_;
+            tracks.forEach(function(track) {
+                if (track.kind === 'captions') {
+                    if (track.language === player_.captionsLanguage) {
+                        track.mode = 'showing';  // eslint-disable-line no-param-reassign
+                        enableTrack = true;
+                    } else {
+                        track.mode = 'disabled';  // eslint-disable-line no-param-reassign
+                    }
                 }
-                if (!enableTrack && i === tracks.length - 1) {
-                    tracks[0].mode = 'showing';
-                }
+            });
+            if (!enableTrack && tracks[0].kind === 'captions') {
+                tracks[0].mode = 'showing';
             }
+            // fire up the plugin
+            transcript = player_.transcript({
+                showTrackSelector: false,
+                showTitle: false,
+                followPlayerTrack: true
+            });
+            // Show or hide the transcripts block depending on the transcript state
+            if (!player_.transcriptsEnabled) {
+                transcriptContainer.className += ' is-hidden';
+            }
+            transcriptContainer.appendChild(transcript.el());
+        };
+
+        if (this.tagAttributes.brightcove !== undefined) {
+            // This branch for brightcove player
+            this.one('loadedmetadata', initCaptions);
+        } else {
+            initCaptions();
         }
-        // Show or hide the transcripts block depending on the transcript state
-        if (!this.transcriptsEnabled) {
-            transcriptContainer.className += ' is-hidden';
-        }
-        transcriptContainer.appendChild(transcript.el());
 
         this.on('transcriptenabled', function() {
             transcriptContainer.classList.toggle('is-hidden');
@@ -43,13 +55,13 @@ domReady(function() {
             this.transcriptsEnabled = false;
             this.trigger('transcriptstatechanged');
         });
+
         // Show or hide the captions block depending on the caption state
         if (!this.captionsEnabled) {
             Array.from(captionContainer).forEach(function(caption) {
                 caption.className += ' is-hidden';  // eslint-disable-line no-param-reassign
             });
         }
-
         this.on('captionenabled', function() {
             Array.from(captionContainer).forEach(function(caption) {
                 caption.classList.toggle('is-hidden', false);
@@ -82,6 +94,12 @@ domReady(function() {
             enabledEvent: 'transcriptenabled',
             disabledEvent: 'transcriptdisabled',
             cssClasses: cssClasses
+        });
+        this.toggleButton({
+            style: 'fa-caret-left',
+            enabledEvent: 'caretenabled',
+            disabledEvent: 'caretdisabled',
+            cssClasses: 'vjs-custom-caret-button vjs-menu-button vjs-menu-button-popup vjs-control vjs-button'
         });
     });
 });

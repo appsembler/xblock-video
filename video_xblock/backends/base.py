@@ -57,9 +57,6 @@ class BaseVideoPlayer(Plugin):
         frag.add_javascript(self.resource_string(
             '../static/bower_components/video.js/dist/video.min.js'
         ))
-        frag.add_javascript(self.render_resource(
-            '../static/js/videojs-speed-handler.js', **context
-        ))
         frag.add_javascript(self.resource_string(
             '../static/bower_components/videojs-contextmenu/dist/videojs-contextmenu.min.js'
         ))
@@ -72,6 +69,9 @@ class BaseVideoPlayer(Plugin):
         frag.add_javascript(
             self.render_resource('../static/js/player_state.js', **context)
         )
+        frag.add_javascript(self.render_resource(
+            '../static/js/videojs-speed-handler.js', **context
+        ))
         if context['player_state']['transcripts']:
             frag.add_javascript(self.resource_string(
                 '../static/bower_components/videojs-transcript/dist/videojs-transcript.js'

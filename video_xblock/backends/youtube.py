@@ -35,7 +35,7 @@ class YoutubePlayer(BaseVideoPlayer):
                 "src": context['url']
             }],
             "youtube": {"iv_load_policy": 1},
-            "playbackRates": [0.5, 1, 1.5, 2],
+            "playbackRates": [0.5, 1.0, 1.5, 2.0],
             "plugins": {
                 "xblockEventPlugin": {},
                 "offset": {
