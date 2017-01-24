@@ -36,3 +36,16 @@ TODO
 The code in this repository is licensed under the GPL v3 licence unless otherwise noted.
 
 Please see `LICENSE` file for details.
+
+
+## Tests
+
+Assuming revealjs is installed as above, you can run python tests like so:
+
+```nosetests video_xblock```
+
+To get statement coverage:
+
+```nosetests video_xblock --with-coverage --coverage-package=video_xblock```
+
+

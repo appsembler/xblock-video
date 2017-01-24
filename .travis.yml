@@ -5,6 +5,11 @@ python:
 before_install:
   # Install latest stable NodeJS version. Required for eslint.
   - nvm install stable
+  - pip install -r test_requirements.txt
+
+insall:
+  # Install required package.
+  - pip install -r requirements.txt
 
 before_script:
   - npm install eslint eslint-config-edx
@@ -12,3 +17,6 @@ before_script:
 script:
   - "pylint video_xblock"
   - "eslint video_xblock/static/js/"
+  - "nosetests video_xblock"
+after_success:
+  - coveralls
