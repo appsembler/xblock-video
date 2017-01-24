@@ -21,7 +21,8 @@ domReady(function() {
             return this.options_.disabledEvent;
         },
         createEl: function createEl(type, props, attributes) {
-            var el = MenuItem.prototype.createEl.call(this, arguments.tag, props || {}, attributes);
+            var menuProps = props || {};
+            var el = MenuItem.prototype.createEl.call(this, arguments.tag, menuProps, attributes);
             el.setAttribute('role', 'menuitem');
             el.setAttribute('aria-live', 'polite');
             el.setAttribute('data-lang', this.options_.track.language);
@@ -129,10 +130,10 @@ domReady(function() {
             return this.options_.cssClasses;
         },
         createEl: function createEl(props, attributes) {
-            var el = MenuButton.prototype.createEl.call(this, arguments.tag, props || {}, attributes);
-            props.className = this.buildCSSClass() +   // eslint-disable-line no-param-reassign
-                ' icon fa ' + this.styledSpan();
-            props.tabIndex = 0;  // eslint-disable-line no-param-reassign
+            var menuProps = props || {};
+            var el = MenuButton.prototype.createEl.call(this, arguments.tag, menuProps, attributes);
+            menuProps.className = this.buildCSSClass() + ' icon fa ' + this.styledSpan();
+            menuProps.tabIndex = 0;
             el.setAttribute('role', 'menuitem');
             el.setAttribute('aria-live', 'polite');
             el.classList += ' icon fa ' + this.styledSpan();
