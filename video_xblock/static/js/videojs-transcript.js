@@ -46,12 +46,12 @@ domReady(function() {
         }
 
         this.on('transcriptenabled', function() {
-            transcriptContainer.classList.toggle('is-hidden');
+            transcriptContainer.classList.remove('is-hidden');
             this.transcriptsEnabled = true;
             this.trigger('transcriptstatechanged');
         });
         this.on('transcriptdisabled', function() {
-            transcriptContainer.classList.toggle('is-hidden');
+            transcriptContainer.classList.add('is-hidden');
             this.transcriptsEnabled = false;
             this.trigger('transcriptstatechanged');
         });

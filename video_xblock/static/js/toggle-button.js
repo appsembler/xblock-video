@@ -142,7 +142,7 @@ domReady(function() {
         },
         onClick: function onClick(event) {
             var el = event.currentTarget;
-            var eventName = this.hasClass('vjs-control-enabled') ? this.enabledEventName() : this.disabledEventName();
+            var eventName = this.hasClass('vjs-control-enabled') ? this.disabledEventName() : this.enabledEventName();
             el.classList.toggle('vjs-control-enabled');
             this.player_.trigger(eventName);
         }

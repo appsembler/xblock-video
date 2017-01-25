@@ -108,7 +108,7 @@
                       <div class="status-error"></div>
                       <div class="list-settings-buttons">
                         <a href="#" class="upload-setting upload-transcript {% if not transcript.lang %}is-hidden{% endif %}" data-change-field-name="{{field.name}}" data-lang-code="{{ transcript.lang }}" data-lang-label="{{ transcript.label }}">{% trans "Replace" %}</a>
-                        <a href="{{ download_transcript_handler_url }}?{{ transcript.url }}" class="download-transcript download-setting">Download</a>
+                        <a href="{{ download_transcript_handler_url }}?{{ transcript.url }}" class="download-transcript download-setting">{% trans "Download" %}</a>
                       </div>
                       <div class="status-upload"></div>
                     </li>

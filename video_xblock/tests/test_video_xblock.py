@@ -68,7 +68,8 @@ class VideoXBlockTests(unittest.TestCase):
                 'transcripts': [],
                 'transcripts_enabled': self.block.transcripts_enabled,
                 'captions_enabled': self.block.captions_enabled,
-                'captions_language': 'en'
+                'captions_language': 'en',
+                'transcripts_object': '{}'
             }
         )
 
@@ -98,7 +99,8 @@ class VideoXBlockTests(unittest.TestCase):
             'transcripts': [],
             'transcriptsEnabled': True,
             'captionsEnabled': True,
-            'captionsLanguage': 'ru'
+            'captionsLanguage': 'ru',
+            'transcripts_object': '{}'
         }
         factory = RequestFactory()
         request = factory.post('', json.dumps(data), content_type='application/json')
@@ -113,6 +115,7 @@ class VideoXBlockTests(unittest.TestCase):
             'transcripts_enabled': data['transcriptsEnabled'],
             'captions_enabled': data['captionsEnabled'],
             'captions_language': data['captionsLanguage'],
+            'transcripts_object': '{}'
         })
 
 

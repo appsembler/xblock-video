@@ -12,10 +12,8 @@ function VideoXBlockStudentViewInit(runtime, element) {
             saveState: {},
             analytics: {}
         };
-
     handlers.saveState[usageId] = stateHandlerUrl;
     handlers.analytics[usageId] = eventHandlerUrl;
-
     /** Send data to server by POSTing it to appropriate VideoXBlock handler */
     function sendData(handlerUrl, data) {
         $.ajax({
@@ -30,14 +28,12 @@ function VideoXBlockStudentViewInit(runtime, element) {
             console.log('Failed to process data');  // eslint-disable-line no-console
         });
     }
-
     if (!window.videoXBlockListenerRegistered) {
         // Make sure we register event listener only once even if there are more than
         // one VideoXBlock on a page
         window.addEventListener('message', receiveMessage, false);  // eslint-disable-line no-use-before-define
         window.videoXBlockListenerRegistered = true;
     }
-
     /**
         * Receive a message from child frames.
         * Expects a specific type of messages containing video player state to be saved on a server.
@@ -51,12 +47,11 @@ function VideoXBlockStudentViewInit(runtime, element) {
             return;
         }
         try {
-            var url = handlers[event.data.action][event.data.xblockUsageId];  // eslint-disable-line vars-on-top
-            if (event.data.action === 'saveState') {
-                updateTranscriptDownloadUrl(  // eslint-disable-line no-use-before-define
-                    event.data.downloadTranscriptUrl
-                );
+            if (event.data.action === 'downloadTranscriptChanged') {
+                // eslint-disable-next-line no-use-before-define
+                updateTranscriptDownloadUrl(event.data.downloadTranscriptUrl);
             }
+            var url = handlers[event.data.action][event.data.xblockUsageId];  // eslint-disable-line vars-on-top
             if (url) {
                 sendData(url, event.data.info);
             }
@@ -66,11 +61,15 @@ function VideoXBlockStudentViewInit(runtime, element) {
     }
     /** Updates transcript download url if it is enabled */
     function updateTranscriptDownloadUrl(downloadTranscriptUrl) {
-        try {
-            var downloadLinkEl = document.getElementById('download-transcript-link'); // eslint-disable-line vars-on-top
-            downloadLinkEl.href = downloadTranscriptHandlerUrl + '?' + downloadTranscriptUrl;
-        } catch (err) {
-            console.log(err);  // eslint-disable-line no-console
+        var downloadLinkEl = document.getElementById('download-transcript-link');
+        if (downloadLinkEl) {
+            if (downloadTranscriptUrl) {
+                downloadLinkEl.href = downloadTranscriptHandlerUrl + '?' + downloadTranscriptUrl;
+                downloadLinkEl.classList.remove('is-disabled');
+            } else {
+                downloadLinkEl.href = '#';
+                downloadLinkEl.classList.add('is-disabled');
+            }
         }
     }
 }
