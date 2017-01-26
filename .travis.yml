@@ -1,15 +1,19 @@
 language: python
 python:
   - "2.7"
+  - "2.7.10"
+  - "2.7.12"
+  - "2.7.13"
+
 cache: pip
+
 before_install:
   # Install latest stable NodeJS version. Required for eslint.
   - nvm install stable
+  # Install binary package for lxml to speed up build
+  - sudo apt-get -qq update
+  - sudo apt-get install -y python-lxml
   - pip install -r test_requirements.txt
-
-insall:
-  # Install required package.
-  - pip install -r requirements.txt
 
 before_script:
   - npm install eslint eslint-config-edx
