@@ -12,7 +12,7 @@ import pkg_resources
 import requests
 
 from xblock.core import XBlock
-from xblock.fields import Scope, Boolean, Integer, Float, String
+from xblock.fields import Scope, Boolean, Float, String
 from xblock.fragment import Fragment
 from xblock.validation import ValidationMessage
 from xblockutils.studio_editable import StudioEditableXBlockMixin
@@ -149,7 +149,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
     )
 
     # Playback state fields
-    current_time = Integer(
+    current_time = Float(
         default=0,
         scope=Scope.user_state,
         help='Seconds played back after the start'

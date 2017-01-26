@@ -82,7 +82,7 @@ var saveState = function() {
     var player = this;
     var new_state = {
         volume: player.volume(),
-        currentTime: player.ended()? 0 : Math.floor(player.currentTime()),
+        currentTime: player.ended()? 0 : player.currentTime(),
         playbackRate: player.playbackRate(),
         muted: player.muted(),
         transcriptsEnabled: player.transcriptsEnabled,
@@ -114,7 +114,7 @@ var saveProgressToLocalStore = function() {
         playbackProgress = '{}';
     }
     playbackProgress = JSON.parse(playbackProgress);
-    playbackProgress['{{ video_player_id }}'] = player.ended() ? 0 : Math.floor(player.currentTime());
+    playbackProgress['{{ video_player_id }}'] = player.ended() ? 0 : player.currentTime();
     localStorage.setItem('playbackProgress',JSON.stringify(playbackProgress));
 };
 

@@ -31,6 +31,10 @@ domReady(function() {
                 showTitle: false,
                 followPlayerTrack: true
             });
+            transcript.el().addEventListener('click', function() {
+                player_.trigger('transcriptstatechanged');
+            });
+
             // Show or hide the transcripts block depending on the transcript state
             if (!player_.transcriptsEnabled) {
                 transcriptContainer.className += ' is-hidden';
