@@ -48,7 +48,8 @@ class WistiaPlayer(BaseVideoPlayer):
                 "xblockEventPlugin": {},
                 "offset": {
                     "start": context['start_time'],
-                    "end": context['end_time']
+                    "end": context['end_time'],
+                    "current_time": context['player_state']['current_time'],
                 },
                 "videoJSSpeedHandler": {},
             }
