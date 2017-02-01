@@ -136,7 +136,85 @@
                   <span class="icon fa fa-plus" aria-hidden="true"></span>{% trans 'Add' %}<span class="sr"></span>
                 </a>
               </div>
-                <!-- End of Raccoongang addons -->
+
+            {% elif field.type == 'default_transcript_uploader' %}
+              <div class="custom-field-list">
+
+                <div class="custom-field-section-label main-section-label">{% trans "Show default transcripts" %}</div>
+                   <input type="checkbox" class="default-transcripts-switch-input" id="default-transcript-onoff-switch">
+                   <label class="default-transcripts-switch" for="default-transcript-onoff-switch">
+                     <div class="default-transcripts-slider"></div>
+                   </label>
+
+                <div class="default-transcripts-wrapper">
+                {% if transcripts  %}
+                  <div class="custom-field-section-label">{% trans "Enabled transcripts" %}</div>
+                  <!-- Display a list of transcripts fetched from a video xblock -->
+                    {% for transcript in transcripts %}
+                      <div class="default-transcripts-section">
+                        <div class="default-transcripts-label" value="{{ transcript.lang }}">
+                          {{ transcript.label }}
+                        </div>
+                        <div class="default-transcripts-actions">
+                          <a class="default-transcripts-action-link">{% trans "Download" %}</a>
+                          <a class="default-transcripts-action-link">{% trans "Delete" %}</a>
+                        </div>
+                      </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="custom-field-section-label">{% trans "Available transcripts" %}</div>
+                {% if default_transcripts %}
+                  <!-- Display a list of transcripts fetched from a video platform (API) -->
+                    {% for default_transcript in default_transcripts %}
+                      <div class="default-transcripts-section">
+                        <div class="default-transcripts-label" value="{{ default_transcript.code }}">
+                          {{ default_transcript.label }}
+                        </div>
+                        <div class="default-transcripts-actions">
+                          <a class="default-transcripts-action-link upload-default-transcript"
+                             data-change-field-name="{{ field.name }}"
+                             data-lang-code="{{ default_transcript.code }}"
+                             data-lang-label="{{ default_transcript.label }}"
+                             data-download-url="{{ default_transcript.url }}" >
+                            {% trans "Upload" %}
+                          </a>
+                        </div>
+                      </div>
+                    {% endfor %}
+                {% else %}
+                  <div class="default-transcripts-status status-error">
+                    <span class="icon fa fa-remove" aria-hidden="true"></span>
+                    {% trans "No timed transcript" %}
+                  </div>
+                  <div class="tip setting-help">
+                    {{ auth_error_message }}
+                    {{ transcripts_autoupload_message }}
+                    {% trans "You can add transcripts using the Upload Transcript field." %}
+                  </div>
+                {% endif %}
+                </div>
+              </div>
+
+            {% elif field.type == 'token_authorization' %}
+              <div class="custom-field-list">
+                  <div class="custom-field-section-label">{% trans "Client Token" %}</div>
+                  <input
+                    type="text"
+                    class="field-data-control token"
+                    id="xb-field-edit-{{field.name}}"
+                    value="{{field.value|default_if_none:""}}"
+                  >
+                  <div class="field-elements-wrapper">
+                    <button id="video-api-authenticate">
+                      <span aria-hidden="true"></span>{% trans "Connect to video platform" %}<span class="sr"></span>
+                    </button>
+                  </div>
+                  <div class="api-authenticate status-error"></div>
+                  <div class="api-authenticate status-success"></div>
+              </div>
+
+            <!-- End of Raccoongang addons -->
 
             {% else %}
               Unsupported field type. This setting cannot be edited.

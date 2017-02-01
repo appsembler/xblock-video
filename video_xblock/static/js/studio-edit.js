@@ -220,8 +220,10 @@ function StudioEditableXBlock(runtime, element) {
     var disabledLanguages = [];
     var $fileUploader = $('.input-file-uploader', element);
     var $langChoiceItem = $('.language-transcript-selector', element);
+    var $videoApiAuthenticator = $('#video-api-authenticate', element);
     var gotTranscriptsValue = $('input[data-field-name="transcripts"]').val();
     var downloadTranscriptHandlerUrl = runtime.handlerUrl(element, 'download_transcript');
+    var authenticateVideoApiHandlerUrl = runtime.handlerUrl(element, 'authenticate_video_api_handler');
 
     if (gotTranscriptsValue){
         transcriptsValue = JSON.parse(gotTranscriptsValue);
@@ -229,6 +231,92 @@ function StudioEditableXBlock(runtime, element) {
 
     transcriptsValue.forEach(function(transcriptValue, index, array) {
         disabledLanguages.push(transcriptValue.lang)
+    });
+
+    var showAuthenticateStatus = function(message, type, success_selector, error_selector){
+        if(type==='success'){
+            $(error_selector).empty();
+            $(success_selector).text(message).show();
+            setTimeout(function(){
+                $(success_selector).hide()
+            }, 5000);
+        }
+        else if(type==='error'){
+            $(success_selector).empty();
+            $(error_selector).text(message).show();
+            setTimeout(function(){
+                $(error_selector).hide()
+            }, 5000);
+        }
+    };
+
+    function authenticateVideoApi(data) {
+        $.ajax({
+            type: "POST",
+            url: authenticateVideoApiHandlerUrl,
+            data: JSON.stringify(data),
+            dataType: 'json',
+            success: function(response) {
+                var error_message = response['error_message'];
+                var success_message = response['success_message'];
+                if(success_message) {
+                    showAuthenticateStatus(
+                        success_message,
+                        'success',
+                        '.api-authenticate.status-success',
+                        '.api-authenticate.status-error');
+                }
+                else if(error_message) {
+                    showAuthenticateStatus(
+                        error_message,
+                        'error',
+                        '.api-authenticate.status-success',
+                        '.api-authenticate.status-error');
+                }
+            }
+        })
+        .fail(function(jqXHR) {
+            var message = gettext('This may be happening because of an error with our server or your ' +
+                'internet connection. Try refreshing the page or making sure you are online.');
+            showAuthenticateStatus(
+                message,
+                'error',
+                '.api-authenticate.status-success',
+                '.api-authenticate.status-error'
+            );
+            if (jqXHR.responseText) { // Is there a more specific error message we can show?
+                try {
+                    message = JSON.parse(jqXHR.responseText).error;
+                    if (typeof message === 'object' && message.messages) {
+                        // e.g. {"error": {"messages": [{"text": "Unknown user 'bob'!", "type": "error"}, ...]}} etc.
+                        message = $.map(message.messages, function(msg) { return msg.text; }).join(", ");
+                        // TODO consider if it is worthwhile to show this message to a user
+                        showAuthenticateStatus(
+                            message,
+                            'error',
+                            '.api-authenticate.status-success',
+                            '.api-authenticate.status-error'
+                        );                   }
+                } catch (error) {
+                    message = jqXHR.responseText.substr(0, 300);
+                    // TODO consider if it is worthwhile to show this message to a user
+                    showAuthenticateStatus(
+                        message,
+                        'error',
+                        '.api-authenticate.status-success',
+                        '.api-authenticate.status-error'
+                    );
+                }
+            }
+            runtime.notify('error', {title: gettext('Unable to update settings'), message: message});
+        });
+    }
+
+    $videoApiAuthenticator.on('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        var $data = $('.token', element).val();
+        authenticateVideoApi($data);
     });
 
     var disableOption = function(){
