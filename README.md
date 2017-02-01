@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/raccoongang/xblock-video.svg?branch=dev)](https://travis-ci.org/raccoongang/xblock-video)
+[![Coverage Status](https://coveralls.io/repos/github/raccoongang/xblock-video/badge.svg?branch=dev)](https://coveralls.io/github/raccoongang/xblock-video?branch=dev)
+
 # xblock-video
 XBlock to embed videos hosted on different video platform into your courses.
 
