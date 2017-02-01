@@ -136,6 +136,7 @@ domReady(function() {
             menuProps.tabIndex = 0;
             el.setAttribute('role', 'menuitem');
             el.setAttribute('aria-live', 'polite');
+            el.tabIndex = this.options_.tabIndex || 0;
             el.classList += ' icon fa ' + this.styledSpan();
             el.classList.add('vjs-singleton');
             return el;

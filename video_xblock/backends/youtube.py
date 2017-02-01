@@ -36,6 +36,8 @@ class YoutubePlayer(BaseVideoPlayer):
             }],
             "youtube": {"iv_load_policy": 1},
             "playbackRates": [0.5, 1.0, 1.5, 2.0],
+            "controls": True,
+            "preload": 'auto',
             "plugins": {
                 "xblockEventPlugin": {},
                 "offset": {

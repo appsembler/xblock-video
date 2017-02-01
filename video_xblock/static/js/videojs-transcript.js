@@ -29,7 +29,8 @@ domReady(function() {
             transcript = player_.transcript({
                 showTrackSelector: false,
                 showTitle: false,
-                followPlayerTrack: true
+                followPlayerTrack: true,
+                tabIndex: 10
             });
             transcript.el().addEventListener('click', function() {
                 player_.trigger('transcriptstatechanged');
@@ -87,7 +88,8 @@ domReady(function() {
             style: 'fa-cc',
             enabledEvent: 'captionenabled',
             disabledEvent: 'captiondisabled',
-            cssClasses: cssClasses
+            cssClasses: cssClasses,
+            tabIndex: 6
         });
         cssClasses = 'vjs-custom-transcript-button vjs-menu-button vjs-menu-button-popup vjs-control vjs-button';
         if (this.transcriptsEnabled) {
@@ -97,13 +99,15 @@ domReady(function() {
             style: 'fa-quote-left',
             enabledEvent: 'transcriptenabled',
             disabledEvent: 'transcriptdisabled',
-            cssClasses: cssClasses
+            cssClasses: cssClasses,
+            tabIndex: 7
         });
         this.toggleButton({
             style: 'fa-caret-left',
             enabledEvent: 'caretenabled',
             disabledEvent: 'caretdisabled',
-            cssClasses: 'vjs-custom-caret-button vjs-menu-button vjs-menu-button-popup vjs-control vjs-button'
+            cssClasses: 'vjs-custom-caret-button vjs-menu-button vjs-menu-button-popup vjs-control vjs-button',
+            tabIndex: 8
         });
     });
 });

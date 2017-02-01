@@ -43,7 +43,7 @@ domReady(function() {
 
             controlBarActions.forEach(function(action) {
                 var el = controlsMap[action] || controlBar[action].el_;  // eslint-disable-line vars-on-top
-                if (el) {
+                if (el && action !== 'ToggleButton') {
                     var index = controlsTabOrder.indexOf(action);  // eslint-disable-line vars-on-top
                     el.tabIndex = index === -1 ? -1 : index + 1;
                 }
