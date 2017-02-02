@@ -24,9 +24,9 @@ from webob import Response
 from .backends.base import BaseVideoPlayer, html_parser
 from .settings import ALL_LANGUAGES
 from .fields import RelativeTime
+from .utils import ugettext as _
 
 
-_ = lambda text: text
 log = logging.getLogger(__name__)
 
 
@@ -471,8 +471,8 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             video_player_id='video_player_{}'.format(self.location.block_id),  # pylint: disable=no-member
             save_state_url=save_state_url,
             player_state=self.player_state,
-            start_time=int(self.start_time.total_seconds()), # pylint: disable=no-member
-            end_time=int(self.end_time.total_seconds()), # pylint: disable=no-member
+            start_time=int(self.start_time.total_seconds()),  # pylint: disable=no-member
+            end_time=int(self.end_time.total_seconds()),  # pylint: disable=no-member
             brightcove_js_url=VideoXBlock.get_brightcove_js_url(self.account_id, self.player_id),
             transcripts=transcripts
         )
@@ -628,7 +628,9 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
 
         # TODO consider: move auth fields validation and kwargs population to specific backends
         # Handles a case where no token was provided by a user
-        if self.token == self.fields['token'].default and str(self.player_name) != 'youtube-player':  # pylint: disable=unsubscriptable-object
+        is_default_token = self.token == self.fields['token'].default  # pylint: disable=unsubscriptable-object
+        is_youtube_player = str(self.player_name) != 'youtube-player'  # pylint: disable=unsubscriptable-object
+        if is_default_token and is_youtube_player:
             error_message = 'In order to authenticate to a video platform\'s API, please provide a Video API Token.'
             return {}, error_message
         if token:

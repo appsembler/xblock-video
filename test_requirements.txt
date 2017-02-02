@@ -3,3 +3,4 @@ django==1.8.12
 edx-lint==0.5.2
 mako==1.0.2
 pylint==1.6.5
+pep8

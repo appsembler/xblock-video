@@ -236,7 +236,7 @@ class BrightcovePlayer(BaseVideoPlayer):
             transcripts_data = [
                 [el.get('src'), el.get('srclang')]
                 for el in captions_data
-                ]
+            ]
             # Populate default_transcripts
             for transcript_url, lang_code in transcripts_data:
                 lang_label = self.get_transcript_language_parameters(lang_code)[1]
