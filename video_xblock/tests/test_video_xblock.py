@@ -1,10 +1,11 @@
 """
 Test cases for video_xblock
 """
-import mock
 import datetime
 import json
 import unittest
+
+import mock
 
 from django.test import RequestFactory
 from django.conf import settings
@@ -27,7 +28,7 @@ class VideoXBlockTests(unittest.TestCase):
         Creates a XBlock VideoXBlock for testing purpose.
         """
         result = super(VideoXBlockTests, self).setUp()
-        runtime = TestRuntime() # pylint: disable=abstract-class-instantiated
+        runtime = TestRuntime()  # pylint: disable=abstract-class-instantiated
         self.block = VideoXBlock(runtime, DictFieldData({
             'account_id': 'account_id',
         }), mock.Mock())

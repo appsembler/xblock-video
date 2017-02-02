@@ -7,9 +7,9 @@ Base Video player plugin
 
 import abc
 import re
+from HTMLParser import HTMLParser
 import pkg_resources
 
-from HTMLParser import HTMLParser
 from webob import Response
 from xblock.fragment import Fragment
 from xblock.plugin import Plugin

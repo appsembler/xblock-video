@@ -34,6 +34,24 @@ settings:
 
 TODO
 
+## Development
+
+Install dependencies and development tools:
+```shell
+> pip install -r requirements.txt
+> pip install -r test_requirements.txt
+> npm install "eslint@^2.12.0" eslint-config-edx "eslint-plugin-dollar-sign@0.0.5" "eslint-plugin-import@^1.9.2"
+```
+
+Run quality checks:
+```shell
+> make quality
+```
+Run tests:
+```shell
+> make test
+```
+
 ## License
 
 The code in this repository is licensed under the GPL v3 licence unless otherwise noted.

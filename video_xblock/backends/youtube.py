@@ -4,8 +4,8 @@ YouTube Video player plugin
 
 import json
 import re
-import requests
 import urllib
+import requests
 from lxml import etree
 
 from video_xblock import BaseVideoPlayer

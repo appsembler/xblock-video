@@ -1,11 +1,11 @@
 """
-RelativeTive field copied from xmodule.fields to avoid import error and travis testing complication
+RelativeTive field back-ported from xmodule.fields to avoid import error and travis testing complication
 """
 
+import datetime
 import time
 
 from xblock.fields import JSONField
-import datetime
 
 
 class RelativeTime(JSONField):
