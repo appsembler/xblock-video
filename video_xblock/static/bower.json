@@ -9,7 +9,8 @@
     "videojs-resolution-switcher": "85f1e51c8babefca2d670dbd0b21a6307dbb4d21",
     "videojs-offset": "raccoongang/videojs-offset#master",
     "videojs-contextmenu": "brightcove/videojs-contextmenu",
-    "videojs-contextmenu-ui": "brightcove/videojs-contextmenu-ui"
+    "videojs-contextmenu-ui": "brightcove/videojs-contextmenu-ui",
+    "videojs-vimeo": "raccoongang/videojs-vimeo#bug/clean-player-code"
   },
   "private": true
 }

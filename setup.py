@@ -42,6 +42,7 @@ setup(
             'wistia-player = video_xblock.backends.wistia:WistiaPlayer',
             'brightcove-player = video_xblock.backends.brightcove:BrightcovePlayer',
             'dummy-player = video_xblock.backends.dummy:DummyPlayer',
+            'vimeo-player = video_xblock.backends.vimeo:VimeoPlayer'
         ]
     },
     package_data=package_data("video_xblock", ["static", ]),
