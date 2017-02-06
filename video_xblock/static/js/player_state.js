@@ -107,10 +107,10 @@ var saveState = function() {
  *  Save player progress in browser's local storage.
  *  We need it when user is switching between tabs.
  */
-var saveProgressToLocalStore = function() {
+var saveProgressToLocalStore = function saveProgressToLocalStore() {
     var player = this;
     var playbackProgress = localStorage.getItem('playbackProgress');
-    if (playbackProgress === undefined) {
+    if (!playbackProgress) {
         playbackProgress = '{}';
     }
     playbackProgress = JSON.parse(playbackProgress);
