@@ -89,13 +89,14 @@ class VimeoPlayer(BaseVideoPlayer):
         return u''
 
     @staticmethod
-    def customize_xblock_fields_display(editable_fields):  # pylint: disable=unused-argument
+    def customize_xblock_fields_display(editable_fields):
         """
         Customises display of studio editor fields per a video platform.
-        E.g. 'account_id' should be displayed for Brightcove only.
-
-        Returns:
-            client_token_help_message (str)
-            editable_fields (tuple)
         """
-        return '', ()
+        message = 'This field is to be disabled.'
+        editable_fields = list(editable_fields)
+        editable_fields.remove('account_id')
+        editable_fields.remove('player_id')
+        editable_fields.remove('token')
+        customised_editable_fields = tuple(editable_fields)
+        return message, customised_editable_fields
