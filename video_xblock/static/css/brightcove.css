@@ -250,22 +250,38 @@ body {
 .video-js .vjs-remaining-time {
     display: none;
 }
+.video-js .vjs-custom-caret-button {
+    position: absolute;
+    right: 0px;
+    width: 20px;
+}
+.video-js .vjs-custom-transcript-button {
+    position: absolute;
+    right: 20px;
+    width: 40px;
+}
+.video-js .vjs-custom-caption-button {
+    position: absolute;
+    right: 61px;
+    width: 40px;
+}
 .video-js .vjs-fullscreen-control {
     position: absolute;
-    right: 0;
+    right: 100;
     border-left: 1px dotted #4f595d;
+    border-right: 1px dotted #4f595d;
     width: 41px;
 }
 .video-js .vjs-volume-menu-button {
     position: absolute;
-    right: 9em;
+    right: 140px !important;
     border-left: 1px dotted #4f595d;
 }
 .video-js .vjs-playback-rate {
     position: absolute;
-    right: 41px;
+    right: 182px;
     border-left: 1px dotted #4f595d;
-    width: 130px;
+    width: 120px;
 }
 @media (max-width: 742px) {
     .vjs-playback-rate-value:before {
@@ -279,7 +295,12 @@ body {
     }
 }
 .vjs-playback-rate-value:before {
-    content: 'Speed ';
+    content: '\f0da  Speed ';
+    font-family: FontAwesome;
+}
+.vjs-playback-rate-value:hover:before {
+    content: '\f0d8  Speed ';
+    font-family: FontAwesome;
 }
 .bc-player-default_default .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
     width: 41px;
@@ -354,7 +375,6 @@ body {
     display: block;
 }
 
-
 body .video-js {
     overflow: visible;
 }
@@ -413,4 +433,63 @@ body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
 
 .is-visible {
   display: block !important;
+}
+
+.is-hidden {
+  display: none !important;
+}
+
+#transcript {
+  max-height: 100%;
+  overflow: scroll;
+  font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size: 14px;
+  background-color: inherit;
+}
+
+.transcript-body {
+  padding: 0 0 0 20px;
+}
+
+.transcript-line {
+  margin-bottom: 8px;
+  border: 0;
+  padding: 0;
+  color: #0074b5;
+  line-height: 1.41575em;
+}
+
+.transcript-line.is-active {
+  color: #333;
+  font-weight: 700;
+}
+
+.transcript-line:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.transcript-timestamp {
+  display: none;
+}
+
+.vjs-custom-caption-button .vjs-menu .vjs-menu-content,
+.vjs-custom-transcript-button .vjs-menu .vjs-menu-content {
+  width: 100px !important;
+  bottom: 2.5em;
+}
+
+.vjs-playback-rate .vjs-menu .vjs-menu-content {
+  width: 120px !important;
+}
+
+.vjs-custom-caption-button .vjs-menu .vjs-menu-content li,
+.vjs-custom-transcript-button .vjs-menu .vjs-menu-content li,
+.vjs-playback-rate .vjs-menu .vjs-menu-content li {
+  text-align: left;
+  margin-left: 8px;
+}
+
+.display-flex {
+  display: flex;
 }

@@ -3,18 +3,305 @@ Brightcove Video player plugin
 """
 
 import re
+import base64
+import json
+from datetime import datetime
 
+import requests
 from xblock.fragment import Fragment
 
-from video_xblock import BaseVideoPlayer
+from video_xblock.backends.base import ApiClientError, BaseVideoPlayer, BaseApiClient
 
 
-class BrightcovePlayer(BaseVideoPlayer):
+class BrightcoveApiClientError(ApiClientError):
+    """
+    Brightcove specific api client errors
+    """
+    pass
+
+
+class BrightcoveApiClient(BaseApiClient):
+    """
+    Low level Brightcove API client. Does all heavy lifting of sending https
+    requests over the wire. Responsible for API credentials issuing and
+    access_token refreshing.
+    """
+
+    def __init__(self, api_key, api_secret, token=None, account_id=None):
+        if token and account_id:
+            self.create_credentials(token, account_id)
+        else:
+            self.api_key = api_key
+            self.api_secret = api_secret
+        if api_key and api_secret:
+            self.access_token = self._refresh_access_token()
+        else:
+            self.access_token = ''
+
+    @staticmethod
+    def create_credentials(token, account_id):
+        """
+        Gets client credentials, given a client token and an account_id.
+        Reference: https://docs.brightcove.com/en/video-cloud/oauth-api/guides/get-client-credentials.html
+        """
+        headers = {'Authorization': 'BC_TOKEN {}'.format(token)}
+        data = {
+            "type": "credential",
+            "maximum_scope": [{
+                "identity": {
+                    "type": "video-cloud-account",
+                    "account-id": int(account_id),
+                },
+                "operations": [
+                    "video-cloud/video/all",
+                    "video-cloud/ingest-profiles/profile/read",
+                    "video-cloud/ingest-profiles/account/read",
+                    "video-cloud/ingest-profiles/profile/write",
+                    "video-cloud/ingest-profiles/account/write",
+                ],
+            }],
+            "name": "Open edX Video XBlock"
+        }
+        url = 'https://oauth.brightcove.com/v4/client_credentials'
+        response = requests.post(url, json=data, headers=headers)
+        response_data = response.json()
+        # New resource must have been created.
+        if response.status_code == 201 and response_data:
+            client_secret = response_data.get('client_secret')
+            client_id = response_data.get('client_id')
+            error_message = ''
+        else:
+            # For dev purposes, response_data.get('error_description') may also be considered.
+            error_message = "Authentication to Brightcove API failed: no client credentials have been retrieved.\n" \
+                            "Please ensure you have provided an appropriate BC token, using Video API Token field."
+            raise BrightcoveApiClientError(error_message)
+        return client_secret, client_id, error_message
+
+    def _refresh_access_token(self):
+        """
+        Requests new access token to send with requests to
+        Brightcove's Access Token expires every 5 minutes.
+        """
+        url = "https://oauth.brightcove.com/v3/access_token"
+        params = {"grant_type": "client_credentials"}
+        auth_string = base64.encodestring(
+            '{}:{}'.format(self.api_key, self.api_secret)
+        ).replace('\n', '')
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Authorization": "Basic " + auth_string
+        }
+        resp = requests.post(url, headers=headers, data=params)
+        if resp.status_code == 200:
+            result = resp.json()
+            return result['access_token']
+
+    def get(self, url, headers=None, can_retry=True):
+        headers_ = {'Authorization': 'Bearer ' + str(self.access_token)}
+        if headers is not None:
+            headers_.update(headers)
+        resp = requests.get(url, headers=headers_)
+        if resp.status_code == 200:
+            return resp.json()
+        elif resp.status_code == 401 and can_retry:
+            self.access_token = self._refresh_access_token()
+            return self.get(url, headers, can_retry=False)
+        else:
+            raise BrightcoveApiClientError
+
+    def post(self, url, payload, headers=None, can_retry=True):
+        headers_ = {
+            'Authorization': 'Bearer ' + self.access_token,
+            'Content-type': 'application/json'
+        }
+        if headers is not None:
+            headers_.update(headers)
+
+        resp = requests.post(url, data=payload, headers=headers_)
+        if resp.status_code in (200, 201):
+            return resp.json()
+        elif resp.status_code == 401 and can_retry:
+            self.access_token = self._refresh_access_token()
+            return self.post(url, payload, headers, can_retry=False)
+        else:
+            raise BrightcoveApiClientError
+
+
+class BrightcoveHlsMixin(object):
+    """
+    BrightcoveHlsMixin encapsulates data and methods used for HLS specific features.
+    These features are:
+    1. Video playback autoquality. i.e. adjusting video bitrate depending on client's bandwidth.
+    2. Video content encryption using short-living keys.
+    """
+
+    DI_PROFILES = {
+        'autoquality': {
+            'name': 'Open edX Video XBlock HLS ingest profile',
+            'short_name': 'autoquality',
+            'path': '../static/json/brightcove-ingest-profile-hls.tmpl.json',
+            'description': (
+                'This profile is used by Open edX Video XBlock to enable auto-quality feature. '
+                'Uploaded {:%Y-%m-%d %H:%M}'.format(datetime.now())
+            )
+        },
+        'encryption': {
+            'name': 'Open edX Video XBlock HLS with encryption ingest profile',
+            'short_name': 'encryption',
+            'path': '../static/json/brightcove-ingest-profile-hlse.tmpl.json',
+            'description': (
+                'This profile is used by Open edX Video XBlock to enable video content protection. '
+                'Uploaded {:%Y-%m-%d %H:%M}'.format(datetime.now())
+            )
+        }
+    }
+
+    def ensure_ingest_profiles(self, account_id):
+        """
+        Checks if custom HLS-enabled ingest profiles have been uploaded to the
+        given Brightcove account_id. If not, uploads these profiles.
+        """
+
+        existing_profiles = self.get_ingest_profiles(account_id)
+        existing_profiles_names = [_['name'] for _ in existing_profiles]
+        if self.DI_PROFILES['autoquality']['name'] not in existing_profiles_names:
+            self.upload_ingest_profile(account_id, self.DI_PROFILES['autoquality'])
+        if self.DI_PROFILES['encryption']['name'] not in existing_profiles_names:
+            self.upload_ingest_profile(account_id, self.DI_PROFILES['encryption'])
+
+    def get_ingest_profiles(self, account_id):
+        """
+        Gets all Ingest Profiles available for a given account id.
+
+        Reference:
+        https://docs.brightcove.com/en/video-cloud/ingest-profiles-api/getting-started/api-overview.html
+        """
+
+        url = 'https://ingestion.api.brightcove.com/v1/accounts/{}/profiles'.format(account_id)
+        res = self.api_client.get(url)
+        return res
+
+    def upload_ingest_profile(self, account_id, ingest_profile):
+        """
+        Uploads Ingest Profile to Brightcove using Brightcove's Ingest Profiles API.
+
+        Reference:
+        https://docs.brightcove.com/en/video-cloud/ingest-profiles-api/getting-started/api-overview.html
+        """
+
+        url = 'https://ingestion.api.brightcove.com/v1/accounts/{}/profiles'.format(account_id)
+        profile = self.render_resource(
+            ingest_profile['path'], name=ingest_profile['name'],
+            account_id=account_id, description=ingest_profile['description']
+        )
+        resp = self.api_client.post(url, payload=json.dumps(json.loads(profile)))
+        self.xblock.metadata[ingest_profile['short_name'] + '_profile_id'] = resp['id']
+        return resp
+
+    def submit_retranscode_job(self, account_id, video_id, profile_type):
+        """
+        Draft version.
+        Submit video for re-transcoding via Brightcove's Dynamic Ingestion API.
+        profile_type:
+            - default - re-transcode using default DI profile;
+            - autoquality - re-transcode using HLS only profile;
+            - encryption - re-transcode using HLS with encryption profile;
+
+        """
+
+        url = 'https://ingest.api.brightcove.com/v1/accounts/{account_id}/videos/{video_id}/ingest-requests'.format(
+            account_id=account_id, video_id=video_id
+        )
+        retranscode_params = {
+            'master': {
+                'use_archived_master': True
+            },
+            # Notifications to be expected by callbacks
+            # https://docs.brightcove.com/en/video-cloud/di-api/guides/notifications.html
+            'callbacks': ['https://6da71d31.ngrok.io']
+        }
+        if profile_type != 'default':
+            retranscode_params['profile'] = self.DI_PROFILES[profile_type]['name']
+        res = self.api_client.post(url, json.dumps(retranscode_params))
+        self.xblock.metadata['retranscode-status'] = (
+            'ReTranscode request submitted {:%Y-%m-%d %H:%M} UTC using profile "{}". Job id: {}'.format(
+                datetime.utcnow(), retranscode_params.get('profile', 'default'), res['id']))
+        return res
+
+    def get_video_renditions(self, account_id, video_id):
+        """
+        Returns information about video renditions provided by Brightcove API.
+        """
+
+        url = 'https://cms.api.brightcove.com/v1/accounts/{account_id}/videos/{video_id}/assets/renditions'.format(
+            account_id=account_id, video_id=video_id
+        )
+        res = self.api_client.get(url)
+        return res
+
+    def get_video_tech_info(self, account_id, video_id):
+        """
+        Returns summary about given video:
+            {
+              'renditions_count': <int>,
+              'auto_quality': 'on/off/partial',
+              'encryption': 'on/off/partial'
+            }
+        """
+
+        renditions = self.get_video_renditions(account_id, video_id)
+        info = {
+            'auto_quality': 'off',
+            'encryption': 'off',
+            'renditions_count': len(renditions),
+        }
+        hls_renditions_count = sum(_['hls'] is not None for _ in renditions)
+        encrypted_renditions_count = sum(_['hls']['encrypted'] for _ in renditions if _['hls'] is not None)
+
+        if hls_renditions_count == len(renditions):
+            info['auto_quality'] = 'on'
+        elif hls_renditions_count > 0:
+            info['auto_quality'] = 'partial'
+
+        if encrypted_renditions_count == len(renditions):
+            info['encryption'] = 'on'
+        elif encrypted_renditions_count > 0:
+            info['encryption'] = 'partial'
+
+        return info
+
+
+class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
     """
     BrightcovePlayer is used for videos hosted on the Brightcove Video Cloud.
     """
 
     url_re = re.compile(r'https:\/\/studio.brightcove.com\/products\/videocloud\/media\/videos\/(?P<media_id>\d+)')
+    metadata_fields = ['access_token', 'client_id', 'client_secret', ]
+
+    # Current api for requesting transcripts.
+    # For example: https://cms.api.brightcove.com/v1/accounts/{account_id}/videos/{video_ID}
+    # Docs on captions: https://docs.brightcove.com/en/video-cloud/cms-api/guides/webvtt.html
+    # Docs on auth: https://docs.brightcove.com/en/video-cloud/oauth-api/getting-started/oauth-api-overview.html
+    captions_api = {
+        'url': 'https://cms.api.brightcove.com/v1/accounts/{account_id}/videos/{media_id}',
+        'authorised_request_header': {
+            'Authorization': 'Bearer {access_token}'
+        },
+        'response': {
+            'language_code': 'srclang',  # no language_label translated in English may be fetched from API
+            'subs': 'src'  # e.g. "http://learning-services-media.brightcove.com/captions/bc_smart_ja.vtt"
+        }
+    }
+
+    # Stores default transcripts fetched from the captions API
+    default_transcripts = []
+
+    def __init__(self, xblock):
+        super(BrightcovePlayer, self).__init__(xblock)
+        self.api_key = xblock.metadata.get('client_id')
+        self.api_secret = xblock.metadata.get('client_secret')
+        self.api_client = BrightcoveApiClient(self.api_key, self.api_secret)
 
     def media_id(self, href):
         """
@@ -67,7 +354,169 @@ class BrightcovePlayer(BaseVideoPlayer):
         frag.add_css(
             self.resource_string('../static/css/brightcove.css')
         )
-        frag.add_css(
-            self.resource_string('../static/css/transcripts.css')
-        )
         return frag
+
+    def dispatch(self, _request, suffix):
+        """
+        Brightcove dispatch method exposes different utility entry points.
+
+        Entry point can either return info about video or Brightcove account
+        or perform some action via Brightcove API.
+        """
+
+        if not self.api_key and self.api_secret:
+            raise BrightcoveApiClientError('No API credentials provided')
+
+        if suffix == 'get_video_renditions':
+            return self.get_video_renditions(
+                self.xblock.account_id, self.media_id(self.xblock.href)
+            )
+        elif suffix == 'get_video_tech_info':
+            return self.get_video_tech_info(
+                self.xblock.account_id, self.media_id(self.xblock.href)
+            )
+        elif suffix == 'create_credentials':
+            return self.create_credentials(
+                self.xblock.token, self.xblock.account_id
+            )
+        elif suffix == 'get_ingest_profiles':
+            return self.get_ingest_profiles(self.xblock.account_id)
+        elif suffix == 'ensure_ingest_profiles':
+            return self.ensure_ingest_profiles(self.xblock.account_id)
+
+        elif suffix == 'submit_retranscode_default':
+            return self.submit_retranscode_job(
+                self.xblock.account_id, self.media_id(self.xblock.href), 'default'
+            )
+        elif suffix == 'submit_retranscode_autoquality':
+            return self.submit_retranscode_job(
+                self.xblock.account_id, self.media_id(self.xblock.href), 'autoquality'
+            )
+        elif suffix == 'submit_retranscode_encryption':
+            return self.submit_retranscode_job(
+                self.xblock.account_id, self.media_id(self.xblock.href), 'encryption'
+            )
+        elif suffix == 'retranscode-status':
+            return self.xblock.metadata.get('retranscode-status')
+        return {'success': False, 'message': 'Unknown method'}
+
+    def can_show_settings(self):
+        """
+        Reports to UI if it can show backend specific advanced settings.
+        """
+        can_show = bool(
+            self.xblock.metadata.get('client_id') and
+            self.xblock.metadata.get('client_secret')
+        )
+        return {'canShow': can_show}
+
+    @staticmethod
+    def customize_xblock_fields_display(editable_fields):
+        """
+        Customises display of studio editor fields per a video platform.
+        """
+        message = 'You can generate a BC token following the guide of ' \
+                  '<a href="https://docs.brightcove.com/en/video-cloud/oauth-api/guides/get-client-credentials.html" ' \
+                  'target="_blank">Brightcove</a>. Please ensure appropriate operations scope has been set ' \
+                  'on the video platform, and a BC token is valid.'
+        return message, editable_fields
+
+    def authenticate_api(self, **kwargs):
+        """
+        Authenticates to a Brightcove API in order to perform authorized requests.
+        Possible errors: https://docs.brightcove.com/en/perform/oauth-api/reference/error-messages.html
+
+        Arguments:
+            kwargs (dict): token and account_id key-value pairs
+                as a platform-specific predefined client parameters, required to get credentials and access token.
+        Returns:
+            auth_data (dict): tokens and credentials, necessary to perform authorised API requests, and
+            error_status_message (str) for verbosity.
+        """
+        token, account_id = kwargs.get('token'), kwargs.get('account_id')
+        client_secret, client_id, error_message = BrightcoveApiClient.create_credentials(token, account_id)
+        self.api_client.api_key = client_id
+        self.api_client.api_secret = client_secret
+        self.xblock.metadata['client_id'] = client_id
+        self.xblock.metadata['client_secret'] = client_secret
+        if error_message:
+            return {}, error_message
+        auth_data = {
+            'client_secret': client_secret,
+            'client_id': client_id,
+        }
+        return auth_data, error_message
+
+    def get_default_transcripts(self, **kwargs):
+        """
+        Fetches transcripts list from a video platform.
+
+        Arguments:
+            kwargs (dict): key-value pairs with account_id and video_id (both fetched from href field of studio editor),
+                           and access_token (fetched from Brightcove API).
+        Returns:
+            default_transcripts (list): list of dicts of transcripts. Example:
+                [
+                    {
+                        'lang': 'en',
+                        'label': 'English',
+                        'url': 'learning-services-media.brightcove.com/captions/bc_smart_ja.vtt'
+                    },
+                    # ...
+                ]
+            message (str): message for a user on default transcripts fetching.
+        """
+        if not self.api_key and self.api_secret:
+            raise BrightcoveApiClientError('No API credentials provided')
+
+        video_id = kwargs.get('video_id')
+        account_id = kwargs.get('account_id')
+        url = self.captions_api['url'].format(account_id=account_id, media_id=video_id)
+        default_transcripts = []
+        message = ''
+        # Fetch available transcripts' languages and urls if authentication succeeded.
+        try:
+            text = self.api_client.get(url)
+        except BrightcoveApiClientError:
+            message = 'No timed transcript may be fetched from a video platform.'
+            return default_transcripts, message
+
+        if text:
+            captions_data = text.get('text_tracks')
+            # Handle empty response (no subs uploaded on a platform)
+            if not captions_data:
+                message = 'For now, video platform doesn\'t have any timed transcript for this video.'
+                return default_transcripts, message
+            transcripts_data = [
+                [el.get('src'), el.get('srclang')]
+                for el in captions_data
+            ]
+            # Populate default_transcripts
+            for transcript_url, lang_code in transcripts_data:
+                lang_label = self.get_transcript_language_parameters(lang_code)[1]
+                default_transcript = {
+                    'lang': lang_code,
+                    'label': lang_label,
+                    'url': transcript_url,
+                }
+                default_transcripts.append(default_transcript)
+                self.default_transcripts.append(default_transcript)
+        else:
+            try:
+                message = str(text[0].get('message'))
+            except AttributeError:
+                message = 'No timed transcript may be fetched from a video platform. '
+        return default_transcripts, message
+
+    def download_default_transcript(self, url, language_code=None):  # pylint: disable=unused-argument
+        """
+        Downloads default transcript from a video platform API in WebVVT format.
+
+        Arguments:
+            url (str): transcript download url.
+        Returns:
+            unicode: Transcripts in WebVTT format.
+        """
+        data = requests.get(url)
+        sub = unicode(data.content.decode('utf8'))
+        return sub

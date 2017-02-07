@@ -13,16 +13,31 @@
 }
 
 .upload-transcript,
-.download-setting {
+.download-setting,
+/*#submit-re-transcode,*/
+#video-api-authenticate {
   display: inline-block;
   width: 46%;
   border: 1px solid #009fe6;
+  background-color: #fff;
   border-radius: 5px;
   padding: 6px 0;
   text-align: center;
   margin-right: 2%;
   font-weight: 600;
   font-size: 1.2rem;
+}
+
+/*#submit-re-transcode,*/
+#video-api-authenticate {
+  margin-top: 10px;
+  width: 92%;
+  padding: 10px;
+}
+
+.token {
+  margin-left: 27px;
+  width: 100%;
 }
 
 .download-setting {
@@ -45,7 +60,8 @@
 }
 
 .upload-transcript:hover,
- .add-transcript:hover {
+.add-transcript:hover,
+#video-api-authenticate:hover {
   border: 1px solid #009fe6;
   background-color: #009fe6;
   color: #fff;
@@ -66,4 +82,141 @@
 
 .wrapper-comp-settings .list-input.settings-list .action.setting-clear {
   vertical-align: top;
+}
+
+
+.custom-field-list {
+    width: 70%;
+    display: inline-block;
+    min-width: 240px;
+}
+
+.enabled-default-transcripts-section,
+.available-default-transcripts-section {
+    margin: 0;
+    padding: 0;
+}
+
+.custom-field-section-label {
+    display: inline-block;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.custom-field-section-label.main-section-label {
+    margin-bottom: 20px;
+}
+
+.default-transcripts-label {
+    display: inline-block;
+    font-size: 14px;
+    width: 80px;
+}
+
+.default-transcripts-actions {
+    text-align: right;
+    width: 225px;
+    display: inline-block;
+    font-size: 14px;
+}
+
+.default-transcripts-switch-input {
+    display:none;
+}
+
+.default-transcripts-slider {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    width: 40px;
+    height: 17px;
+    margin-left: 93px;
+    top: 4px;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    -moz-transition: .4s;
+    -o-transition: .4s;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.default-transcripts-slider:before {
+    position: absolute;
+    content: "";
+    height: 13px;
+    width: 13px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    -webkit-transition: .4s;
+    -moz-transition: .4s;
+    -o-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+.default-transcripts-switch-input:checked + .default-transcripts-switch .default-transcripts-slider {
+    background-color: #009fe6;
+}
+
+.default-transcripts-switch-input:checked + .default-transcripts-switch .default-transcripts-slider:before {
+    -webkit-transform: translateX(23px);
+    -ms-transform: translateX(23px);
+    -moz-transform: translateX(23px);
+    -o-transform: translateX(23px);
+    transform: translateX(23px);
+}
+
+.default-transcripts-wrapper {
+    display: none;
+}
+.default-transcripts-switch-input:checked ~ .default-transcripts-wrapper {
+    display: block;
+}
+
+.default-transcripts-status.status-error {
+    color: #b20610;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    display: block;
+    text-indent: 0;
+    list-style: none;
+}
+
+.field-elements-wrapper {
+    width: 70%;
+    display: inline-block;
+    min-width: 240px;
+}
+
+.api-request.status-success {
+    color: #51c67b;
+}
+
+.api-request.status-error {
+    color: #b20610;
+}
+
+.default-transcripts-action-link {
+    cursor: pointer;
+    margin-left: 8px;
+    text-decoration: none;
+    text-align: right;
+    font-size: 14px;
+}
+
+.default-transcripts-action-link.download-transcript.download-setting {
+    display: inline;
+    font-weight: 400;
+    margin-right: 0;
+}
+
+.default-transcripts-action-link.download-transcript.download-setting:hover {
+    color: #be9730;
+    background-color: #fff;
+    font-weight: 400;
 }

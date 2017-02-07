@@ -1,21 +1,25 @@
+[![Build Status](https://travis-ci.org/raccoongang/xblock-video.svg?branch=dev)](https://travis-ci.org/raccoongang/xblock-video)
+[![Coverage Status](https://coveralls.io/repos/github/raccoongang/xblock-video/badge.svg?branch=dev)](https://coveralls.io/github/raccoongang/xblock-video?branch=dev)
+
 # xblock-video
+
 XBlock to embed videos hosted on different video platform into your courses.
 
 ## Installation
 
-```bash
+```shell
 sudo -sHu edxapp
 source ~/edxapp_env
 # Clone and install xblock
 git clone https://github.com/raccoongang/xblock-video.git
 cd xblock-video
 pip install -e .
-# Install external JavaScript dependencies
-cd video_xblock/static
-bower install
+# Install Python and JavaScript dependencies
+make deps
 ```
 
 ## Enabling in Studio
+
 You can enable the Wistia xblock in studio through the advanced
 settings:
 
@@ -30,6 +34,23 @@ settings:
 ## Usage
 
 TODO
+
+## Development
+
+Install dependencies and development tools:
+```shell
+> make deps deps-test tools
+```
+
+Run quality checks:
+```shell
+> make quality
+```
+
+Run tests:
+```shell
+> make test
+```
 
 ## License
 

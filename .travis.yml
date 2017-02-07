@@ -1,6 +1,29 @@
 language: python
 python:
-  - "2.7"
+  - "2.7.10"
+  - "2.7.13"
+
+cache:
+  pip: true
+  directories:
+    - node_modules # NPM packages
+
+before_install:
+  # Install latest stable NodeJS version. Required for eslint.
+  - nvm install stable
+  # Install binary package for lxml to speed up build
+  - sudo apt-get -qq update
+  - sudo apt-get install -y python-lxml
+
+before_script:
+  - make deps-test
+  # Install eslint, eslint-config-edx and their dependencies
+  - make tools
 
 script:
-  - "pylint video_xblock"
+  - make quality-py
+  - make quality-js
+  - make test-py
+
+after_success:
+  - coveralls

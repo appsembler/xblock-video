@@ -12,52 +12,49 @@
 
 /** Run a callback when DOM is fully loaded */
 var domReady = function(callback) {
-  if (document.readyState === "interactive" || document.readyState === "complete") {
-    callback();
-  } else {
-    document.addEventListener("DOMContentLoaded", callback);
-  }
+    if (document.readyState === "interactive" || document.readyState === "complete") {
+        callback();
+    } else {
+        document.addEventListener("DOMContentLoaded", callback);
+    }
 };
-
 var player_state = {
-  'volume': {{ player_state.volume }},
-  'currentTime': {{ player_state.current_time }},
-  'playbackRate': {{ player_state.playback_rate }},
-  'muted': {{ player_state.muted | yesno:"true,false" }},
-  'transcriptsEnabled': {{ player_state.transcripts_enabled | yesno:"true,false" }},
-  'captionsEnabled': {{ player_state.captions_enabled | yesno:"true,false" }},
-  'captionsLanguage': '{{ player_state.captions_language }}',
+    volume: {{ player_state.volume }},
+    currentTime: {{ player_state.current_time }},
+    playbackRate: {{ player_state.playback_rate }},
+    muted: {{ player_state.muted | yesno:'true,false' }},
+    transcriptsEnabled: {{ player_state.transcripts_enabled | yesno:'true,false' }},
+    captionsEnabled: {{ player_state.captions_enabled | yesno:'true,false' }},
+    captionsLanguage: '{{ player_state.captions_language }}'
 };
-
 var xblockUsageId = window.location.hash.slice(1);
-var transcripts = {
-  {% for transcript in player_state.transcripts %}
-   '{{transcript.lang}}': {
-          'label': '{{transcript.label}}',
-          'url': '{{transcript.url}}',
-   },
-  {% endfor %}
-};
+var transcripts = { // eslint-disable-line
+    {% for transcript in player_state.transcripts %} // eslint-disable-line
+        '{{transcript.lang}}': { // eslint-disable-line
+            'label': '{{transcript.label}}', // eslint-disable-line
+            'url': '{{transcript.url}}', // eslint-disable-line
+        }, // eslint-disable-line
+    {% endfor %} // eslint-disable-line
+}; // eslint-disable-line
 
 /** Get transcript url for current caption language */
-var getDownloadTranscriptUrl = function (player){
-  var downloadTranscriptUrl;
-  if (transcripts[player.captionsLanguage]){
-    downloadTranscriptUrl = transcripts[player.captionsLanguage].url;
-  } else {
-    downloadTranscriptUrl = '#';
-  };
-  return downloadTranscriptUrl;
+var getDownloadTranscriptUrl = function(player) {
+    var downloadTranscriptUrl;
+    if (transcripts[player.captionsLanguage]) {
+        downloadTranscriptUrl = transcripts[player.captionsLanguage].url;
+    } else {
+        downloadTranscriptUrl = '#';
+    };
+    return downloadTranscriptUrl;
 }
 
 /** Restore default or previously saved player state */
-var setInitialState = function (player, state) {
+var setInitialState = function(player, state) {
     var stateCurrentTime = state.currentTime;
     var playbackProgress = localStorage.getItem('playbackProgress');
     if (playbackProgress){
         playbackProgress=JSON.parse(playbackProgress);
-        if (playbackProgress['{{ video_player_id }}'] && 
-            playbackProgress['{{ video_player_id }}'] > stateCurrentTime) {
+        if (playbackProgress['{{ video_player_id }}']) {
             stateCurrentTime = playbackProgress['{{ video_player_id }}'];
         }
     }
@@ -72,8 +69,8 @@ var setInitialState = function (player, state) {
     player.captionsEnabled = state.captionsEnabled;
     player.captionsLanguage = state.captionsLanguage;
     // To switch off transcripts and captions state if doesn`t have transcripts with current captions language
-    if (!transcripts[player.captionsLanguage]){
-      player.captionsEnabled = player.transcriptsEnabled = false;
+    if (!transcripts[player.captionsLanguage]) {
+        player.captionsEnabled = player.transcriptsEnabled = false;
     };
 };
 
@@ -81,63 +78,60 @@ var setInitialState = function (player, state) {
  * Save player state by posting it in a message to parent frame.
  * Parent frame passes it to a server by calling VideoXBlock.save_state() handler.
  */
-var saveState = function(){
-  var player = this;
-  var new_state = {
-    'volume': player.volume(),
-    'currentTime': player.ended()? 0 : Math.floor(player.currentTime()),
-    'playbackRate': player.playbackRate(),
-    'muted': player.muted(),
-    'transcriptsEnabled': player.transcriptsEnabled,
-    'captionsEnabled': player.captionsEnabled,
-    'captionsLanguage': player.captionsLanguage
-  };
-  if (JSON.stringify(new_state) !== JSON.stringify(player_state)) {
-    console.log('Starting saving player state');
-    player_state = new_state;
-    parent.postMessage({
-      'action': 'saveState',
-      'info': new_state,
-      'xblockUsageId': xblockUsageId,
-      'downloadTranscriptUrl': getDownloadTranscriptUrl(player)
-      },
-      document.location.protocol + "//" + document.location.host
-    );
-  }
+var saveState = function() {
+    var player = this;
+    var new_state = {
+        volume: player.volume(),
+        currentTime: player.ended()? 0 : player.currentTime(),
+        playbackRate: player.playbackRate(),
+        muted: player.muted(),
+        transcriptsEnabled: player.transcriptsEnabled,
+        captionsEnabled: player.captionsEnabled,
+        captionsLanguage: player.captionsLanguage
+    };
+    if (JSON.stringify(new_state) !== JSON.stringify(player_state)) {
+        console.log('Starting saving player state');
+        player_state = new_state;
+        parent.postMessage({
+            action: 'saveState',
+            info: new_state,
+            xblockUsageId: xblockUsageId,
+            downloadTranscriptUrl: getDownloadTranscriptUrl(player)
+        },
+        document.location.protocol + '//' + document.location.host
+        );
+    }
 };
 
 /**
  *  Save player progress in browser's local storage.
  *  We need it when user is switching between tabs.
  */
-var saveProgressToLocalStore = function(){
-  var player = this;
-  var playbackProgress = localStorage.getItem('playbackProgress');
-  if(playbackProgress == undefined){
-      playbackProgress = '{}';
-  }
-  playbackProgress = JSON.parse(playbackProgress);
-  playbackProgress['{{ video_player_id }}'] = player.ended() ? 0 : Math.floor(player.currentTime());
-  localStorage.setItem('playbackProgress',JSON.stringify(playbackProgress));
+var saveProgressToLocalStore = function saveProgressToLocalStore() {
+    var player = this;
+    var playbackProgress = localStorage.getItem('playbackProgress');
+    if (!playbackProgress) {
+        playbackProgress = '{}';
+    }
+    playbackProgress = JSON.parse(playbackProgress);
+    playbackProgress['{{ video_player_id }}'] = player.ended() ? 0 : player.currentTime();
+    localStorage.setItem('playbackProgress',JSON.stringify(playbackProgress));
 };
 
 domReady(function() {
-  videojs('{{ video_player_id }}').ready(function() {
+    videojs('{{ video_player_id }}').ready(function() {
     var player = this;
-
     // Restore default or previously saved player state
     setInitialState(player, player_state);
-
     player
-      .on('timeupdate', saveProgressToLocalStore)
-      .on('volumechange', saveState)
-      .on('ratechange', saveState)
-      .on('play', saveState)
-      .on('pause', saveState)
-      .on('ended', saveState)
-      .on('transcriptstatechanged', saveState)
-      .on('captionstatechanged', saveState)
-      .on('currentlanguagechanged', saveState);
-  });
-
+        .on('timeupdate', saveProgressToLocalStore)
+        .on('volumechange', saveState)
+        .on('ratechange', saveState)
+        .on('play', saveState)
+        .on('pause', saveState)
+        .on('ended', saveState)
+        .on('transcriptstatechanged', saveState)
+        .on('captionstatechanged', saveState)
+        .on('languagechange', saveState);
+    });
 });
