@@ -27,7 +27,15 @@ class DummyPlayer(BaseVideoPlayer):
     def get_default_transcripts(self, **kwargs):  # pylint: disable=unused-argument
         return [], ''
 
-    def download_default_transcript(self, url):  # pylint: disable=unused-argument
+    def download_default_transcript(self, url, language_code):  # pylint: disable=unused-argument
+        """
+        Download default transcript from a video platform API and formats it accordingly to the WebVTT standard.
+
+        Arguments:
+            url (str): API url to fetch a default transcript from.
+            language_code (str): Language code of a default transcript to be downloaded.
+
+        """
         return u''
 
     @staticmethod

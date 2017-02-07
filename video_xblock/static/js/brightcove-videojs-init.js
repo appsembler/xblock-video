@@ -1,3 +1,7 @@
+/**
+ * This part is responsible for initialization of Video.js and custom JS plugins in Brightcove player.
+ */
+
 domReady(function() {
     'use strict';
     var player = videojs('{{ video_player_id }}');

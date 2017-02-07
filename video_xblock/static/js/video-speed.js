@@ -1,4 +1,5 @@
-/** Enable playback rates support for all VideoJS plugins.
+/**
+ * Enable playback rates support for all VideoJS plugins.
  */
 
 var Tech = videojs.getComponent('Tech');

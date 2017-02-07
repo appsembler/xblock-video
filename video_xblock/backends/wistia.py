@@ -41,6 +41,9 @@ class WistiaPlayer(BaseVideoPlayer):
         }
     }
 
+    # Stores default transcripts fetched from the captions API
+    default_transcripts = []
+
     def media_id(self, href):
         """
         Wistia specific implementation of BaseVideoPlayer.media_id()
@@ -169,10 +172,10 @@ class WistiaPlayer(BaseVideoPlayer):
 
         if data.status_code == 200 and wistia_data:
             transcripts_data = [
-                [el.get('language'), el.get('english_name')]
+                [el.get('language'), el.get('english_name'), el.get('text')]
                 for el in wistia_data]
             # Populate default_transcripts
-            for lang_code, lang_label in transcripts_data:
+            for lang_code, lang_label, text in transcripts_data:
                 # lang_code, fetched from Wistia API, is a 3 character language code as specified by ISO-639-2.
                 # Reference: https://wistia.com/doc/data-api#captions_show
                 # Convert from ISO-639-2 to ISO-639-1; reference: https://pythonhosted.org/babelfish/
@@ -183,13 +186,15 @@ class WistiaPlayer(BaseVideoPlayer):
                     # Reference: https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes
                     lang_code = babelfish.Language.fromalpha3b(lang_code).alpha2   # pylint: disable=no-member
                 lang_label = self.get_transcript_language_parameters(lang_code)[1]
-                transcript_url = 'default_url_to_be_replaced'
+                transcript_url = 'url_can_not_be_generated'
                 default_transcript = {
                     'lang': lang_code,
                     'label': lang_label,
                     'url': transcript_url,
+                    'text': text,
                 }
                 default_transcripts.append(default_transcript)
+                self.default_transcripts.append(default_transcript)
         # If captions do not exist for a video, the response will be an empty JSON array.
         # Reference: https://wistia.com/doc/data-api#captions_index
         elif data.status_code == 200 and not wistia_data:
@@ -198,17 +203,65 @@ class WistiaPlayer(BaseVideoPlayer):
         # Reference: https://wistia.com/doc/data-api#captions_index
         elif data.status_code == 404:
             message = "Wistia video {video_id} doesn't exist.".format(video_id=str(video_id))
-
         return default_transcripts, message
 
-    def download_default_transcript(self, url):  # pylint: disable=unused-argument
-        # TODO: implement
+    @staticmethod
+    def format_transcript_text_line(line):
         """
-        Downloads default transcript from a video platform API in WebVVT format.
+        Replaces comma with dot in timings, e.g. 00:00:10,500 should be 00:00:10.500
+
+        """
+        pattern = re.compile(r"\d{2}:\d{2}:\d{2},\d{3}")
+        new_line = u""
+        for token in line.split():
+            if pattern.match(str(token)) or pattern.match(unicode(token), re.UNICODE):
+                token = token.replace(",", ".")
+            new_line += token + u" "
+        return new_line
+
+    def format_transcript_text(self, text):
+        """
+        Prepares unicode transcripts to be converted to WebVTT format.
+
+        """
+        new_text = [
+            self.format_transcript_text_line(line)
+            for line in text[0].splitlines()
+        ]
+        new_text = '\n'.join(new_text)
+        if u"WEBVTT" not in text:
+            text = u"WEBVTT\n\n" + unicode(new_text)
+        else:
+            text = unicode(new_text)
+        return text
+
+    def download_default_transcript(self, language_code, url=None):  # pylint: disable=unused-argument
+        """
+        Get default transcript fetched from a video platform API and formats it to WebVTT-like unicode.
+
+        Though Wistia provides a method for a transcript fetching, this is to avoid an API call.
+        References:
+            https://wistia.com/doc/data-api#captions_index
+            https://wistia.com/doc/data-api#captions_show
 
         Arguments:
-            url (str): transcript download url.
+            url (str): API url to fetch a default transcript from.
+            language_code (str): Language code of a default transcript to be downloaded.
+
         Returns:
-            unicode: Transcripts in WebVTT format.
+            unicode: text of transcripts.
+
         """
-        return u''
+        text = [
+            sub.get(u'text')
+            for sub in self.default_transcripts
+            if sub.get(u'lang') == unicode(language_code)
+        ]
+        text = self.format_transcript_text(text) if text else u""
+        return text
+
+    def dispatch(self, request, suffix):
+        """
+        Wistia dispatch method.
+        """
+        pass

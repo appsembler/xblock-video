@@ -6,7 +6,7 @@
     "videojs-youtube": "raccoongang/videojs-youtube#playback-rate-fix",
     "videojs-wistia": "raccoongang/videojs-wistia#playback-toggle-fix",
     "videojs-transcript": "0.8.0",
-    "videojs-resolution-switcher": "85f1e51c8babefca2d670dbd0b21a6307dbb4d21",
+    "videojs-resolution-switcher": "videojs-resolution-switcher#85f1e51",
     "videojs-offset": "raccoongang/videojs-offset#master",
     "videojs-contextmenu": "brightcove/videojs-contextmenu",
     "videojs-contextmenu-ui": "brightcove/videojs-contextmenu-ui",

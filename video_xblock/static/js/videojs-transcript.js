@@ -1,3 +1,6 @@
+/**
+ * This part is responsible for creation of captions and transcripts buttons on player load.
+ */
 domReady(function() {
     'use strict';
 
@@ -8,7 +11,7 @@ domReady(function() {
         // attach the widget to the page
         var transcriptContainer = document.getElementById('transcript');
         var captionContainer = document.getElementsByClassName('vjs-text-track-display');
-        /** This function is wrapper for initial brightcove's captions. */
+        /** This function is wrapper for initial Brightcove's captions. */
         var initCaptions = function initCaptions() {
             var transcript;
             var tracks = player_.textTracks().tracks_;

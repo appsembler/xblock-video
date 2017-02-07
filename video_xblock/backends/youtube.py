@@ -38,6 +38,9 @@ class YoutubePlayer(BaseVideoPlayer):
         }
     }
 
+    # Stores default transcripts fetched from the Youtube captions API
+    default_transcripts = []
+
     def media_id(self, href):
         return self.url_re.search(href).group('media_id')
 
@@ -87,8 +90,10 @@ class YoutubePlayer(BaseVideoPlayer):
     @staticmethod
     def customize_xblock_fields_display(editable_fields):
         """
-        Customises display of studio editor fields per a video platform.
+        Customise display of studio editor fields per a video platform.
+
         Authentication to API is not required for Youtube.
+
         """
         message = 'This field is to be disabled.'
         editable_fields = list(editable_fields)
@@ -108,15 +113,20 @@ class YoutubePlayer(BaseVideoPlayer):
         """
         Fetches available transcripts languages from a Youtube server.
 
+        Reference to `youtube_video_transcript_name()`:
+            https://github.com/edx/edx-platform/blob/ecc3473d36b3c7a360e260f8962e21cb01eb1c39/common/lib/xmodule/xmodule/video_module/transcripts_utils.py#L97
+
         Arguments:
             video_id (str): media id fetched from href field of studio-edit modal.
         Returns:
-            list: List of pairs of codes and labels of captions' languages fetched from API,
+            available_languages (list): List of pairs of codes and labels of captions' languages fetched from API,
                 together with transcripts' names if any.
                 If the transcript name is not empty on youtube server we have to pass
                 name param in url in order to get transcript.
                 Example: http://video.google.com/timedtext?lang=en&v={video_id}&name={transcript_name}
-                Reference: https://git.io/vMoCA
+
+            message (str): Message with status on captions API call.
+
         """
         utf8_parser = etree.XMLParser(encoding='utf-8')
         # This is to update self.captions_api with a video id.
@@ -148,9 +158,7 @@ class YoutubePlayer(BaseVideoPlayer):
         return available_languages, message
 
     def get_default_transcripts(self, **kwargs):
-        """
-        Fetches transcripts list from a video platform.
-        """
+        """Fetch transcripts list from a video platform."""
         # Fetch available transcripts' languages from API
         video_id = kwargs.get('video_id')
         available_languages, message = self.fetch_default_transcripts_languages(video_id)
@@ -171,42 +179,68 @@ class YoutubePlayer(BaseVideoPlayer):
                 'url': transcript_url,
             }
             default_transcripts.append(default_transcript)
-
+        self.default_transcripts = default_transcripts
         return default_transcripts, message
 
-    def download_default_transcript(self, url):
+    @staticmethod
+    def format_transcript_timing(sec):
         """
-        Downloads default transcript in WebVVT format.
+        Converts seconds to timestamp of the format `hh:mm:ss:mss`, e.g. 00:00:03.887
 
-        Reference: https://git.io/vMK6W
+        """
+        mins, secs = divmod(sec, 60)  # pylint: disable=unused-variable
+        hours, mins = divmod(mins, 60)
+        hours_formatted = str(int(hours)).zfill(2)
+        mins_formatted = str(int(mins)).zfill(2)
+        secs_formatted = str("{:06.3f}".format(round(secs, 3)))
+        timing = "{}:{}:{}".format(
+            hours_formatted,
+            mins_formatted,
+            secs_formatted
+        )
+        return timing
+
+    def format_transcript_element(self, element, i):
+        """
+        Parses XML elements of transcripts, fetched from the YouTube API, and
+        formats elements in order for them to be converted to WebVTT format.
+
+        """
+        sub_element = u"\n\n"
+        if element.tag == "text":
+            start = float(element.get("start"))
+            duration = float(element.get("dur", 0))  # dur is not mandatory
+            text = element.text
+            end = start + duration
+            if text:
+                formatted_start = self.format_transcript_timing(start)
+                formatted_end = self.format_transcript_timing(end)
+                timing = '{} --> {}'.format(formatted_start, formatted_end)
+                text = text.replace('\n', ' ')
+                sub_element = unicode(i) + u'\n' + unicode(timing) + u'\n' + unicode(text) + u'\n\n'
+        return sub_element
+
+    def download_default_transcript(self, url, language_code=None):  # pylint: disable=unused-argument
+        """
+        Downloads default transcript from Youtube API and formats it to WebVTT-like unicode.
+
+        Reference to `get_transcripts_from_youtube()`:
+            https://github.com/edx/edx-platform/blob/ecc3473d36b3c7a360e260f8962e21cb01eb1c39/common/lib/xmodule/xmodule/video_module/transcripts_utils.py#L122
 
         """
         utf8_parser = etree.XMLParser(encoding='utf-8')
         data = requests.get(url)
-
-        sub_dict, message = {}, ''  # pylint: disable=unused-variable
-        if data.status_code != 200 or not data.text:
-            message = "Can't receive transcripts from Youtube for {video_id}. Status code: {status_code}.".format(
-                video_id=self.captions_api['params']['v'],
-                status_code=data.status_code
-            )
-
-        # Fetch transcripts; reference: https://git.io/vMoEc
-        sub_starts, sub_ends, sub_texts = [], [], []
         xmltree = etree.fromstring(data.content, parser=utf8_parser)
-        for element in xmltree:
-            if element.tag == "text":
-                start = float(element.get("start"))
-                duration = float(element.get("dur", 0))  # dur is not mandatory
-                text = element.text
-                end = start + duration
-                if text:
-                    # Start and end should be ints representing the millisecond timestamp.
-                    sub_starts.append(int(start * 1000))
-                    sub_ends.append(int((end + 0.0001) * 1000))
-                    sub_texts.append(text.replace('\n', ' '))
+        sub = [
+            self.format_transcript_element(element, i)
+            for i, element in enumerate(xmltree, 1)
+        ]
+        sub = "".join(sub)
+        sub = u"WEBVTT\n\n" + unicode(sub) if "WEBVTT" not in sub else unicode(sub)
+        return sub
 
-        sub_dict = {'start': sub_starts, 'end': sub_ends, 'text': sub_texts}  # pylint: disable=unused-variable
-        # TODO implement conversion of sub_dict to WebVVT format
-
-        return u''
+    def dispatch(self, request, suffix):
+        """
+        Youtube dispatch method.
+        """
+        pass

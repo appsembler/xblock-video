@@ -1,3 +1,4 @@
+# Serves for configuration of CodeClimate (automated code review for test coverage, complexity, duplication, etc.)
 engines:
   csslint:
     enabled: true

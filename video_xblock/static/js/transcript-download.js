@@ -1,3 +1,7 @@
+/**
+ * This part is responsible for downloading of transcripts and captions in LMS and CMS.
+ */
+
 domReady(function() {
     'use strict';
     videojs('{{ video_player_id }}').ready(function() {

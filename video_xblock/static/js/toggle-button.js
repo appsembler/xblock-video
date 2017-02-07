@@ -1,14 +1,16 @@
 /**
  * The initial caption and transcript button.
- * Add "ToggleButton" to videojs as plugin.
+ * Add "ToggleButton" to Video.js as plugin.
  */
 
 domReady(function() {
     'use strict';
 
     var MenuItem = videojs.getComponent('MenuItem');
+   /**
+    *  Custom Video.js component responsible for creation of the menu with custom captions/transcripts buttons.
+    */
     var ToggleMenuItem = videojs.extend(MenuItem, {
-        // base class for create buttons for caption and transcripts
         constructor: function constructor(player, options) {
             MenuItem.call(this, player, options);
             this.on('click', this.onClick);
@@ -57,6 +59,9 @@ domReady(function() {
     var MenuButton = videojs.getComponent('MenuButton');
     var ClickableComponent = videojs.getComponent('ClickableComponent');
 
+   /**
+    *  Custom Video.js component responsible for creation of the custom captions/transcripts buttons.
+    */
     var ToggleButton = videojs.extend(MenuButton, {
         // base class for create buttons for caption and transcripts
         constructor: function constructor(player, options) {
@@ -73,7 +78,7 @@ domReady(function() {
             this.el_.setAttribute('aria-haspopup', 'true');
             this.el_.setAttribute('role', 'menuitem');
 
-            // This variable uses in videojs library
+            // This variable is used by Viddeo.js library
             this.enabled_ = true;  // eslint-disable-line no-underscore-dangle
             // Events of ToggleButton
             this.on('click', this.onClick);

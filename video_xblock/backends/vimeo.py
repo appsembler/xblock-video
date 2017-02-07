@@ -9,9 +9,7 @@ from video_xblock import BaseVideoPlayer
 
 
 class VimeoPlayer(BaseVideoPlayer):
-    """
-    VimeoPlayer is used for videos hosted on the Vimeo.com
-    """
+    """VimeoPlayer is used for videos hosted on the Vimeo.com."""
 
     # Regex is taken from http://regexr.com/3a2p0
     # https://vimeo.com/153979733
@@ -67,32 +65,21 @@ class VimeoPlayer(BaseVideoPlayer):
         return frag
 
     def authenticate_api(self, **kwargs):  # pylint: disable=unused-argument
-        """
-        Current Vimeo captions API doesn't require authentication, but this may change.
-        """
+        """Current Vimeo captions API doesn't require authentication, but this may change."""
         return {}, ''
 
     def get_default_transcripts(self, **kwargs):  # pylint: disable=unused-argument
-        """
-        Fetches transcripts list from a video platform.
-        """
+        """Fetches transcripts list from a video platform."""
         # Fetch available transcripts' languages from API
         return [], ''
 
-    def download_default_transcript(self, url):  # pylint: disable=unused-argument
-        """
-        Downloads default transcript in WebVVT format.
-
-        Reference: https://git.io/vMK6W
-
-        """
+    def download_default_transcript(self, url, language_code):  # pylint: disable=unused-argument
+        """Downloads default transcript in WebVVT format."""
         return u''
 
     @staticmethod
     def customize_xblock_fields_display(editable_fields):
-        """
-        Customises display of studio editor fields per a video platform.
-        """
+        """Customise display of studio editor fields per a video platform."""
         message = 'This field is to be disabled.'
         editable_fields = list(editable_fields)
         editable_fields.remove('account_id')

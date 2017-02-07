@@ -8,6 +8,7 @@ import datetime
 import json
 import logging
 import os
+import functools
 import pkg_resources
 import requests
 
@@ -16,6 +17,9 @@ from xblock.fields import Scope, Boolean, Float, String, Dict
 from xblock.fragment import Fragment
 from xblock.validation import ValidationMessage
 from xblockutils.studio_editable import StudioEditableXBlockMixin
+
+from xmodule.contentstore.django import contentstore  # pylint: disable=import-error
+from xmodule.contentstore.content import StaticContent  # pylint: disable=import-error
 
 from django.template import Template, Context
 from pycaption import detect_format, WebVTTWriter
@@ -46,7 +50,6 @@ class TranscriptsMixin(XBlock):
         Returns:
             unicode: Transcripts converted into WebVTT format.
         """
-
         reader = detect_format(caps)
         if reader:
             return WebVTTWriter().write(reader().read(caps))
@@ -400,17 +403,20 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         # since it is needed for the auth status message generation and the player's state update with auth status.
         auth_data, auth_error_message = self.authenticate_video_api()  # pylint: disable=unused-variable
 
-        # Fetch captions list (available/default transcripts list) from video platform API
+        # Prepare parameters necessary to make requests to API.
         video_id = player.media_id(self.href)
-        # Store parameters necessary to make requests to API.
         kwargs = {'video_id': video_id}
         for k in self.metadata:
             kwargs[k] = self.metadata[k]
         # For a Brightcove player only
-        if self.account_id is not self.fields['account_id'].default:  # pylint: disable=unsubscriptable-object
+        is_not_default_account_id = \
+            self.account_id is not self.fields['account_id'].default  # pylint: disable=unsubscriptable-object
+        if is_not_default_account_id:  # pylint: disable=unsubscriptable-object
             kwargs['account_id'] = self.account_id
-
+        # Fetch captions list (available/default transcripts list) from video platform API
         self.default_transcripts, transcripts_autoupload_message = player.get_default_transcripts(**kwargs)
+        # Needed for frontend
+        initial_default_transcripts = self.default_transcripts
         # Exclude enabled transcripts (fetched from video xblock) from the list of available ones.
         self.default_transcripts = player.filter_default_transcripts(self.default_transcripts, transcripts)
         if self.default_transcripts:
@@ -423,13 +429,14 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             'transcripts': transcripts,
             'download_transcript_handler_url': download_transcript_handler_url,
             'default_transcripts': self.default_transcripts,
+            'initial_default_transcripts': initial_default_transcripts,
             'auth_error_message': auth_error_message,
             'transcripts_autoupload_message': transcripts_autoupload_message
         }
 
         # Customize display of the particular xblock fields per each video platform.
         token_help_message, customised_editable_fields = \
-            player.customize_xblock_fields_display(self.editable_fields)
+            player.customize_xblock_fields_display(self.editable_fields)  # pylint: disable=unsubscriptable-object
         self.fields['token'].help = token_help_message  # pylint: disable=unsubscriptable-object
         self.editable_fields = customised_editable_fields
 
@@ -528,7 +535,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         Helper method to load video player by entry-point label
         """
         player = BaseVideoPlayer.load_class(self.player_name)
-        return player()
+        return player(self)
 
     def _make_field_info(self, field_name, field):
         """
@@ -614,6 +621,43 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         response.headerlist = headerlist
         return response
 
+    @XBlock.json_handler
+    def dispatch(self, request, suffix):
+        """
+        Dispatch request to XBlock's player.
+
+        Arguments:
+            request: incoming request data.
+            suffix: slug used for routing.
+
+        """
+        return self.get_player().dispatch(request, suffix)
+
+    @XBlock.handler
+    def ui_dispatch(self, _request, suffix):
+        """
+        Dispatcher for a requests sent by dynamic Front-end components.
+
+        Typical use case: Front-end wants to check with backend if it's ok to show
+        certain part of UI.
+        """
+
+        resp = {
+            'success': True,
+            'data': {}
+        }
+        if suffix == 'get-metadata':
+            resp['data'] = {'metadata': self.metadata}
+        elif suffix == 'can-show-backend-settings':
+            player = self.get_player()
+            if str(self.player_name) == 'brightcove-player':
+                resp['data'] = player.can_show_settings()
+            else:
+                resp['data'] = {'canShow': False}
+
+        response = Response(json.dumps(resp), content_type='application/json')
+        return response
+
     def authenticate_video_api(self, token=''):
         """
         Authenticates to a video platform's API.
@@ -626,7 +670,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             auth_data (dict): tokens and credentials, necessary to perform authorised API requests.
         """
 
-        # TODO consider: move auth fields validation and kwargs population to specific backends
+        # TODO move auth fields validation and kwargs population to specific backends
         # Handles a case where no token was provided by a user
         is_default_token = self.token == self.fields['token'].default  # pylint: disable=unsubscriptable-object
         is_youtube_player = str(self.player_name) != 'youtube-player'  # pylint: disable=unsubscriptable-object
@@ -637,6 +681,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             kwargs = {'token': token}
         else:
             kwargs = {'token': self.token}
+
         # Handles a case where no account_id was provided by a user
         if str(self.player_name) == 'brightcove-player':
             if self.account_id == self.fields['account_id'].default:  # pylint: disable=unsubscriptable-object
@@ -645,13 +690,12 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             kwargs['account_id'] = self.account_id
 
         player = self.get_player()
-        if str(self.player_name) == 'brightcove-player' and not self.metadata.get('access_token'):
+        if str(self.player_name) == 'brightcove-player' and not self.metadata.get('client_id'):
             auth_data, error_message = player.authenticate_api(**kwargs)
-        elif str(self.player_name) == 'brightcove-player' and self.metadata.get('access_token'):
+        elif str(self.player_name) == 'brightcove-player' and self.metadata.get('client_id'):
             auth_data = {
                 'client_secret': self.metadata.get('client_secret'),
                 'client_id': self.metadata.get('client_id'),
-                'access_token': self.metadata.get('access_token')
             }
             error_message = ''
         else:
@@ -690,6 +734,9 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         """
         # In case of successful authentication:
         for key in auth_data:
+            if key not in player.metadata_fields:
+                # Only backend-specific parameters are to be stored
+                continue
             self.metadata[key] = auth_data[key]
         # If the last authentication effort was not successful, metadata should be updated as well.
         # Since video xblock metadata may store various information, this is to update the auth data only.
@@ -698,7 +745,43 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             self.metadata['access_token'] = ''   # Brightcove API
             self.metadata['client_id'] = ''      # Brightcove API
             self.metadata['client_secret'] = ''  # Brightcove API
-        # Clear metadata (only backend-specific parameters are to be stored)
-        irrelevant_fields = [key for key in self.metadata if key not in player.metadata_fields]
-        for key in irrelevant_fields:
-            del self.metadata[key]
+
+    @XBlock.json_handler
+    def upload_default_transcript_handler(self, data, suffix=''):  # pylint: disable=unused-argument
+        """
+        Function for uploading a transcript fetched a video platform's API to video xblock.
+
+        """
+        player = self.get_player()
+        video_id = player.media_id(self.href)
+        lang_code = str(data.get(u'lang'))
+        lang_label = str(data.get(u'label'))
+        sub_url = str(data.get(u'url'))
+        # File name format is <language label>_captions_video_<video_id>, e.g. "English_captions_video_456g68"
+        reference_name = "{}_captions_video_{}".format(lang_label, video_id).encode('utf8')
+
+        # Fetch default transcript
+        sub_unicode = player.download_default_transcript(url=sub_url, language_code=lang_code)
+        sub = self.convert_caps_to_vtt(caps=sub_unicode)
+
+        # Define location of default transcript as a future asset and prepare content to store in assets
+        ext = '.vtt'
+        file_name = reference_name.replace(" ", "_") + ext
+        course_key = self.location.course_key  # pylint: disable=no-member
+        content_loc = StaticContent.compute_location(course_key, file_name)  # AssetLocator object
+        sc_partial = functools.partial(StaticContent, content_loc, file_name, 'application/json')
+        content = sc_partial(sub.encode('UTF-8'))  # StaticContent object
+        external_url = '/' + str(content_loc)
+
+        # Commit the content
+        contentstore().save(content)
+
+        # Exceptions are handled on the frontend
+        success_message = 'Successfully uploaded "{}".'.format(file_name)
+        response = {
+            'success_message': success_message,
+            'lang': lang_code,
+            'url': external_url,
+            'label': lang_label
+        }
+        return response
