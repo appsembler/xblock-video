@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 YouTube Video player plugin
 """
@@ -9,6 +10,7 @@ import requests
 from lxml import etree
 
 from video_xblock import BaseVideoPlayer
+from video_xblock.constants import status
 
 
 class YoutubePlayer(BaseVideoPlayer):
@@ -143,7 +145,7 @@ class YoutubePlayer(BaseVideoPlayer):
                       'Error: {}'.format(str(exception))
             return available_languages, message
 
-        if data.status_code == 200 and data.text:
+        if data.status_code == status.HTTP_200_OK and data.text:
             youtube_data = etree.fromstring(data.content, parser=utf8_parser)
             empty_subs = False if [el.get('transcript_list') for el in youtube_data] else True
             available_languages = [
