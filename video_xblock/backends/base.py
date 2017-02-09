@@ -17,15 +17,11 @@ from xblock.plugin import Plugin
 from django.conf import settings
 from django.template import Template, Context
 
+from video_xblock.exceptions import VideoXBlockException
+from video_xblock.utils import ugettext as _
+
 
 html_parser = HTMLParser()  # pylint: disable=invalid-name
-
-
-class ApiClientError(Exception):
-    """
-    Base API client exception
-    """
-    pass
 
 
 class BaseApiClient(object):
@@ -307,8 +303,10 @@ class BaseVideoPlayer(Plugin):
         lang_code = lang_code[0:2]
         # Check on consistency with the pre-configured ALL_LANGUAGES
         if lang_code not in [language[0] for language in settings.ALL_LANGUAGES]:
-            raise Exception('Not all the languages of transcripts fetched from video platform are '
-                            'consistent with the pre-configured ALL_LANGUAGES')
+            raise VideoXBlockException(_(
+                'Not all the languages of transcripts fetched from video platform are consistent '
+                'with the pre-configured ALL_LANGUAGES'
+            ))
         lang_label = [language[1] for language in settings.ALL_LANGUAGES if language[0] == lang_code][0]
         return lang_code, lang_label
 

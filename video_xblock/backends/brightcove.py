@@ -11,15 +11,17 @@ from datetime import datetime
 import requests
 from xblock.fragment import Fragment
 
-from video_xblock.backends.base import ApiClientError, BaseVideoPlayer, BaseApiClient
+from video_xblock.backends.base import BaseVideoPlayer, BaseApiClient
 from video_xblock.constants import status
+from video_xblock.exceptions import ApiClientError
+from video_xblock.utils import ugettext as _
 
 
 class BrightcoveApiClientError(ApiClientError):
     """
     Brightcove specific api client errors
     """
-    pass
+    default_msg = _('Brightcove API error.')
 
 
 class BrightcoveApiClient(BaseApiClient):
@@ -367,7 +369,7 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         """
 
         if not self.api_key and self.api_secret:
-            raise BrightcoveApiClientError('No API credentials provided')
+            raise BrightcoveApiClientError(_('No API credentials provided'))
 
         if suffix == 'get_video_renditions':
             return self.get_video_renditions(
@@ -469,7 +471,7 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
             message (str): message for a user on default transcripts fetching.
         """
         if not self.api_key and self.api_secret:
-            raise BrightcoveApiClientError('No API credentials provided')
+            raise BrightcoveApiClientError(_('No API credentials provided'))
 
         video_id = kwargs.get('video_id')
         account_id = kwargs.get('account_id')
