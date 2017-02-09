@@ -16,11 +16,14 @@ engines:
     channel: "eslint-3"
   fixme:
     enabled: true
+  markdownlint:
+    enabled: true
   radon:
     enabled: true
 ratings:
   paths:
   - "**.css"
   - "**.js"
+  - "**.md"
   - "**.py"
 exclude_paths: []

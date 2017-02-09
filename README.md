@@ -38,22 +38,26 @@ TODO
 ## Development
 
 Install dependencies and development tools:
+
 ```shell
 > make deps deps-test tools
 ```
 
 Run quality checks:
+
 ```shell
 > make quality
 ```
 
 Run tests:
+
 ```shell
 > make test
 ```
 
 ## License
 
-The code in this repository is licensed under the GPL v3 licence unless otherwise noted.
+The code in this repository is licensed under the GPL v3 licence unless
+otherwise noted.
 
 Please see `LICENSE` file for details.
