@@ -52,15 +52,15 @@ class VimeoPlayer(BaseVideoPlayer):
 
         frag = super(VimeoPlayer, self).get_frag(**context)
         frag.add_content(
-            self.render_resource('../static/html/vimeo.html', **context)
+            self.render_resource('static/html/vimeo.html', **context)
         )
 
         frag.add_javascript(self.resource_string(
-            '../static/bower_components/videojs-vimeo/src/Vimeo.js'
+            'static/bower_components/videojs-vimeo/src/Vimeo.js'
         ))
 
         frag.add_javascript(self.resource_string(
-            '../static/bower_components/videojs-offset/dist/videojs-offset.min.js'
+            'static/bower_components/videojs-offset/dist/videojs-offset.min.js'
         ))
 
         return frag

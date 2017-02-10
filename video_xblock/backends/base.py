@@ -111,53 +111,53 @@ class BaseVideoPlayer(Plugin):
         """
         frag = Fragment()
         frag.add_css(self.resource_string(
-            '../static/bower_components/video.js/dist/video-js.min.css'
+            'static/bower_components/video.js/dist/video-js.min.css'
         ))
         frag.add_css(self.resource_string(
-            '../static/css/videojs.css'
+            'static/css/videojs.css'
         ))
         frag.add_css_url(
             'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'
         )
         frag.add_css(self.resource_string(
-            '../static/css/videojs-contextmenu-ui.css'
+            'static/css/videojs-contextmenu-ui.css'
         ))
         frag.add_javascript(self.resource_string(
-            '../static/bower_components/video.js/dist/video.min.js'
+            'static/bower_components/video.js/dist/video.min.js'
         ))
         frag.add_javascript(self.resource_string(
-            '../static/bower_components/videojs-contextmenu/dist/videojs-contextmenu.min.js'
+            'static/bower_components/videojs-contextmenu/dist/videojs-contextmenu.min.js'
         ))
         frag.add_javascript(self.resource_string(
-            '../static/bower_components/videojs-contextmenu-ui/dist/videojs-contextmenu-ui.min.js'
+            'static/bower_components/videojs-contextmenu-ui/dist/videojs-contextmenu-ui.min.js'
         ))
         frag.add_javascript(self.resource_string(
-            '../static/js/video-speed.js'
+            'static/js/video-speed.js'
         ))
         frag.add_javascript(
-            self.render_resource('../static/js/player_state.js', **context)
+            self.render_resource('static/js/player_state.js', **context)
         )
         frag.add_javascript(self.render_resource(
-            '../static/js/videojs-speed-handler.js', **context
+            'static/js/videojs-speed-handler.js', **context
         ))
         if context['player_state']['transcripts']:
             frag.add_javascript(self.resource_string(
-                '../static/bower_components/videojs-transcript/dist/videojs-transcript.js'
+                'static/bower_components/videojs-transcript/dist/videojs-transcript.js'
             ))
             frag.add_javascript(self.render_resource(
-                '../static/js/transcript-download.js', **context
+                'static/js/transcript-download.js', **context
             ))
             frag.add_javascript(
-                self.render_resource('../static/js/videojs-transcript.js', **context)
+                self.render_resource('static/js/videojs-transcript.js', **context)
             )
         frag.add_javascript(
-            self.render_resource('../static/js/videojs-tabindex.js', **context)
+            self.render_resource('static/js/videojs-tabindex.js', **context)
         )
         frag.add_javascript(
-            self.resource_string('../static/js/toggle-button.js')
+            self.resource_string('static/js/toggle-button.js')
         )
         frag.add_javascript(self.render_resource(
-            '../static/js/videojs_event_plugin.js', **context
+            'static/js/videojs_event_plugin.js', **context
         ))
 
         return frag
@@ -193,7 +193,7 @@ class BaseVideoPlayer(Plugin):
         """
         frag = self.get_frag(**context)
         return Response(
-            self.render_resource('../static/html/base.html', frag=frag),
+            self.render_resource('static/html/base.html', frag=frag),
             content_type='text/html'
         )
 
