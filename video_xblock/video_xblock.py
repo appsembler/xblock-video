@@ -5,11 +5,10 @@ All you need to provide is video url, this XBlock does the rest for you.
 """
 
 import datetime
+import functools
 import json
 import logging
-import os
-import functools
-import pkg_resources
+import os.path
 import requests
 
 from xblock.core import XBlock
@@ -18,17 +17,16 @@ from xblock.fragment import Fragment
 from xblock.validation import ValidationMessage
 from xblockutils.studio_editable import StudioEditableXBlockMixin
 
-from xmodule.contentstore.django import contentstore  # pylint: disable=import-error
-from xmodule.contentstore.content import StaticContent  # pylint: disable=import-error
+from xmodule.contentstore.django import contentstore
+from xmodule.contentstore.content import StaticContent
 
-from django.template import Template, Context
 from pycaption import detect_format, WebVTTWriter
 from webob import Response
 
-from .backends.base import BaseVideoPlayer, html_parser
+from .backends.base import BaseVideoPlayer
 from .settings import ALL_LANGUAGES
 from .fields import RelativeTime
-from .utils import ugettext as _
+from .utils import render_resource, resource_string, ugettext as _
 
 
 log = logging.getLogger(__name__)
@@ -338,24 +336,6 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             _(u"Incorrect or unsupported video URL, please recheck.")
         ))
 
-    def resource_string(self, path):
-        """
-        Handy helper for getting resources from our kit.
-        """
-        data = pkg_resources.resource_string(__name__, path)
-        return data.decode("utf8")
-
-    def render_resource(self, path, **context):
-        """
-        Renders static resource using provided context
-
-        Returns: django.utils.safestring.SafeText
-        """
-        html = Template(self.resource_string(path))
-        return html_parser.unescape(
-            html.render(Context(context))
-        )
-
     def student_view(self, context=None):  # pylint: disable=unused-argument
         """
         The primary view of the VideoXBlock, shown to students
@@ -369,7 +349,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         if transcript_download_link:
             full_transcript_download_link = download_transcript_handler_url + transcript_download_link
         frag = Fragment(
-            self.render_resource(
+            render_resource(
                 'static/html/student_view.html',
                 player_url=player_url,
                 display_name=self.display_name,
@@ -381,8 +361,8 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
                 transcript_download_link=full_transcript_download_link
             )
         )
-        frag.add_javascript(self.resource_string("static/js/video_xblock.js"))
-        frag.add_css(self.resource_string("static/css/handout.css"))
+        frag.add_javascript(resource_string("static/js/video_xblock.js"))
+        frag.add_css(resource_string("static/css/handout.css"))
         frag.initialize_js('VideoXBlockStudentViewInit')
         return frag
 
@@ -452,11 +432,11 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             if field_info is not None:
                 context["fields"].append(field_info)
 
-        fragment.content = self.render_resource('static/html/studio_edit.html', **context)
-        fragment.add_css(self.resource_string("static/css/handout.css"))
-        fragment.add_css(self.resource_string("static/css/transcripts-upload.css"))
-        fragment.add_css(self.resource_string("static/css/studio-edit.css"))
-        fragment.add_javascript(self.resource_string("static/js/studio-edit.js"))
+        fragment.content = render_resource('static/html/studio_edit.html', **context)
+        fragment.add_css(resource_string("static/css/handout.css"))
+        fragment.add_css(resource_string("static/css/transcripts-upload.css"))
+        fragment.add_css(resource_string("static/css/studio-edit.css"))
+        fragment.add_javascript(resource_string("static/js/studio-edit.js"))
         fragment.initialize_js('StudioEditableXBlock')
         return fragment
 
@@ -468,7 +448,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         """
         player = self.get_player()
         save_state_url = self.runtime.handler_url(self, 'save_player_state')
-        transcripts = self.render_resource(
+        transcripts = render_resource(
             'static/html/transcripts.html',
             transcripts=self.route_transcripts(self.transcripts)
         )

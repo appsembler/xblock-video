@@ -78,15 +78,15 @@ class YoutubePlayer(BaseVideoPlayer):
 
         frag = super(YoutubePlayer, self).get_frag(**context)
         frag.add_content(
-            self.render_resource('../static/html/youtube.html', **context)
+            self.render_resource('static/html/youtube.html', **context)
         )
 
         frag.add_javascript(self.resource_string(
-            '../static/bower_components/videojs-youtube/dist/Youtube.min.js'
+            'static/bower_components/videojs-youtube/dist/Youtube.min.js'
         ))
 
         frag.add_javascript(self.resource_string(
-            '../static/bower_components/videojs-offset/dist/videojs-offset.min.js'
+            'static/bower_components/videojs-offset/dist/videojs-offset.min.js'
         ))
 
         return frag
