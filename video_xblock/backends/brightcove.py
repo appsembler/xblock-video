@@ -6,9 +6,10 @@ Brightcove Video player plugin
 import re
 import base64
 import json
-from datetime import datetime
-
 import requests
+
+from datetime import datetime
+from xml.sax.saxutils import unescape
 from xblock.fragment import Fragment
 
 from video_xblock.backends.base import BaseVideoPlayer, BaseApiClient
@@ -514,13 +515,26 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
 
     def download_default_transcript(self, url, language_code=None):  # pylint: disable=unused-argument
         """
-        Downloads default transcript from a video platform API in WebVVT format.
+        Download default transcript from a video platform API in WebVVT format.
 
         Arguments:
-            url (str): transcript download url.
+            url (str): Transcript download url.
         Returns:
-            unicode: Transcripts in WebVTT format.
+            sub (unicode): Transcripts formatted per WebVTT format https://w3c.github.io/webvtt/
         """
+
         data = requests.get(url)
-        sub = unicode(data.content.decode('utf8'))
+        text = data.content.decode('utf8')
+        # To clean subs text from special symbols here, we need `unescape()` from xml.sax.saxutils
+        # Reference: https://wiki.python.org/moin/EscapingHtml
+        html_unescape_table = {
+            "&amp;": "&",       "&amp; ": "&",      " &amp;": "&",
+            "&quot;": '"',      "&quot; ": '"',     " &quot": '"',
+            "&amp;#39;": "'",   "&amp;#39; ": "'",  " &amp;#39;": "'",
+            "&apos;": "'",      "&apos; ": "'",     " &apos;": "'",
+            "&gt;": ">",        "&gt; ": ">",       " &gt;": ">",
+            "&lt;": "<",        "&lt; ": "<",       " &lt;": "<",
+        }
+        unescaped_text = unescape(text, html_unescape_table)
+        sub = unicode(unescaped_text)
         return sub

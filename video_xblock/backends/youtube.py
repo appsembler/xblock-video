@@ -7,6 +7,8 @@ import json
 import re
 import urllib
 import requests
+import HTMLParser
+
 from lxml import etree
 
 from video_xblock import BaseVideoPlayer
@@ -209,6 +211,7 @@ class YoutubePlayer(BaseVideoPlayer):
 
         """
         sub_element = u"\n\n"
+        html_parser = HTMLParser.HTMLParser()
         if element.tag == "text":
             start = float(element.get("start"))
             duration = float(element.get("dur", 0))  # dur is not mandatory
@@ -218,8 +221,10 @@ class YoutubePlayer(BaseVideoPlayer):
                 formatted_start = self.format_transcript_timing(start)
                 formatted_end = self.format_transcript_timing(end)
                 timing = '{} --> {}'.format(formatted_start, formatted_end)
-                text = text.replace('\n', ' ')
-                sub_element = unicode(i) + u'\n' + unicode(timing) + u'\n' + unicode(text) + u'\n\n'
+                text_encoded = text.encode('utf8', 'ignore')
+                text = text_encoded.replace('\n', ' ')
+                unescaped_text = html_parser.unescape(text.decode('utf8'))
+                sub_element = unicode(i) + u'\n' + unicode(timing) + u'\n' + unicode(unescaped_text) + u'\n\n'
         return sub_element
 
     def download_default_transcript(self, url, language_code=None):  # pylint: disable=unused-argument

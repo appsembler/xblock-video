@@ -699,6 +699,10 @@ function StudioEditableXBlock(runtime, element) {
             $transcriptBlock.parents('li').removeClass('is-set').find('.setting-clear').removeClass('active').addClass('inactive');
         }
         $enabledTranscriptBlock.remove();
+        // TODO Hide label of enabled transcripts if no such items remained
+        // if (!$("div.enabled-default-transcripts-section:visible").length) {
+        //     $("div.custom-field-section-label:contains('Enabled transcripts')").addClass('is-hidden');
+        // }
         // Remove transcript of a choice (xblock field Upload Transcript)
         removeLanguage(langCode);
         pushTranscriptsValue();
