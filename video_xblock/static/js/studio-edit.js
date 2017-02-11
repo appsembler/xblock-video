@@ -493,6 +493,10 @@ function StudioEditableXBlock(runtime, element) {
                 var $availableTranscriptBlock = $("div[value='" + newLang + "']")
                     .closest("div.available-default-transcripts-section:visible");
                 $availableTranscriptBlock.remove();
+                // Hide label of available transcripts if no such items left
+                if (!$("div.available-default-transcripts-section:visible").length) {
+                    $("div.custom-field-section-label:contains('Available transcripts')").addClass('is-hidden');
+                }
                 // Add a transcript to the list of enabled ones
                 var default_transcript= {'langCode': newLang, 'langLabel': newLabel, 'downloadUrl': newUrl};
                 createDefaultTranscriptBlock(event, default_transcript, 'enabled');
@@ -680,6 +684,11 @@ function StudioEditableXBlock(runtime, element) {
         var isStoredVideoPlatform = $.inArray(langCode, initialDefaultTranscriptsLangCodes) !== -1;
         // Create a new available transcript if stored on a platform and doesn't already exist on video xblock
         if (defaultTranscriptType === "available" && !isDisplayedAvailableTranscript && isStoredVideoPlatform) {
+            // Show label of available transcripts if no such label is displayed
+            var $availableLabel = $("div.custom-field-section-label:contains('Available transcripts')");
+            var isHiddenAvailableLabel = !$("div.custom-field-section-label:contains('Available transcripts'):visible").length;
+            if (isHiddenAvailableLabel) { $availableLabel.removeClass('is-hidden'); }
+            // Create a default (available) transcript block
             var $newAvailableTranscriptBlock = $('.available-default-transcripts-section:hidden').clone();
             $newAvailableTranscriptBlock.removeClass('is-hidden').appendTo($('.default-transcripts-wrapper'));
             $('.default-transcripts-label:visible').last().attr('value', langCode).text(langLabel);
