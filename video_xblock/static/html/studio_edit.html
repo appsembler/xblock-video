@@ -173,11 +173,11 @@
                 <div class="enabled-default-transcripts-section is-hidden">
                 <div class="default-transcripts-label" value=""></div>
                 <div class="default-transcripts-actions">
-                  <a href="#" class="default-transcripts-action-link download-transcript download-setting">
+                  <!-- href below is to be updated with {{ transcript.url }} -->
+                  <a href="{{ download_transcript_handler_url }}?" class="default-transcripts-action-link download-transcript download-setting">
                     {% trans "Download" %}
                   </a>
-                  <!-- href below is to be updated with {{ transcript.url }} -->
-                  <a href="{{ download_transcript_handler_url }}?"
+                  <a href="#"
                      class="default-transcripts-action-link remove-default-transcript"
                      data-lang-code=""
                      data-lang-label=""
