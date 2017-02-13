@@ -280,7 +280,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             'transcripts_enabled': self.transcripts_enabled,
             'captions_enabled': self.captions_enabled,
             'captions_language': self.captions_language or course.language,
-            'transcripts_object': json.dumps(transcripts_object)
+            'transcripts_object': transcripts_object
         }
 
     @staticmethod
