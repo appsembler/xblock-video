@@ -169,9 +169,9 @@
                       </div>
                       <div class="api-request remove-default-transcript {{ default_transcript.lang }} status-error"></div>
                     {% endfor %}
-                    {% for default_transcript in default_transcripts %}
+                    {% for initial_default_transcript in initial_default_transcripts %}
                       <!-- Success message of available transcript upload is to be displayed. -->
-                      <div class="api-request upload-default-transcript {{ default_transcript.lang }} status-success"></div>
+                      <div class="api-request upload-default-transcript {{ initial_default_transcript.lang }} status-success"></div>
                     {% endfor %}
                 {% endif %}
                 <!----------------------- Hidden block (enabled sub) ---------------------->
