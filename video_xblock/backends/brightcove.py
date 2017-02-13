@@ -321,6 +321,8 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         Because of this it doesn't use `super.get_frag()`
         """
 
+        context['player_state'] = json.dumps(context['player_state'])
+
         frag = Fragment(
             self.render_resource('static/html/brightcove.html', **context)
         )
@@ -333,7 +335,7 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         frag.add_content(
             self.add_js_content('static/js/toggle-button.js')
         )
-        if context['player_state']['transcripts']:
+        if json.loads(context['player_state'])['transcripts']:
             frag.add_content(
                 self.add_js_content('static/bower_components/videojs-transcript/dist/videojs-transcript.js')
             )

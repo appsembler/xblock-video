@@ -6,6 +6,7 @@ Base Video player plugin
 """
 
 import abc
+import json
 import re
 
 from webob import Response
@@ -109,6 +110,8 @@ class BaseVideoPlayer(Plugin):
         """
         Returns a Fragment required to render video player on the client side.
         """
+        context['player_state'] = json.dumps(context['player_state'])
+
         frag = Fragment()
         frag.add_css(self.resource_string(
             'static/bower_components/video.js/dist/video-js.min.css'
@@ -140,7 +143,7 @@ class BaseVideoPlayer(Plugin):
         frag.add_javascript(self.render_resource(
             'static/js/videojs-speed-handler.js', **context
         ))
-        if context['player_state']['transcripts']:
+        if json.loads(context['player_state'])['transcripts']:
             frag.add_javascript(self.resource_string(
                 'static/bower_components/videojs-transcript/dist/videojs-transcript.js'
             ))
