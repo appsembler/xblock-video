@@ -1,0 +1,33 @@
+language: python
+sudo: false
+python:
+  - "2.7.10"
+  - "2.7.13"
+
+addons:
+  apt:
+    packages:
+    # Install binary package for lxml to speed up build
+    - python-lxml
+
+cache:
+  pip: true
+  directories:
+    - node_modules # NPM packages
+
+before_install:
+  # Install latest stable NodeJS version. Required for eslint.
+  - nvm install stable
+
+before_script:
+  - make deps-test
+  # Install eslint, eslint-config-edx and their dependencies
+  - make tools
+
+script:
+  - make quality-py
+  - make quality-js
+  - make test-py
+
+after_success:
+  - coveralls

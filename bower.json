@@ -1,0 +1,16 @@
+{
+  "name": "xblock-video",
+  "version": "0.2-dev",
+  "dependencies": {
+    "video-js": "5.13.1",
+    "videojs-youtube": "raccoongang/videojs-youtube#playback-rate-fix",
+    "videojs-wistia": "raccoongang/videojs-wistia#playback-toggle-fix",
+    "videojs-transcript": "0.8.0",
+    "videojs-resolution-switcher": "videojs-resolution-switcher#85f1e51",
+    "videojs-offset": "raccoongang/videojs-offset#master",
+    "videojs-contextmenu": "brightcove/videojs-contextmenu",
+    "videojs-contextmenu-ui": "brightcove/videojs-contextmenu-ui",
+    "videojs-vimeo": "raccoongang/videojs-vimeo#bug/clean-player-code"
+  },
+  "private": true
+}

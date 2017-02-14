@@ -1,0 +1,19 @@
+.wrapper-translations-settings {
+    width: 45%;
+    display: inline-block;
+    min-width: 240px;
+}
+
+.is-hidden {
+    display: none !important;
+}
+
+.status-upload {
+    color: green;
+}
+
+.status-error {
+    color: #b20610;
+    font-size: 14px;
+}
+ 

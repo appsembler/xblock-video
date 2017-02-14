@@ -1,0 +1,29 @@
+# Serves for configuration of CodeClimate (automated code review for test coverage, complexity, duplication, etc.)
+engines:
+  csslint:
+    enabled: true
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - javascript
+      - python
+    exclude_fingerprints:
+    - ffaa02171edd2e7b1184b6eacdbed97f
+  eslint:
+    # Disabled since CodeClimate doesn't yet support eslint-config-edx plugin
+    enabled: false
+    channel: "eslint-3"
+  fixme:
+    enabled: true
+  markdownlint:
+    enabled: true
+  radon:
+    enabled: true
+ratings:
+  paths:
+  - "**.css"
+  - "**.js"
+  - "**.md"
+  - "**.py"
+exclude_paths: []
