@@ -3,11 +3,12 @@
 Brightcove Video player plugin
 """
 
-import re
 import base64
-import json
 from datetime import datetime
+import json
+import re
 from xml.sax.saxutils import unescape
+
 import requests
 from xblock.fragment import Fragment
 

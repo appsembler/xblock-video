@@ -7,8 +7,8 @@ import HTMLParser
 import json
 import re
 import urllib
-import requests
 
+import requests
 from lxml import etree
 
 from video_xblock import BaseVideoPlayer
