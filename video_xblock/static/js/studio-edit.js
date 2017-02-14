@@ -300,7 +300,7 @@ function StudioEditableXBlock(runtime, element) {
     var currentLanguageCode;
     var currentLanguageLabel;
 
-    /** Store all the default transcripts fetched at document load. */
+    /** Store all the default transcripts, fetched at document load, and their languages' codes. */
     var initialDefaultTranscriptsData = (function() {
         var defaultSubs = $('.initial-default-transcript');
         var initialDefaultTranscripts = [];
@@ -315,18 +315,8 @@ function StudioEditableXBlock(runtime, element) {
         });
         return [initialDefaultTranscripts, langCodes];
     })();
-
     var initialDefaultTranscripts = initialDefaultTranscriptsData[0];
     var initialDefaultTranscriptsLangCodes = initialDefaultTranscriptsData[1];
-
-    /** Store initialDefaultTranscripts' languages codes. */
-    // var initialDefaultTranscriptsLangCodes = (function(){
-    //     var langCodes = [];
-    //     langCodes.forEach(function(sub){
-    //         initialDefaultTranscriptsLangCodes.push(sub['langCode']);
-    //     });
-    //     return langCodes;
-    // })();
 
     if (gotTranscriptsValue){
         transcriptsValue = JSON.parse(gotTranscriptsValue);
