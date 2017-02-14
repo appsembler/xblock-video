@@ -3,11 +3,11 @@
 YouTube Video player plugin
 """
 
+import HTMLParser
 import json
 import re
 import urllib
 import requests
-import HTMLParser
 
 from lxml import etree
 

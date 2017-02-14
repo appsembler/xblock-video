@@ -6,10 +6,9 @@ Brightcove Video player plugin
 import re
 import base64
 import json
-import requests
-
 from datetime import datetime
 from xml.sax.saxutils import unescape
+import requests
 from xblock.fragment import Fragment
 
 from video_xblock.backends.base import BaseVideoPlayer, BaseApiClient

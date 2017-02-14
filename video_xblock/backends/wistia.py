@@ -3,11 +3,11 @@
 Wistia Video player plugin
 """
 
+import babelfish
+import HTMLParser
 import json
 import re
 import requests
-import babelfish
-import HTMLParser
 
 from video_xblock import BaseVideoPlayer
 from video_xblock.constants import status
