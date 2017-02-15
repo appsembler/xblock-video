@@ -78,7 +78,7 @@ domReady(function() {
             this.el_.setAttribute('aria-haspopup', 'true');
             this.el_.setAttribute('role', 'menuitem');
 
-            // This variable is used by Viddeo.js library
+            // This variable is used by Video.js library
             this.enabled_ = true;  // eslint-disable-line no-underscore-dangle
             // Events of ToggleButton
             this.on('click', this.onClick);

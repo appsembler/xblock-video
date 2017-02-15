@@ -167,24 +167,28 @@
                           </a>
                         </div>
                       </div>
+                      <div class="api-request remove-default-transcript {{ default_transcript.lang }} status-error"></div>
+                    {% endfor %}
+                    {% for initial_default_transcript in initial_default_transcripts %}
+                      <!-- Success message of available transcript upload is to be displayed. -->
+                      <div class="api-request upload-default-transcript {{ initial_default_transcript.lang }} status-success"></div>
                     {% endfor %}
                 {% endif %}
                 <!----------------------- Hidden block (enabled sub) ---------------------->
                 <div class="enabled-default-transcripts-section is-hidden">
-                <div class="default-transcripts-label" value=""></div>
-                <div class="default-transcripts-actions">
-                  <a href="#" class="default-transcripts-action-link download-transcript download-setting">
-                    {% trans "Download" %}
-                  </a>
-                  <!-- href below is to be updated with {{ transcript.url }} -->
-                  <a href="{{ download_transcript_handler_url }}?"
-                     class="default-transcripts-action-link remove-default-transcript"
-                     data-lang-code=""
-                     data-lang-label=""
-                  >
-                    {% trans "Delete" %}
-                  </a>
-                </div>
+                  <div class="default-transcripts-label" value=""></div>
+                  <div class="default-transcripts-actions">
+                    <a href="#" class="default-transcripts-action-link download-transcript download-setting">
+                      {% trans "Download" %}
+                    </a>
+                    <a href="#"
+                       class="default-transcripts-action-link remove-default-transcript"
+                       data-lang-code=""
+                       data-lang-label=""
+                    >
+                      {% trans "Delete" %}
+                    </a>
+                  </div>
                 </div>
                 <!------------------------- End of a hidden block --------------------------->
 
@@ -207,23 +211,24 @@
                         </div>
                       </div>
                       <div class="api-request upload-default-transcript {{ default_transcript.lang }} status-error"></div>
-                      <div class="api-request upload-default-transcript {{ default_transcript.lang }} status-success"></div>
                     {% endfor %}
-                      <!----------------------- Hidden block (available sub) ---------------------->
-                      <div class="available-default-transcripts-section is-hidden">
-                        <div class="default-transcripts-label" value=""></div>
-                        <div class="default-transcripts-actions">
-                          <a class="default-transcripts-action-link upload-default-transcript"
-                             data-change-field-name="{{ field.name }}"
-                             data-lang-code=""
-                             data-lang-label=""
-                             data-download-url="" >
-                            {% trans "Upload" %}
-                          </a>
-                        </div>
+                    {% for transcript in transcripts %}
+                      <!-- Success message of enabled transcript removal is to be displayed. -->
+                      <div class="api-request remove-default-transcript {{ transcripts.lang }} status-success"></div>
+                    {% endfor %}
+                    <!----------------------- Hidden block (available sub) ---------------------->
+                    <div class="available-default-transcripts-section is-hidden">
+                      <div class="default-transcripts-label" value=""></div>
+                      <div class="default-transcripts-actions">
+                        <a class="default-transcripts-action-link upload-default-transcript"
+                           data-change-field-name="{{ field.name }}"
+                           data-lang-code=""
+                           data-lang-label=""
+                           data-download-url="" >
+                          {% trans "Upload" %}
+                        </a>
                       </div>
-                      <div class="api-request upload-default-transcript status-error"></div>    <!-- lang code to be added to a class selector -->
-                      <div class="api-request upload-default-transcript status-success"></div>  <!-- lang code to be added to a class selector -->
+                    </div>
                       <!------------------------- End of a hidden block --------------------------->
                 {% else %}
                   <div class="default-transcripts-status status-error">

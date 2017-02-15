@@ -3,8 +3,10 @@
 Wistia Video player plugin.
 """
 
+import HTMLParser
 import json
 import re
+
 import requests
 import babelfish
 
@@ -215,12 +217,11 @@ class WistiaPlayer(BaseVideoPlayer):
         """
         Replace comma with dot in timings, e.g. 00:00:10,500 should be 00:00:10.500.
         """
-        pattern = re.compile(r"\d{2}:\d{2}:\d{2},\d{3}")
         new_line = u""
         for token in line.split():
-            if pattern.match(str(token)) or pattern.match(unicode(token), re.UNICODE):
-                token = token.replace(",", ".")
-            new_line += token + u" "
+            decoded_token = token.encode('utf8', 'ignore')
+            formatted_token = re.sub(r'(\d{2}:\d{2}:\d{2}),(\d{3})', r'\1.\2', decoded_token)
+            new_line += unicode(formatted_token.decode('utf8')) + u" "
         return new_line
 
     def format_transcript_text(self, text):
@@ -232,10 +233,12 @@ class WistiaPlayer(BaseVideoPlayer):
             for line in text[0].splitlines()
         ]
         new_text = '\n'.join(new_text)
+        html_parser = HTMLParser.HTMLParser()
+        unescaped_text = html_parser.unescape(new_text)
         if u"WEBVTT" not in text:
-            text = u"WEBVTT\n\n" + unicode(new_text)
+            text = u"WEBVTT\n\n" + unicode(unescaped_text)
         else:
-            text = unicode(new_text)
+            text = unicode(unescaped_text)
         return text
 
     def download_default_transcript(self, language_code, url=None):  # pylint: disable=unused-argument

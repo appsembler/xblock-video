@@ -3,10 +3,11 @@
 Brightcove Video player plugin.
 """
 
-import re
 import base64
-import json
 from datetime import datetime
+import json
+import re
+from xml.sax.saxutils import unescape
 
 import requests
 from xblock.fragment import Fragment
@@ -548,8 +549,20 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         Arguments:
             url (str): Transcript download url.
         Returns:
-            unicode: Transcripts in WebVTT format.
+            sub (unicode): Transcripts formatted per WebVTT format https://w3c.github.io/webvtt/
         """
         data = requests.get(url)
-        sub = unicode(data.content.decode('utf8'))
+        text = data.content.decode('utf8')
+        # To clean subs text from special symbols here, we need `unescape()` from xml.sax.saxutils
+        # Reference: https://wiki.python.org/moin/EscapingHtml
+        html_unescape_table = {
+            "&amp;": "&",
+            "&quot;": '"',
+            "&amp;#39;": "'",
+            "&apos;": "'",
+            "&gt;": ">",
+            "&lt;": "<"
+        }
+        unescaped_text = unescape(text, html_unescape_table)
+        sub = unicode(unescaped_text)
         return sub
