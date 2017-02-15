@@ -1,5 +1,5 @@
 """
-This module contains video xblock helpers.
+Video xblock helpers.
 """
 
 from HTMLParser import HTMLParser

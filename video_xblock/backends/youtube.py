@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-YouTube Video player plugin
+YouTube Video player plugin.
 """
 
 import json
@@ -15,7 +15,7 @@ from video_xblock.constants import status
 
 class YoutubePlayer(BaseVideoPlayer):
     """
-    YoutubePlayer is used for videos hosted on the Youtube.com
+    YoutubePlayer is used for videos hosted on the Youtube.com.
     """
 
     # Regex is taken from http://regexr.com/3a2p0
@@ -44,9 +44,15 @@ class YoutubePlayer(BaseVideoPlayer):
     default_transcripts = []
 
     def media_id(self, href):
+        """
+        Extract Platform's media id from the video url.
+        """
         return self.url_re.search(href).group('media_id')
 
     def get_frag(self, **context):
+        """
+        Return a Fragment required to render video player on the client side.
+        """
         context['data_setup'] = json.dumps({
             "controlBar": {
                 "volumeMenuButton": {
@@ -94,8 +100,7 @@ class YoutubePlayer(BaseVideoPlayer):
         """
         Customise display of studio editor fields per a video platform.
 
-        Authentication to API is not required for Youtube.
-
+        Authentication to API is not required by Youtube API.
         """
         message = 'This field is to be disabled.'
         editable_fields = list(editable_fields)
@@ -113,22 +118,20 @@ class YoutubePlayer(BaseVideoPlayer):
 
     def fetch_default_transcripts_languages(self, video_id):
         """
-        Fetches available transcripts languages from a Youtube server.
+        Fetch available transcripts languages from a Youtube server.
 
         Reference to `youtube_video_transcript_name()`:
             https://github.com/edx/edx-platform/blob/ecc3473d36b3c7a360e260f8962e21cb01eb1c39/common/lib/xmodule/xmodule/video_module/transcripts_utils.py#L97
 
         Arguments:
-            video_id (str): media id fetched from href field of studio-edit modal.
+            video_id (str): Media id fetched from `href` field of studio-edit modal.
         Returns:
             available_languages (list): List of pairs of codes and labels of captions' languages fetched from API,
                 together with transcripts' names if any.
                 If the transcript name is not empty on youtube server we have to pass
                 name param in url in order to get transcript.
                 Example: http://video.google.com/timedtext?lang=en&v={video_id}&name={transcript_name}
-
             message (str): Message with status on captions API call.
-
         """
         utf8_parser = etree.XMLParser(encoding='utf-8')
         # This is to update self.captions_api with a video id.
@@ -160,7 +163,9 @@ class YoutubePlayer(BaseVideoPlayer):
         return available_languages, message
 
     def get_default_transcripts(self, **kwargs):
-        """Fetch transcripts list from a video platform."""
+        """
+        Fetch transcripts list from a video platform.
+        """
         # Fetch available transcripts' languages from API
         video_id = kwargs.get('video_id')
         available_languages, message = self.fetch_default_transcripts_languages(video_id)
@@ -187,8 +192,7 @@ class YoutubePlayer(BaseVideoPlayer):
     @staticmethod
     def format_transcript_timing(sec):
         """
-        Converts seconds to timestamp of the format `hh:mm:ss:mss`, e.g. 00:00:03.887
-
+        Convert seconds to timestamp of the format `hh:mm:ss:mss`, e.g. 00:00:03.887.
         """
         mins, secs = divmod(sec, 60)  # pylint: disable=unused-variable
         hours, mins = divmod(mins, 60)
@@ -204,9 +208,7 @@ class YoutubePlayer(BaseVideoPlayer):
 
     def format_transcript_element(self, element, i):
         """
-        Parses XML elements of transcripts, fetched from the YouTube API, and
-        formats elements in order for them to be converted to WebVTT format.
-
+        Format transcript's element in order for it to be converted to WebVTT format.
         """
         sub_element = u"\n\n"
         if element.tag == "text":
@@ -224,11 +226,10 @@ class YoutubePlayer(BaseVideoPlayer):
 
     def download_default_transcript(self, url, language_code=None):  # pylint: disable=unused-argument
         """
-        Downloads default transcript from Youtube API and formats it to WebVTT-like unicode.
+        Download default transcript from Youtube API and format it to WebVTT-like unicode.
 
         Reference to `get_transcripts_from_youtube()`:
             https://github.com/edx/edx-platform/blob/ecc3473d36b3c7a360e260f8962e21cb01eb1c39/common/lib/xmodule/xmodule/video_module/transcripts_utils.py#L122
-
         """
         utf8_parser = etree.XMLParser(encoding='utf-8')
         data = requests.get(url)

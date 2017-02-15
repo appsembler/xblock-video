@@ -1,9 +1,9 @@
 """
-RelativeTime field back-ported from xmodule.fields to avoid import error and travis testing complication.
+RelativeTive field back-ported from xmodule.fields.
 
+Backported to reduce coupling with XModule and make linting & testing possible.
 Reference:
-https://github.com/edx/edx-platform/blob/52beec887841b3b5aa132c9c14d967f7fb1d27f6/common/lib/xmodule/xmodule/fields.py#L139
-
+https://github.com/edx/edx-platform/blob/open-release/eucalyptus.master/common/lib/xmodule/xmodule/fields.py#L143
 """
 
 import datetime
@@ -31,6 +31,7 @@ class RelativeTime(JSONField):
     Python object of RelativeTime is datetime.timedelta.
     JSONed representation of RelativeTime is "HH:MM:SS"
     """
+
     # Timedeltas are immutable, see http://docs.python.org/2/library/datetime.html#available-types
     MUTABLE = False
 
@@ -82,7 +83,7 @@ class RelativeTime(JSONField):
         """
         Convert datetime.timedelta to "HH:MM:SS" format.
 
-        If not value, return "00:00:00"
+        If not value, return "00:00:00".
 
         Backward compatibility: check if value is float, and convert it. No exceptions here.
 
@@ -107,9 +108,9 @@ class RelativeTime(JSONField):
 
     def timedelta_to_string(self, value):
         """
-        Makes first 'H' in str representation non-optional.
+        Make first 'H' in str representation non-optional.
 
-        str(timedelta) has [H]H:MM:SS format, which is not suitable
+        str (timedelta) has [H]H:MM:SS format, which is not suitable
         for front-end (and ISO time standard), so we force HH:MM:SS format.
         """
         stringified = str(value)
@@ -119,7 +120,7 @@ class RelativeTime(JSONField):
 
     def enforce_type(self, value):
         """
-        Ensure that when set explicitly the Field is set to a timedelta
+        Ensure that when set explicitly the Field is set to a timedelta.
         """
         if isinstance(value, datetime.timedelta) or value is None:
             return value
