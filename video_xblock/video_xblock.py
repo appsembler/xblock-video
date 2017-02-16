@@ -452,6 +452,9 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         fragment.add_css(resource_string("static/css/transcripts-upload.css"))
         fragment.add_css(resource_string("static/css/studio-edit.css"))
         fragment.add_javascript(resource_string("static/js/studio-edit.js"))
+        fragment.add_javascript(resource_string("static/js/studio-edit-utils.js"))
+        fragment.add_javascript(resource_string("static/js/studio-edit-transcripts-autoload.js"))
+        fragment.add_javascript(resource_string("static/js/studio-edit-transcripts-manual-upload.js"))
         fragment.initialize_js('StudioEditableXBlock')
         return fragment
 

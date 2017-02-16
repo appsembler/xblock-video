@@ -35,7 +35,9 @@ class BrightcoveApiClient(BaseApiClient):
     """
 
     def __init__(self, api_key, api_secret, token=None, account_id=None):
-        """Initialize Brightcove API client."""
+        """
+        Initialize Brightcove API client.
+        """
         if token and account_id:
             self.create_credentials(token, account_id)
         else:
