@@ -8,6 +8,7 @@ addons:
   apt:
     packages:
     # Install binary package for lxml to speed up build
+    - ruby1.9.3
     - python-lxml
 
 cache:
@@ -18,16 +19,19 @@ cache:
 before_install:
   # Install latest stable NodeJS version. Required for eslint.
   - nvm install stable
+  - gem install coveralls-lcov
 
 before_script:
-  - make deps-test
-  # Install eslint, eslint-config-edx and their dependencies
+  # Install bower, eslint, eslint-config-edx and their dependencies
   - make tools
+  - make deps-test
+  # Prepare for js tests
+  - make prepare-for-js
 
 script:
   - make quality-py
   - make quality-js
-  - make test-py
+  - make test
 
 after_success:
-  - coveralls
+  - make coveralls

@@ -4,9 +4,9 @@
 
 domReady(function() {
     'use strict';
-    videojs('{{ video_player_id }}').ready(function() {
+    videojs(window.videoPlayerId).ready(function() {
         var player = this;
-        var transcripts = JSON.parse('{{ player_state }}').transcripts_object;
+        var transcripts = JSON.parse(window.playerStateObj).transcripts_object;
         var xblockUsageId = window.location.hash.slice(1);
         /** Get transcript url for current caption language */
         var getDownloadTranscriptUrl = function() {

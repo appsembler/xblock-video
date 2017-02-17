@@ -358,34 +358,28 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         frag.add_css_url(
             'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'
         )
-        frag.add_content(
-            self.add_js_content('static/js/player_state.js', **context)
+        frag.add_javascript(
+            self.render_resource('static/js/context.js', **context)
         )
-        frag.add_content(
-            self.add_js_content('static/js/toggle-button.js')
-        )
+        js_files = [
+            'static/js/toggle-button.js'
+        ]
         if json.loads(context['player_state'])['transcripts']:
-            frag.add_content(
-                self.add_js_content('static/bower_components/videojs-transcript/dist/videojs-transcript.js')
-            )
-            frag.add_content(
-                self.add_js_content('static/js/videojs-transcript.js', **context)
-            )
-        frag.add_content(
-            self.add_js_content('static/js/videojs-tabindex.js', **context)
-        )
-        frag.add_content(
-            self.add_js_content('static/js/videojs_event_plugin.js', **context)
-        )
-        frag.add_content(
-            self.add_js_content('static/bower_components/videojs-offset/dist/videojs-offset.js')
-        )
-        frag.add_content(
-            self.add_js_content('static/js/videojs-speed-handler.js', **context)
-        )
-        frag.add_content(
-            self.add_js_content('static/js/brightcove-videojs-init.js', **context)
-        )
+            js_files += [
+                'static/bower_components/videojs-transcript/dist/videojs-transcript.js',
+                'static/js/videojs-transcript.js'
+            ]
+        js_files += [
+            'static/js/videojs-tabindex.js',
+            'static/js/videojs_event_plugin.js',
+            'static/bower_components/videojs-offset/dist/videojs-offset.js',
+            'static/js/videojs-speed-handler.js',
+            'static/js/brightcove-videojs-init.js'
+        ]
+
+        for js_file in js_files:
+            frag.add_javascript(self.resource_string(js_file))
+
         frag.add_css(
             self.resource_string('static/css/brightcove.css')
         )

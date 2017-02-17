@@ -14,7 +14,7 @@
     function videoJSSpeedHandler(options) {
         var playbackRateMenuButton = videojs.getComponent('PlaybackRateMenuButton');
         var controlBar = videojs.getComponent('ControlBar');
-        var videojsPlayer = videojs('{{ video_player_id }}');
+        var videojsPlayer = videojs(window.videoPlayerId);
 
         /**
          * The custom component for controlling the playback rate.

@@ -90,15 +90,19 @@ class WistiaPlayer(BaseVideoPlayer):
         frag.add_content(
             self.render_resource('static/html/wistiavideo.html', **context)
         )
-        frag.add_javascript(self.resource_string(
-            'static/bower_components/videojs-wistia/src/wistia.js'
-        ))
 
-        frag.add_javascript(self.resource_string(
-            'static/bower_components/videojs-offset/dist/videojs-offset.min.js'
-        ))
+        frag.add_javascript(
+            self.render_resource('static/js/context.js', **context)
+        )
 
-        frag.add_javascript(self.render_resource('static/js/player-context-menu.js', **context))
+        js_files = [
+            'static/bower_components/videojs-wistia/src/wistia.js',
+            'static/bower_components/videojs-offset/dist/videojs-offset.min.js',
+            'static/js/player-context-menu.js'
+        ]
+
+        for js_file in js_files:
+            frag.add_javascript(self.resource_string(js_file))
 
         return frag
 
