@@ -21,6 +21,9 @@ before_install:
   - nvm install stable
   - gem install coveralls-lcov
 
+install:
+  - pip install --process-dependency-links -r requirements.txt
+
 before_script:
   # Install bower, eslint, eslint-config-edx and their dependencies
   - make tools

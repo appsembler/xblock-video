@@ -4,6 +4,10 @@ import os
 from setuptools import setup
 
 
+VERSION = '0.4.0'
+DESCRIPTION = 'Video XBlock to embed videos hosted on different video platforms into your courseware'
+
+
 def package_data(pkg, roots):
     """
     Generic function to find package_data.
@@ -22,16 +26,22 @@ def package_data(pkg, roots):
 
 setup(
     name='video-xblock',
-    version='0.1',
-    description='Video XBlock to embed videos hosted on different video platform into your courseware',
+    version=VERSION,
+    description=DESCRIPTION,
     license='GPL v3',
     packages=[
         'video_xblock',
     ],
+    dependency_links=[
+        # At the moment of writing PyPI hosts outdated version of xblock-utils, hence git
+        'git+https://github.com/edx/xblock-utils.git@v1.0.2#egg=xblock-utils-1.0.2',
+    ],
     install_requires=[
-        'XBlock',
-        'xblock-utils',
-        'pycaption<1',  # The latest Python 2.7 compatible version
+        'XBlock>=0.4.10,<0.5.0',
+        'xblock-utils==1.0.2',
+        'pycaption>=0.7.1,<1.0',  # The latest Python 2.7 compatible version
+        'requests>=2.9.1,<3.0.0',
+        'babelfish>=0.5.5,<0.6.0',
     ],
     entry_points={
         'xblock.v1': [
