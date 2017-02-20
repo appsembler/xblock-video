@@ -328,6 +328,27 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
     # Stores default transcripts fetched from the captions API
     default_transcripts = []
 
+    @property
+    def basic_fields(self):
+        """
+        Tuple of VideoXBlock fields to display in Basic tab of edit modal window.
+
+        Brightcove videos require Brightcove Account id.
+        """
+        return super(BrightcovePlayer, self).basic_fields + ('account_id',)
+
+    advanced_fields = (
+        'player_id', 'start_time', 'end_time', 'handout', 'transcripts',
+        'download_transcript_allowed', 'token', 'default_transcripts'
+    )
+
+    fields_help = {
+        'token': 'You can generate a BC token following the guide of '
+                 '<a href="https://docs.brightcove.com/en/video-cloud/oauth-api/guides/get-client-credentials.html" '
+                 'target="_blank">Brightcove</a>. Please ensure appropriate operations scope has been set '
+                 'on the video platform, and a BC token is valid.'
+    }
+
     def __init__(self, xblock):
         """
         Initialize Brightcove player class object.
@@ -437,17 +458,6 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
             self.xblock.metadata.get('client_secret')
         )
         return {'canShow': can_show}
-
-    @staticmethod
-    def customize_xblock_fields_display(editable_fields):
-        """
-        Customise display of Brightcove's studio editor fields.
-        """
-        message = 'You can generate a BC token following the guide of ' \
-                  '<a href="https://docs.brightcove.com/en/video-cloud/oauth-api/guides/get-client-credentials.html" ' \
-                  'target="_blank">Brightcove</a>. Please ensure appropriate operations scope has been set ' \
-                  'on the video platform, and a BC token is valid.'
-        return message, editable_fields
 
     def authenticate_api(self, **kwargs):
         """

@@ -15,6 +15,7 @@ class DummyPlayer(BaseVideoPlayer):
 
     url_re = re.compile(r'')
     metadata_fields = []
+    advanced_fields = ()
 
     def get_frag(self, **context):  # pylint: disable=unused-argument
         """
@@ -49,13 +50,6 @@ class DummyPlayer(BaseVideoPlayer):
             language_code (str): Language code of a default transcript to be downloaded.
         """
         return u''
-
-    @staticmethod
-    def customize_xblock_fields_display(editable_fields):
-        """
-        Customise display of studio editor fields per video platform.
-        """
-        return '', editable_fields
 
     def authenticate_api(self, **kwargs):  # pylint: disable=unused-argument
         """

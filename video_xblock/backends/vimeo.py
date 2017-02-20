@@ -89,16 +89,3 @@ class VimeoPlayer(BaseVideoPlayer):
         Download default transcript in WebVVT format.
         """
         return u''
-
-    @staticmethod
-    def customize_xblock_fields_display(editable_fields):
-        """
-        Customise display of studio editor fields per a video platform.
-        """
-        message = 'This field is to be disabled.'
-        editable_fields = list(editable_fields)
-        editable_fields.remove('account_id')
-        editable_fields.remove('player_id')
-        editable_fields.remove('token')
-        customised_editable_fields = tuple(editable_fields)
-        return message, customised_editable_fields

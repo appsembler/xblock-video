@@ -251,11 +251,15 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         help="Captions are enabled or not"
     )
 
-    editable_fields = (
-        'display_name', 'href', 'start_time', 'end_time', 'account_id',
-        'player_id', 'handout', 'transcripts', 'download_transcript_allowed',
-        'default_transcripts', 'token'
+    basic_fields = (
+        'display_name', 'href'
     )
+
+    advanced_fields = (
+        'start_time', 'end_time', 'handout', 'transcripts',
+        'download_transcript_allowed', 'default_transcripts'
+    )
+
     player_state_fields = (
         'current_time', 'muted', 'playback_rate', 'volume',
         'transcripts_enabled', 'captions_enabled', 'captions_language'
@@ -316,6 +320,13 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         self.transcripts_enabled = state.get('transcripts_enabled', self.transcripts_enabled)
         self.captions_enabled = state.get('captions_enabled', self.captions_enabled)
         self.captions_language = state.get('captions_language', self.captions_language)
+
+    @property
+    def editable_fields(self):
+        """
+        Return list of xblock's editable fields used by StudioEditableXBlockMixin.clean_studio_edits().
+        """
+        return self.get_player().editable_fields
 
     def validate_field_data(self, validation, data):
         """
@@ -429,14 +440,8 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             'transcripts_autoupload_message': transcripts_autoupload_message
         }
 
-        # Customize display of the particular xblock fields per each video platform.
-        token_help_message, customised_editable_fields = \
-            player.customize_xblock_fields_display(self.editable_fields)  # pylint: disable=unsubscriptable-object
-        self.fields['token'].help = token_help_message  # pylint: disable=unsubscriptable-object
-        self.editable_fields = customised_editable_fields
-
         # Build a list of all the fields that can be edited:
-        for field_name in self.editable_fields:
+        for field_name in self.get_player().editable_fields:
             field = self.fields[field_name]  # pylint: disable=unsubscriptable-object
             assert field.scope in (Scope.content, Scope.settings), (
                 "Only Scope.content or Scope.settings fields can be used with "
@@ -556,6 +561,20 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         player = BaseVideoPlayer.load_class(self.player_name)
         return player(self)
 
+    def _get_field_help(self, field_name, field):
+        """
+        Get help text for field.
+
+        First try to load override from video backend, then check field definition
+        and lastly fall back to empty string.
+        """
+        backend_fields_help = self.get_player().fields_help
+        if field_name in backend_fields_help:
+            return backend_fields_help[field_name]
+        elif field.help:
+            return field.help
+        return ''
+
     def _make_field_info(self, field_name, field):
         """
         Override and extend data of built-in method.
@@ -578,7 +597,6 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
                 'default': field.default,
                 'value': field.read_from(self),
                 'has_values': False,
-                'help': field.help if field.help else "",
                 'allow_reset': field.runtime_options.get('resettable_editor', True),
                 'list_values': None,
                 'has_list_values': False,
@@ -586,6 +604,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             }
         else:
             info = super(VideoXBlock, self)._make_field_info(field_name, field)
+            info['help'] = self._get_field_help(field_name, field)
             if field_name == 'handout':
                 info['type'] = 'file_uploader'
                 info['file_name'] = self.get_file_name_from_path(self.handout)

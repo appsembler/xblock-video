@@ -97,21 +97,6 @@ class YoutubePlayer(BaseVideoPlayer):
 
         return frag
 
-    @staticmethod
-    def customize_xblock_fields_display(editable_fields):
-        """
-        Customise display of studio editor fields per a video platform.
-
-        Authentication to API is not required by Youtube API.
-        """
-        message = 'This field is to be disabled.'
-        editable_fields = list(editable_fields)
-        editable_fields.remove('account_id')
-        editable_fields.remove('player_id')
-        editable_fields.remove('token')
-        customised_editable_fields = tuple(editable_fields)
-        return message, customised_editable_fields
-
     def authenticate_api(self, **kwargs):
         """
         Current Youtube captions API doesn't require authentication, but this may change.
