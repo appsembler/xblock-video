@@ -147,8 +147,8 @@
                    </label>
 
                 <div class="default-transcripts-wrapper">
-                {% if transcripts  %}
-                  <div class="custom-field-section-label">{% trans "Enabled transcripts" %}</div>
+                  <div class="custom-field-section-label enabled-transcripts">{% trans "Enabled transcripts" %}</div>
+                  {% if transcripts  %}
                   <!-- Display a list of transcripts fetched from a video xblock -->
                     {% for transcript in transcripts %}
                       <div class="enabled-default-transcripts-section">
@@ -169,11 +169,11 @@
                       </div>
                       <div class="api-request remove-default-transcript {{ default_transcript.lang }} status-error"></div>
                     {% endfor %}
-                    {% for initial_default_transcript in initial_default_transcripts %}
-                      <!-- Success message of available transcript upload is to be displayed. -->
-                      <div class="api-request upload-default-transcript {{ initial_default_transcript.lang }} status-success"></div>
-                    {% endfor %}
                 {% endif %}
+                {% for initial_default_transcript in initial_default_transcripts %}
+                  <!-- Success message of available transcript upload is to be displayed. -->
+                  <div class="api-request upload-default-transcript {{ initial_default_transcript.lang }} status-success"></div>
+                {% endfor %}
                 <!----------------------- Hidden block (enabled sub) ---------------------->
                 <div class="enabled-default-transcripts-section is-hidden">
                   <div class="default-transcripts-label" value=""></div>
@@ -192,7 +192,7 @@
                 </div>
                 <!------------------------- End of a hidden block --------------------------->
 
-                <div class="custom-field-section-label">{% trans "Available transcripts" %}</div>
+                <div class="custom-field-section-label available-transcripts">{% trans "Available transcripts" %}</div>
                 {% if default_transcripts %}
                   <!-- Display a list of transcripts fetched from a video platform (API) -->
                     {% for default_transcript in default_transcripts %}
@@ -229,7 +229,7 @@
                         </a>
                       </div>
                     </div>
-                      <!------------------------- End of a hidden block --------------------------->
+                    <!------------------------- End of a hidden block --------------------------->
                 {% else %}
                   <div class="default-transcripts-status status-error">
                     <span class="icon fa fa-remove" aria-hidden="true"></span>

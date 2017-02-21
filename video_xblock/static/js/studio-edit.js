@@ -12,6 +12,11 @@ function StudioEditableXBlock(runtime, element) {
     // Studio includes a copy of tinyMCE and its jQuery plugin
     var tinyMceAvailable = (typeof $.fn.tinymce !== 'undefined');  // TODO: Remove TinyMCE
     var datepickerAvailable = (typeof $.fn.datepicker !== 'undefined'); // Studio includes datepicker jQuery plugin
+    var $defaultTranscriptsSwitcher = $('input.default-transcripts-switch-input');
+    var $enabledLabel = $('div.custom-field-section-label.enabled-transcripts');
+    var $availableLabel = $('div.custom-field-section-label.available-transcripts');
+    var noEnabledTranscript;
+    var noAvailableTranscript;
 
     /** Wrapper function for dispatched ajax calls.
      */
@@ -149,6 +154,8 @@ function StudioEditableXBlock(runtime, element) {
             $field.val($wrapper.attr('data-default')); // Use attr instead of data to force treating the default value as a string
             $wrapper.removeClass('is-set');
             $resetButton.removeClass('active').addClass('inactive');
+            // Remove all enabled default transcripts
+            removeAllEnabledTranscripts(initialDefaultTranscriptsData, bindUploadListenerAvailableTranscript);
         });
         if (type == 'html' && tinyMceAvailable) {
             tinyMCE.baseURL = baseUrl + '/js/vendor/tinymce/js/tinymce';
@@ -212,6 +219,8 @@ function StudioEditableXBlock(runtime, element) {
             });
             $wrapper.removeClass('is-set');
             $resetButton.removeClass('active').addClass('inactive');
+            // Remove all enabled default transcripts
+            removeAllEnabledTranscripts(initialDefaultTranscriptsData, bindUploadListenerAvailableTranscript);
         });
     });
 
@@ -420,7 +429,6 @@ function StudioEditableXBlock(runtime, element) {
                     );
                 }
             }
-            runtime.notify('error', {title: gettext('Unable to update settings'), message: message});
         });
     }
 
@@ -466,7 +474,7 @@ function StudioEditableXBlock(runtime, element) {
      * Bind upload listener to a newly created available transcript.
      */
     function bindUploadListenerAvailableTranscript(langCode, langLabel) {
-        var $uploadElement = $('.default-transcripts-action-link.upload-default-transcript:visible[data-lang-code=' + langCode + ']');
+        var $uploadElement = $('.default-transcripts-action-link.upload-default-transcript[data-lang-code=' + langCode + ']');
         $uploadElement.click(function () {
             // Get url for a transcript fetching from the API
             var downloadUrlApi = getTranscriptUrl(initialDefaultTranscripts, langCode);
@@ -481,7 +489,7 @@ function StudioEditableXBlock(runtime, element) {
      * Bind removal listener to a newly created enabled transcript.
      */
     function bindRemovalListenerEnabledTranscript(langCode, langLabel, downloadUrlServer) {
-        var $removeElement = $('.default-transcripts-action-link.remove-default-transcript:visible[data-lang-code=' + langCode + ']');
+        var $removeElement = $('.default-transcripts-action-link.remove-default-transcript[data-lang-code=' + langCode + ']');
         $removeElement.click(function() {
             var defaultTranscript = {'lang' : langCode, 'label' : langLabel, 'url': downloadUrlServer};
             // Affect default transcripts
@@ -608,6 +616,15 @@ function StudioEditableXBlock(runtime, element) {
         // Affect standard transcripts
         removeStandardTranscriptBlock(langCode, transcriptsValue, disabledLanguages);
         disableOption($langChoiceItem, disabledLanguages);
+    });
+
+    $defaultTranscriptsSwitcher.change(function(){
+        noEnabledTranscript = !$('.enabled-default-transcripts-section:visible').length;
+        noAvailableTranscript = !$('.available-default-transcripts-section:visible').length;
+        // Hide label of enabled default transcripts block if no transcript is enabled on video xblock, and vice versa
+        setDisplayDefaultTranscriptsLabel(noEnabledTranscript, $enabledLabel);
+        // Hide label of available default transcripts block if no transcript is available on a platform, and vice versa
+        setDisplayDefaultTranscriptsLabel(noAvailableTranscript, $availableLabel);
     });
     // End of Raccoongang addons
 }
