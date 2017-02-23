@@ -61,14 +61,16 @@ function VideoXBlockStudentViewInit(runtime, element) {
     }
     /** Updates transcript download url if it is enabled */
     function updateTranscriptDownloadUrl(downloadTranscriptUrl) {
-        var downloadLinkEl = document.getElementById('download-transcript-link');
+        var downloadLinkEl = document.getElementById('download-transcript-button');
+        var link;
         if (downloadLinkEl) {
+            link = downloadLinkEl.getElementsByTagName('a')[0];
             if (downloadTranscriptUrl) {
-                downloadLinkEl.href = downloadTranscriptHandlerUrl + '?' + downloadTranscriptUrl;
-                downloadLinkEl.classList.remove('is-disabled');
+                link.href = downloadTranscriptHandlerUrl + '?' + downloadTranscriptUrl;
+                downloadLinkEl.classList.remove('is-hidden');
             } else {
-                downloadLinkEl.href = '#';
-                downloadLinkEl.classList.add('is-disabled');
+                link.href = '#';
+                downloadLinkEl.classList.add('is-hidden');
             }
         }
     }

@@ -6,7 +6,7 @@ domReady(function() {
     'use strict';
     videojs(window.videoPlayerId).ready(function() {
         var player = this;
-        var transcripts = JSON.parse(window.playerStateObj).transcripts_object;
+        var transcripts = window.playerStateObj.transcripts_object;
         var xblockUsageId = window.location.hash.slice(1);
         /** Get transcript url for current caption language */
         var getDownloadTranscriptUrl = function() {
@@ -29,6 +29,6 @@ domReady(function() {
             player.trigger('transcriptdisabled');
             player.trigger('captiondisabled');
         }
-        player.on('changedownloadtranscripturl', sendMessage);
+        player.on('captionstrackchange', sendMessage);
     });
 });
