@@ -24,9 +24,10 @@ from pycaption import detect_format, WebVTTWriter
 from webob import Response
 
 from .backends.base import BaseVideoPlayer
+from .constants import status
 from .settings import ALL_LANGUAGES
 from .fields import RelativeTime
-from .utils import render_resource, resource_string, ugettext as _
+from .utils import render_template, render_resource, resource_string, ugettext as _
 
 
 log = logging.getLogger(__name__)
@@ -328,41 +329,84 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         """
         return self.get_player().editable_fields
 
-    def validate_field_data(self, validation, data):
+    @staticmethod
+    def add_validation_message(validation, message_text):
         """
-        Validate data submitted via xblock edit pop-up.
+        Add error message on xblock fields validation.
 
-        Reference:
-            https://github.com/edx/xblock-utils/blob/60af41a8b7a7e6c1cb713e470d2a653669a30539/xblockutils/studio_editable.py#L245
+        Attributes:
+            validation (xblock.validation.Validation): Object containing validation information for an xblock instance.
+            message_text (unicode): Message text per se.
+        """
+        validation.add(ValidationMessage(ValidationMessage.ERROR, message_text))
+
+    def validate_account_id_data(self, validation, data):
+        """
+        Validate account id value which is mandatory.
 
         Attributes:
             validation (xblock.validation.Validation): Object containing validation information for an xblock instance.
             data (xblock.internal.VideoXBlockWithMixins): Object containing data on xblock.
         """
-        if data.account_id and data.player_id:
+        is_provided_account_id = \
+            data.account_id != self.fields['account_id'].default  # pylint: disable=unsubscriptable-object
+        # Validate provided account id
+        if is_provided_account_id:
             try:
                 response = requests.head(VideoXBlock.get_brightcove_js_url(data.account_id, data.player_id))
-                if response.status_code != 200:
-                    validation.add(ValidationMessage(
-                        ValidationMessage.ERROR,
-                        _(u"Invalid Player Id, please recheck")
-                    ))
+                if response.status_code != status.HTTP_200_OK:
+                    self.add_validation_message(validation, _(u"Invalid Account Id, please recheck."))
             except requests.ConnectionError:
-                validation.add(ValidationMessage(
-                    ValidationMessage.ERROR,
-                    _(u"Can't validate submitted player id at the moment. Please try to save settings one more time.")
-                ))
+                self.add_validation_message(
+                    validation,
+                    _(u"Can't validate submitted account id at the moment. "
+                      u"Please try to save settings one more time.")
+                )
+        # Account Id field is mandatory
+        else:
+            self.add_validation_message(
+                validation,
+                _(u"Account Id can not be empty. Please provide a valid Brightcove Account Id.")
+            )
 
-        if data.href == '':
-            return
+    def validate_href_data(self, validation, data):
+        """
+        Validate href value.
+
+        Attributes:
+            validation (xblock.validation.Validation): Object containing validation information for an xblock instance.
+            data (xblock.internal.VideoXBlockWithMixins): Object containing data on xblock.
+        """
+        is_not_provided_href = \
+            data.href == self.fields['href'].default  # pylint: disable=unsubscriptable-object
+        is_matched_href = False
         for _player_name, player_class in BaseVideoPlayer.load_classes():
             if player_class.match(data.href):
-                return
+                is_matched_href = True
+        # Validate provided video href value
+        if not (is_not_provided_href or is_matched_href):
+            self.add_validation_message(
+                validation,
+                _(u"Incorrect or unsupported video URL, please recheck.")
+            )
 
-        validation.add(ValidationMessage(
-            ValidationMessage.ERROR,
-            _(u"Incorrect or unsupported video URL, please recheck.")
-        ))
+    def validate_field_data(self, validation, data):
+        """
+        Validate data submitted via xblock edit pop-up.
+
+        Reference:
+            https://github.com/edx/xblock-utils/blob/v1.0.3/xblockutils/studio_editable.py#L245
+
+        Attributes:
+            validation (xblock.validation.Validation): Object containing validation information for an xblock instance.
+            data (xblock.internal.VideoXBlockWithMixins): Object containing data on xblock.
+        """
+        is_brightcove = str(self.player_name) == 'brightcove-player'
+
+        if is_brightcove:
+            self.validate_account_id_data(validation, data)
+
+        self.validate_href_data(validation, data)
 
     def student_view(self, context=None):  # pylint: disable=unused-argument
         """
@@ -430,7 +474,9 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         self.default_transcripts = filtered_default_transcripts
         if self.default_transcripts:
             self.default_transcripts.sort(key=lambda l: l['label'])
-
+        # Prepare basic_fields and advanced_fields for them to be rendered
+        basic_fields = self.prepare_studio_editor_fields(player.basic_fields)
+        advanced_fields = self.prepare_studio_editor_fields(player.advanced_fields)
         context = {
             'fields': [],
             'courseKey': self.location.course_key,  # pylint: disable=no-member
@@ -440,7 +486,9 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             'default_transcripts': self.default_transcripts,
             'initial_default_transcripts': initial_default_transcripts,
             'auth_error_message': auth_error_message,
-            'transcripts_autoupload_message': transcripts_autoupload_message
+            'transcripts_autoupload_message': transcripts_autoupload_message,
+            'basic_fields': basic_fields,
+            'advanced_fields': advanced_fields,
         }
 
         # Build a list of all the fields that can be edited:
@@ -455,7 +503,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             if field_info is not None:
                 context["fields"].append(field_info)
 
-        fragment.content = render_resource('static/html/studio_edit.html', **context)
+        fragment.content = render_template('studio-edit.html', **context)
         fragment.add_css(resource_string("static/css/handout.css"))
         fragment.add_css(resource_string("static/css/transcripts-upload.css"))
         fragment.add_css(resource_string("static/css/studio-edit.css"))
@@ -578,12 +626,33 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             return field.help
         return ''
 
+    def initialize_studio_field_info(self, field_name, field, field_type=None):
+        """
+        Initialize studio editor's field info.
+
+        Arguments:
+            field_name (str): Name of a video XBlock field whose info is to be made.
+            field (xblock.fields): Video XBlock field object.
+            field_type (str): Type of field.
+        Returns:
+            info (dict): Information on a field.
+        """
+        info = super(VideoXBlock, self)._make_field_info(field_name, field)
+        info['help'] = self._get_field_help(field_name, field)
+        if field_type:
+            info['type'] = field_type
+        if field_name == 'handout':
+            info['file_name'] = self.get_file_name_from_path(self.handout)
+            info['value'] = self.get_path_for(self.handout)
+        return info
+
     def _make_field_info(self, field_name, field):
         """
         Override and extend data of built-in method.
 
+        Create the information that the template needs to render a form field for this field.
         Reference:
-            https://github.com/edx/xblock-utils/blob/79dbdcc8bbcb4d73ed9f9f578b2c9cd533e6550c/xblockutils/studio_editable.py#L96
+            https://github.com/edx/xblock-utils/blob/v1.0.3/xblockutils/studio_editable.py#L96
 
         Arguments:
             field_name (str): Name of a video XBlock field whose info is to be made.
@@ -605,20 +674,26 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
                 'has_list_values': False,
                 'type': 'string',
             }
+        elif field_name in ('handout', 'transcripts', 'default_transcripts', 'token'):
+            info = self.initialize_studio_field_info(field_name, field, field_type=field_name)
         else:
-            info = super(VideoXBlock, self)._make_field_info(field_name, field)
-            info['help'] = self._get_field_help(field_name, field)
-            if field_name == 'handout':
-                info['type'] = 'file_uploader'
-                info['file_name'] = self.get_file_name_from_path(self.handout)
-                info['value'] = self.get_path_for(self.handout)
-            elif field_name == 'transcripts':
-                info['type'] = 'transcript_uploader'
-            elif field_name == 'default_transcripts':
-                info['type'] = 'default_transcript_uploader'
-            elif field_name == 'token':
-                info['type'] = 'token_authorization'
+            info = self.initialize_studio_field_info(field_name, field)
         return info
+
+    def prepare_studio_editor_fields(self, fields):
+        """
+        Order xblock fields in studio editor modal.
+
+        Arguments:
+            fields (tuple): Names of Xblock fields.
+        Returns:
+            made_fields (list): XBlock fields prepared to be rendered in a studio edit modal.
+        """
+        made_fields = [
+            self._make_field_info(key, self.fields[key])  # pylint: disable=unsubscriptable-object
+            for key in fields
+        ]
+        return made_fields
 
     def get_file_name_from_path(self, field):
         """

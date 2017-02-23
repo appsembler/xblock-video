@@ -1,0 +1,10 @@
+<select
+  class="field-data-control"
+  id="xb-field-edit-{{field.name}}"
+>
+    {% for option in field.values %}
+        <option value="{{option.value}}" {% if field.value == option.value   %}selected{% endif %}>
+        {{option.display_name}} {% if option.value == field.default %}&emsp;(Default){% endif %}
+      </option>
+    {% endfor %}
+</select>

@@ -1,0 +1,20 @@
+<div class="wrapper-list-settings">
+  <ul class="list-settings list-set">
+    {% for choice in field.list_values %}
+      <li class="list-settings-item">
+        <input
+          id="xb-field-edit-{{field.name}}-{{forloop.counter}}"
+          type="checkbox"
+          value="{{choice.value}}"
+          style="width:auto;min-width:auto;height:auto;float:left;margin-top:3px;"
+          {% if choice.value in field.value %}checked{% endif %}
+        >
+        <label for="xb-field-edit-{{field.name}}-{{forloop.counter}}" style="display:block;margin-left:1.1em;">
+          {{choice.display_name}}
+        </label>
+      </li>
+    {% empty %}
+      <li>{% trans "None Available" %}</li>
+    {% endfor %}
+  </ul>
+</div>

@@ -1,0 +1,69 @@
+{% load i18n %}
+
+<ul class="list-input settings-list {% if name == 'advanced' %}advanced is-hidden{% elif name == 'basic' %}basic{% endif %}">
+{% for field in fields %}
+    <li
+      class="field comp-setting-entry metadata_entry {% if field.is_set %}is-set{% endif %}"
+      data-field-name="{{field.name}}"
+      data-default="{% if field.type == 'boolean' %}{{ field.default|yesno:'1,0' }}{% else %}{{ field.default|default_if_none:"" }}{% endif %}"
+      data-cast="{{field.type}}"
+    >
+        <div class='wrapper-comp-setting {% if field.type == "set" %}metadata-list-enum{% endif %} {% if field.type == "handout" %}file-uploader{% endif %}{% if field.type == "transcripts" %}metadata-video-translations{% endif %}'>
+            <label class="label setting-label" for="xb-field-edit-{{field.name}}">{{field.display_name}}</label>
+
+            {% if field.type == "boolean" %}
+                {% include "fields/boolean.html" with field=field %}
+
+            {% elif field.has_values %}
+                <span>has_values</span>
+                {% include "fields/has_values.html" with field=field %}
+
+            {% elif field.type == "string" or field.type == "datepicker" %}
+                {% include "fields/string.html" with field=field %}
+
+            {% elif field.type == "integer" or field.type == "float" %}
+                <span>number</span>
+                {% include "fields/number.html" with field=field %}
+
+            {% elif field.type == "text" or field.type == "html" %}
+                <span>text</span>
+                {% include "fields/text.html" with field=field %}
+
+            {% elif field.type == 'set' and field.has_list_values %}
+                <span>set</span>
+                {% include "fields/set.html" with field=field %}
+            {% elif field.type == 'generic' or field.type == 'list' or field.type == 'set' %}
+                <span>generic</span>
+
+            {% elif field.type == 'handout' %}
+                {% include "fields/file-uploader.html" with field=field %}
+
+            {% elif name == 'advanced' %}
+                {% if field.type == 'transcripts' %}
+                    {% include 'studio-edit-transcripts.html' %}
+                {% elif field.type == 'default_transcripts' %}
+                    {% include 'studio-edit-default-transcripts.html' %}
+                {% elif field.type == 'token' %}
+                    {% include 'studio-edit-token.html' %}
+                {% endif %}
+            {% else %}
+              Unsupported field type. This setting cannot be edited.
+            {% endif %}
+
+            {% if field.allow_reset %}
+                <button class="action setting-clear {% if field.is_set %}active{%else%}inactive{% endif %}" type="button" name="setting-clear" value="{% trans "Clear" %}" data-tooltip="{% trans "Clear" %}">
+                    <i class="icon fa fa-undo"></i><span class="sr">{% trans "Clear Value" %}</span>
+                </button>
+            {% endif %}
+        </div>
+        {% if field.help %}
+            <span class="tip setting-help"> {{ field.help|safe }} </span>
+        {% endif %}
+    </li>
+{% endfor %}
+
+{% if name == 'advanced' %}
+    {% include 'studio-edit-brightcove-encryption.html' %}
+{% endif %}
+
+</ul>

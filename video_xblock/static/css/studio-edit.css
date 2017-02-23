@@ -220,3 +220,30 @@
     background-color: #fff;
     font-weight: 400;
 }
+
+.editor-modes.action-list.action-modes {
+    vertical-align: middle;
+}
+
+.edit-menu-tab {
+    float: right;
+    text-transform: uppercase;
+    border: 0;
+    border-radius: 5px;
+    padding: 5px 10px;
+    margin-right: 2%;
+    font-weight: 600;
+    font-size: 1.2rem;
+    background-color: transparent;
+    color: #999;
+}
+
+.edit-menu-tab:hover {
+    background-color: #009fe6;
+    color: #000;
+}
+.edit-menu-tab.current {
+    background-color: #4c4c4c;
+    color: #fff;
+}
+

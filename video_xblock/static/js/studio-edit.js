@@ -1,9 +1,7 @@
 /**
-    StudioEditableXBlock function for setting up the Video xblock.
-    This function was copied from xblock-utils by link
-        https://github.com/edx/xblock-utils/blob/master/xblockutils/templates/studio_edit.html
-    and extended by Raccoon Gang company
-    It is responsible for a validating and sending data to backend
+    Set up the Video xblock studio editor. This part is responsible for validation and sending of the data to a backend.
+    Reference:
+        https://github.com/edx/xblock-utils/blob/v1.0.3/xblockutils/templates/studio_edit.html
 */
 function StudioEditableXBlock(runtime, element) {
     'use strict';
@@ -17,6 +15,49 @@ function StudioEditableXBlock(runtime, element) {
     var $availableLabel = $('div.custom-field-section-label.available-transcripts');
     var noEnabledTranscript;
     var noAvailableTranscript;
+    var $modalHeaderTabs = $('.editor-modes.action-list.action-modes');
+    var currentTabName;
+    var isNotDummy = $('#xb-field-edit-href').val() !== '';
+
+    /** Toggle studio editor's current tab.
+     */
+    function toggleEditorTab(tabName) {
+        var $tabDisable;
+        var $tabEnable;
+        var $otherTabName;
+        if (tabName === 'Basic') {
+            $tabEnable = $('.list-input.settings-list.basic');
+            $tabDisable = $('.list-input.settings-list.advanced');
+            $otherTabName = 'Advanced';
+        } else if (tabName === 'Advanced') {
+            $tabEnable = $('.list-input.settings-list.advanced');
+            $tabDisable = $('.list-input.settings-list.basic');
+            $otherTabName = 'Basic';
+        }
+        $(event.currentTarget).addClass('current');
+        $('.edit-menu-tab[data-tab-name=' + $otherTabName + ']').removeClass('current');
+        $tabDisable.addClass('is-hidden');
+        $tabEnable.removeClass('is-hidden');
+    }
+
+    // Create advanced and basic tabs
+    (function() {
+        if (isNotDummy) {
+            $modalHeaderTabs
+                .append(
+                    '<li class="inner_tab_wrap">' +
+                    '<button class="edit-menu-tab" data-tab-name="Advanced">Advanced</button>' +
+                    '</li>',
+                    '<li class="inner_tab_wrap">' +
+                    '<button class="edit-menu-tab current" data-tab-name="Basic">Basic</button>' +
+                    '</li>');
+            // Bind listeners to the toggle buttons
+            $('.edit-menu-tab').click(function(event) {
+                currentTabName = $(event.currentTarget).attr('data-tab-name');
+                toggleEditorTab(currentTabName);
+            });
+        }
+    }());
 
     /** Wrapper function for dispatched ajax calls.
      */
