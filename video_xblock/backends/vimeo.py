@@ -16,8 +16,6 @@ class VimeoPlayer(BaseVideoPlayer):
     # Reference: https://vimeo.com/153979733
     url_re = re.compile(r'https?:\/\/(.+)?(vimeo.com)\/(?P<media_id>.*)')
 
-    metadata_fields = []
-
     # Vimeo API for requesting transcripts.
     captions_api = {}
 
@@ -33,30 +31,7 @@ class VimeoPlayer(BaseVideoPlayer):
         """
         Return a Fragment required to render video player on the client side.
         """
-        context['data_setup'] = json.dumps({
-            "controlBar": {
-                "volumeMenuButton": {
-                    "inline": False,
-                    "vertical": True
-                }
-            },
-            "techOrder": ["vimeo"],
-            "sources": [{
-                "type": "video/vimeo",
-                "src": context['url']
-            }],
-            "vimeo": {"iv_load_policy": 1},
-            "controls": True,
-            "preload": 'auto',
-            "plugins": {
-                "xblockEventPlugin": {},
-                "offset": {
-                    "start": context['start_time'],
-                    "end": context['end_time'],
-                    "current_time": context['player_state']['current_time'],
-                },
-            }
-        })
+        context['data_setup'] = json.dumps(VimeoPlayer.player_data_setup(context))
 
         frag = super(VimeoPlayer, self).get_frag(**context)
         frag.add_content(
@@ -71,6 +46,24 @@ class VimeoPlayer(BaseVideoPlayer):
             frag.add_javascript(self.resource_string(js_file))
 
         return frag
+
+    @staticmethod
+    def player_data_setup(context):
+        """
+        Vimeo Player data setup.
+        """
+        result = BaseVideoPlayer.player_data_setup(context)
+        del result["playbackRates"]
+        del result["plugins"]["videoJSSpeedHandler"]
+        result.update({
+            "techOrder": ["vimeo"],
+            "sources": [{
+                "type": "video/vimeo",
+                "src": context['url']
+            }],
+            "vimeo": {"iv_load_policy": 1},
+        })
+        return result
 
     def authenticate_api(self, **kwargs):  # pylint: disable=unused-argument
         """

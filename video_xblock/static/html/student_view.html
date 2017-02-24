@@ -25,5 +25,12 @@
                 href="{{ transcript_download_link }}">{% trans 'Download transcript' %}</a>
         </li>
     {% endif %}
+    {% if download_video_url %}
+        <li class="video-download-button-custom">
+            <a href="{{ download_video_url }}" class="download-video" download
+               title="{% trans 'Right-click and save link as to download file' %}"
+               target="_blank">{% trans 'Download Video file' %}</a>
+        </li>
+    {% endif %}
 </ul>
 

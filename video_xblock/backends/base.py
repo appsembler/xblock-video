@@ -94,7 +94,6 @@ class BaseVideoPlayer(Plugin):
         """
         return {}
 
-    @abc.abstractproperty
     def metadata_fields(self):
         """
         List of keys (str) to be stored in the metadata xblock field.
@@ -191,6 +190,32 @@ class BaseVideoPlayer(Plugin):
             frag.add_javascript(self.resource_string(js_file))
 
         return frag
+
+    @staticmethod
+    def player_data_setup(context):
+        """
+        Base Player setup.
+        """
+        return {
+            "controlBar": {
+                "volumeMenuButton": {
+                    "inline": False,
+                    "vertical": True
+                }
+            },
+            "controls": True,
+            "preload": 'auto',
+            "playbackRates": [0.5, 1, 1.5, 2],
+            "plugins": {
+                "xblockEventPlugin": {},
+                "offset": {
+                    "start": context['start_time'],
+                    "end": context['end_time'],
+                    "current_time": context['player_state']['current_time'],
+                },
+                "videoJSSpeedHandler": {},
+            }
+        }
 
     @abc.abstractmethod
     def media_id(self, href):  # pylint: disable=unused-argument

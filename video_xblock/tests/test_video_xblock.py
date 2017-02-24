@@ -15,7 +15,7 @@ from xblock.test.tools import TestRuntime
 
 from video_xblock import VideoXBlock
 from video_xblock.utils import ugettext as _
-
+from video_xblock.constants import PlayerName
 settings.configure()
 
 
@@ -43,7 +43,7 @@ class VideoXBlockTests(unittest.TestCase):
         self.assertEqual(self.block.href, '')
         self.assertEqual(self.block.account_id, 'account_id')
         self.assertEqual(self.block.player_id, 'default')
-        self.assertEqual(self.block.player_name, 'dummy-player')
+        self.assertEqual(self.block.player_name, PlayerName.DUMMY)
         self.assertEqual(self.block.start_time, datetime.timedelta(seconds=0))
         self.assertEqual(self.block.end_time, datetime.timedelta(seconds=0))
         self.assertEqual(self.block.current_time, 0)
@@ -56,6 +56,8 @@ class VideoXBlockTests(unittest.TestCase):
         self.assertEqual(self.block.handout, '')
         self.assertEqual(self.block.transcripts, '')
         self.assertEqual(self.block.download_transcript_allowed, False)
+        self.assertEqual(self.block.download_video_allowed, False)
+        self.assertEqual(self.block.download_video_url, '')
 
     def test_player_state(self):
         """

@@ -14,7 +14,6 @@ class DummyPlayer(BaseVideoPlayer):
     """
 
     url_re = re.compile(r'')
-    metadata_fields = []
     advanced_fields = ()
 
     def get_frag(self, **context):  # pylint: disable=unused-argument

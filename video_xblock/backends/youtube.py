@@ -24,7 +24,6 @@ class YoutubePlayer(BaseVideoPlayer):
     url_re = re.compile(
         r'(?:youtube\.com\/\S*(?:(?:\/e(?:mbed))?\/|watch\?(?:\S*?&?v\=))|youtu\.be\/)(?P<media_id>[a-zA-Z0-9_-]{6,11})'
     )
-    metadata_fields = []
 
     # YouTube API for requesting transcripts.
     # For example: http://video.google.com/timedtext?lang=en&v=QLQ-85Td2Gs
@@ -55,32 +54,7 @@ class YoutubePlayer(BaseVideoPlayer):
         """
         Return a Fragment required to render video player on the client side.
         """
-        context['data_setup'] = json.dumps({
-            "controlBar": {
-                "volumeMenuButton": {
-                    "inline": False,
-                    "vertical": True
-                }
-            },
-            "techOrder": ["youtube"],
-            "sources": [{
-                "type": "video/youtube",
-                "src": context['url']
-            }],
-            "youtube": {"iv_load_policy": 1},
-            "playbackRates": [0.5, 1.0, 1.5, 2.0],
-            "controls": True,
-            "preload": 'auto',
-            "plugins": {
-                "xblockEventPlugin": {},
-                "offset": {
-                    "start": context['start_time'],
-                    "end": context['end_time'],
-                    "current_time": context['player_state']['current_time'],
-                },
-                "videoJSSpeedHandler": {},
-            }
-        })
+        context['data_setup'] = json.dumps(YoutubePlayer.player_data_setup(context))
 
         frag = super(YoutubePlayer, self).get_frag(**context)
         frag.add_content(
@@ -96,6 +70,22 @@ class YoutubePlayer(BaseVideoPlayer):
             frag.add_javascript(self.resource_string(js_file))
 
         return frag
+
+    @staticmethod
+    def player_data_setup(context):
+        """
+        Youtube Player data setup.
+        """
+        result = BaseVideoPlayer.player_data_setup(context)
+        result.update({
+            "techOrder": ["youtube"],
+            "sources": [{
+                "type": "video/youtube",
+                "src": context['url']
+            }],
+            "youtube": {"iv_load_policy": 1},
+        })
+        return result
 
     def authenticate_api(self, **kwargs):
         """

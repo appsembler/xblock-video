@@ -24,7 +24,7 @@ from pycaption import detect_format, WebVTTWriter
 from webob import Response
 
 from .backends.base import BaseVideoPlayer
-from .constants import status
+from .constants import PlayerName, status
 from .settings import ALL_LANGUAGES
 from .fields import RelativeTime
 from .utils import render_template, render_resource, resource_string, ugettext as _
@@ -110,6 +110,26 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         scope=Scope.content
     )
 
+    download_video_allowed = Boolean(
+        default=False,
+        scope=Scope.content,
+        display_name=_('Video Download Allowed'),
+        help=_(
+            "Allow students to download this video if they cannot use the edX video player."
+            " A link to download the file appears below the video."
+        ),
+        resettable_editor=False
+    )
+
+    download_video_url = String(
+        default='',
+        display_name=_('Video file URL'),
+        help=_("The URL where you've posted non hosted versions of the video. URL must end in .mpeg, .mp4, .ogg, or"
+               " .webm. (For browser compatibility, we strongly recommend .mp4 and .webm format.) To allow students to"
+               " download these videos, set Video Download Allowed to True."),
+        scope=Scope.content
+    )
+
     account_id = String(
         default='',
         display_name=_('Account Id'),
@@ -126,7 +146,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
     )
 
     player_name = String(
-        default='dummy-player',
+        default=PlayerName.DUMMY,
         scope=Scope.content
     )
 
@@ -258,7 +278,8 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
 
     advanced_fields = (
         'start_time', 'end_time', 'handout', 'transcripts',
-        'download_transcript_allowed', 'default_transcripts'
+        'download_transcript_allowed', 'default_transcripts', 'download_video_allowed',
+        'download_video_url'
     )
 
     player_state_fields = (
@@ -416,6 +437,16 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         download_transcript_handler_url = self.runtime.handler_url(self, 'download_transcript')
         transcript_download_link = self.get_transcript_download_link()
         full_transcript_download_link = ''
+
+        # Use field `href` for Html5 player.
+        # Use field `download_video_url` for other players. Don't show button if this field is empty.
+        download_video_url = False
+        if self.download_video_allowed:
+            if self.player_name == PlayerName.HTML5:
+                download_video_url = self.href
+            elif self.download_video_url:
+                download_video_url = self.download_video_url
+
         if transcript_download_link:
             full_transcript_download_link = download_transcript_handler_url + transcript_download_link
         frag = Fragment(
@@ -427,6 +458,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
                 handout=self.handout,
                 transcripts=self.route_transcripts(self.transcripts),
                 download_transcript_allowed=self.download_transcript_allowed,
+                download_video_url=download_video_url,
                 handout_file_name=self.get_file_name_from_path(self.handout),
                 transcript_download_link=full_transcript_download_link
             )
@@ -597,7 +629,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         """
         data['player_name'] = self.fields['player_name'].default  # pylint: disable=unsubscriptable-object
         for player_name, player_class in BaseVideoPlayer.load_classes():
-            if player_name == 'dummy-player':
+            if player_name == PlayerName.DUMMY:
                 continue
             if player_class.match(data['href']):
                 data['player_name'] = player_name
@@ -792,7 +824,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             resp['data'] = {'metadata': self.metadata}
         elif suffix == 'can-show-backend-settings':
             player = self.get_player()
-            if str(self.player_name) == 'brightcove-player':
+            if str(self.player_name) == PlayerName.BRIGHTCOVE:
                 resp['data'] = player.can_show_settings()
             else:
                 resp['data'] = {'canShow': False}
@@ -813,7 +845,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         # TODO move auth fields validation and kwargs population to specific backends
         # Handles a case where no token was provided by a user
         is_default_token = self.token == self.fields['token'].default  # pylint: disable=unsubscriptable-object
-        is_youtube_player = str(self.player_name) != 'youtube-player'  # pylint: disable=unsubscriptable-object
+        is_youtube_player = str(self.player_name) != PlayerName.YOUTUBE  # pylint: disable=unsubscriptable-object
         if is_default_token and is_youtube_player:
             error_message = 'In order to authenticate to a video platform\'s API, please provide a Video API Token.'
             return {}, error_message
@@ -823,16 +855,16 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             kwargs = {'token': self.token}
 
         # Handles a case where no account_id was provided by a user
-        if str(self.player_name) == 'brightcove-player':
+        if str(self.player_name) == PlayerName.BRIGHTCOVE:
             if self.account_id == self.fields['account_id'].default:  # pylint: disable=unsubscriptable-object
                 error_message = 'In order to authenticate to a video platform\'s API, please provide an Account Id.'
                 return {}, error_message
             kwargs['account_id'] = self.account_id
 
         player = self.get_player()
-        if str(self.player_name) == 'brightcove-player' and not self.metadata.get('client_id'):
+        if str(self.player_name) == PlayerName.BRIGHTCOVE and not self.metadata.get('client_id'):
             auth_data, error_message = player.authenticate_api(**kwargs)
-        elif str(self.player_name) == 'brightcove-player' and self.metadata.get('client_id'):
+        elif str(self.player_name) == PlayerName.BRIGHTCOVE and self.metadata.get('client_id'):
             auth_data = {
                 'client_secret': self.metadata.get('client_secret'),
                 'client_id': self.metadata.get('client_id'),

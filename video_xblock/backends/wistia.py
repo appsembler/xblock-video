@@ -74,29 +74,7 @@ class WistiaPlayer(BaseVideoPlayer):
 
         Extend general player fragment with Wistia specific context and JavaScript.
         """
-        context['data_setup'] = json.dumps({
-            "controlBar": {
-                "volumeMenuButton": {
-                    "inline": False,
-                    "vertical": True
-                }
-            },
-            "techOrder": ["wistia"],
-            "sources": [{
-                "type": "video/wistia",
-                "src": context['url'] + "?controlsVisibleOnLoad=false"
-            }],
-            "playbackRates": [0.5, 1, 1.5, 2],
-            "plugins": {
-                "xblockEventPlugin": {},
-                "offset": {
-                    "start": context['start_time'],
-                    "end": context['end_time'],
-                    "current_time": context['player_state']['current_time'],
-                },
-                "videoJSSpeedHandler": {},
-            }
-        })
+        context['data_setup'] = json.dumps(WistiaPlayer.player_data_setup(context))
 
         frag = super(WistiaPlayer, self).get_frag(**context)
         frag.add_content(
@@ -117,6 +95,21 @@ class WistiaPlayer(BaseVideoPlayer):
             frag.add_javascript(self.resource_string(js_file))
 
         return frag
+
+    @staticmethod
+    def player_data_setup(context):
+        """
+        Wistia Player data setup.
+        """
+        result = BaseVideoPlayer.player_data_setup(context)
+        result.update({
+            "techOrder": ["wistia"],
+            "sources": [{
+                "type": "video/wistia",
+                "src": context['url'] + "?controlsVisibleOnLoad=false"
+            }],
+        })
+        return result
 
     def authenticate_api(self, **kwargs):
         """
