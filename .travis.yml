@@ -25,7 +25,7 @@ install:
   - pip install --process-dependency-links -r requirements.txt
 
 before_script:
-  # Install bower, eslint, eslint-config-edx and their dependencies
+  # Install bower, eslint, eslint-config-edx-es5 and their dependencies
   - make tools
   - make deps-test
   # Prepare for js tests
