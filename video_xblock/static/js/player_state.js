@@ -10,15 +10,6 @@
  * State is saved at certain events.
  */
 
-/** Run a callback when DOM is fully loaded */
-var domReady = function(callback) {
-    if (document.readyState === "interactive" || document.readyState === "complete") {
-        callback();
-    } else {
-        document.addEventListener("DOMContentLoaded", callback);
-    }
-};
-
 var player_state_obj = window.playerStateObj;
 var player_state = {
     volume: player_state_obj.volume,

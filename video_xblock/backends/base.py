@@ -165,6 +165,7 @@ class BaseVideoPlayer(Plugin):
         )
 
         js_files = [
+            'static/js/base.js',
             'static/bower_components/video.js/dist/video.min.js',
             'static/bower_components/videojs-contextmenu/dist/videojs-contextmenu.min.js',
             'static/bower_components/videojs-contextmenu-ui/dist/videojs-contextmenu-ui.min.js',

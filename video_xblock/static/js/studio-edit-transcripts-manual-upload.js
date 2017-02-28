@@ -33,7 +33,7 @@ function parseRelativeTime(value) {
         return Math.max(0, parseInt(num, 10) || 0);
     }).reverse();
 
-    seconds = $.reduce(list, function(memo, num, index) {
+    seconds = list.reduce(function(memo, num, index) {
         return memo + num * Math.pow(60, index);
     }, 0);
 
