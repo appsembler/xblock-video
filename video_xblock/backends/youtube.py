@@ -13,6 +13,8 @@ from lxml import etree
 
 from video_xblock import BaseVideoPlayer
 from video_xblock.constants import status
+from video_xblock.utils import ugettext as _
+from video_xblock.exceptions import VideoXBlockException
 
 
 class YoutubePlayer(BaseVideoPlayer):
@@ -215,13 +217,15 @@ class YoutubePlayer(BaseVideoPlayer):
                     unicode(unescaped_text) + u'\n\n'
         return sub_element
 
-    def download_default_transcript(self, url, language_code=None):  # pylint: disable=unused-argument
+    def download_default_transcript(self, url=None, language_code=None):  # pylint: disable=unused-argument
         """
         Download default transcript from Youtube API and format it to WebVTT-like unicode.
 
         Reference to `get_transcripts_from_youtube()`:
             https://github.com/edx/edx-platform/blob/ecc3473d36b3c7a360e260f8962e21cb01eb1c39/common/lib/xmodule/xmodule/video_module/transcripts_utils.py#L122
         """
+        if url is None:
+            raise VideoXBlockException(_('`url` parameter is required.'))
         utf8_parser = etree.XMLParser(encoding='utf-8')
         data = requests.get(url)
         xmltree = etree.fromstring(data.content, parser=utf8_parser)

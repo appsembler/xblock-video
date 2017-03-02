@@ -14,7 +14,7 @@ from xblock.fragment import Fragment
 
 from video_xblock.backends.base import BaseVideoPlayer, BaseApiClient
 from video_xblock.constants import status
-from video_xblock.exceptions import ApiClientError
+from video_xblock.exceptions import ApiClientError, VideoXBlockException
 from video_xblock.utils import ugettext as _
 
 
@@ -237,7 +237,6 @@ class BrightcoveHlsMixin(object):
             - default - re-transcode using default DI profile;
             - autoquality - re-transcode using HLS only profile;
             - encryption - re-transcode using HLS with encryption profile;
-
         """
         url = 'https://ingest.api.brightcove.com/v1/accounts/{account_id}/videos/{video_id}/ingest-requests'.format(
             account_id=account_id, video_id=video_id
@@ -507,7 +506,7 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
                 ]
             message (str): Message for a user with details on default transcripts fetching outcomes.
         """
-        if not self.api_key and self.api_secret:
+        if not self.api_key and not self.api_secret:
             raise BrightcoveApiClientError(_('No API credentials provided'))
 
         video_id = kwargs.get('video_id')
@@ -544,12 +543,14 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
                 self.default_transcripts.append(default_transcript)
         else:
             try:
+                # no way this code could be executed
+                # TODO: refactor this code
                 message = str(text[0].get('message'))
             except AttributeError:
-                message = 'No timed transcript may be fetched from a video platform. '
+                message = 'No timed transcript may be fetched from a video platform.'
         return default_transcripts, message
 
-    def download_default_transcript(self, url, language_code=None):  # pylint: disable=unused-argument
+    def download_default_transcript(self, url=None, language_code=None):  # pylint: disable=unused-argument
         """
         Download default transcript from a video platform API in WebVVT format.
 
@@ -558,6 +559,8 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         Returns:
             sub (unicode): Transcripts formatted per WebVTT format https://w3c.github.io/webvtt/
         """
+        if url is None:
+            raise VideoXBlockException(_('`url` parameter is required.'))
         data = requests.get(url)
         text = data.content.decode('utf8')
         # To clean subs text from special symbols here, we need `unescape()` from xml.sax.saxutils

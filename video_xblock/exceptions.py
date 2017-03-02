@@ -28,6 +28,14 @@ class VideoXBlockException(Exception):
         return self.detail
 
 
+class VideoXBlockMockException(VideoXBlockException):
+    """
+    Base class for video xblock exceptions. Subclasses should provide `.default_msg` property.
+    """
+
+    default_msg = _('A Mock exception occurred.')
+
+
 class ApiClientError(VideoXBlockException):
     """
     Base API client exception.

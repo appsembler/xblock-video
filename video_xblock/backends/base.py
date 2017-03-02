@@ -285,6 +285,7 @@ class BaseVideoPlayer(Plugin):
         Arguments:
             kwargs (dict): Key-value pairs of API-specific identifiers (account_id, video_id, etc.) and tokens,
                 necessary for API calls.
+
         Returns:
             list: List of dicts of transcripts. Example:
             [
@@ -320,6 +321,7 @@ class BaseVideoPlayer(Plugin):
         Arguments:
             url (str): API url to fetch a default transcript from.
             language_code (str): Language code of a transcript to be downloaded.
+
         Returns:
             unicode: Transcripts formatted in WebVTT.
         """
