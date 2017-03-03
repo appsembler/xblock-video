@@ -524,10 +524,24 @@ class WistiaDefaultTranscriptsMock(BaseMock):
             }
         ),
         (
+            'success_invalid_json',
+            {
+                'default_transcripts': [],
+                'message': 'For now, video platform doesn\'t have any timed transcript for this video.'
+            }
+        ),
+        (
             'returned_not_found',
             {
                 'default_transcripts': [],
                 'message': 'doesn\'t exist.'
+            }
+        ),
+        (
+            'invalid_request',
+            {
+                'default_transcripts': [],
+                'message': 'Invalid request.'
             }
         )
     )
@@ -557,10 +571,18 @@ class WistiaDefaultTranscriptsMock(BaseMock):
                     'status_code': 200,
                     'body': '{}'
                 },
+                'success_invalid_json': {
+                    'status_code': 200,
+                    'body': '{{invalid_json'
+                },
                 'returned_not_found': {
                     'status_code': 404,
                     'body': '{}'
                 },
+                'invalid_request': {
+                    'status_code': 400,
+                    'body': 'Invalid request.'
+                }
             }
             self.return_value = ResponseStub(**return_value_by_event[self.event])
         return lambda x: self.return_value

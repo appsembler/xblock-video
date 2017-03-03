@@ -168,46 +168,53 @@ class WistiaPlayer(BaseVideoPlayer):
         # Fetch available transcripts' languages (codes and English labels), and assign its' urls.
         try:
             data = requests.get('https://' + url)
-            wistia_data = json.loads(data.text)
         except requests.exceptions.RequestException as exception:
             # Probably, current API has changed
             message = 'No timed transcript may be fetched from a video platform. ' \
                       'Error: {}'.format(str(exception))
             return default_transcripts, message
 
-        if data.status_code == status.HTTP_200_OK and wistia_data:
-            transcripts_data = [
-                [el.get('language'), el.get('english_name'), el.get('text')]
-                for el in wistia_data]
-            # Populate default_transcripts
-            for lang_code, lang_label, text in transcripts_data:
-                # lang_code, fetched from Wistia API, is a 3 character language code as specified by ISO-639-2.
-                # Reference: https://wistia.com/doc/data-api#captions_show
-                # Convert from ISO-639-2 to ISO-639-1; reference: https://pythonhosted.org/babelfish/
-                try:
-                    lang_code = babelfish.Language(lang_code).alpha2
-                except ValueError:
-                    # In case of B or T codes, e.g. 'fre'.
-                    # Reference: https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes
-                    lang_code = babelfish.Language.fromalpha3b(lang_code).alpha2   # pylint: disable=no-member
-                lang_label = self.get_transcript_language_parameters(lang_code)[1]
-                transcript_url = 'url_can_not_be_generated'
-                default_transcript = {
-                    'lang': lang_code,
-                    'label': lang_label,
-                    'url': transcript_url,
-                    'text': text,
-                }
-                default_transcripts.append(default_transcript)
-                self.default_transcripts.append(default_transcript)
-        # If captions do not exist for a video, the response will be an empty JSON array.
-        # Reference: https://wistia.com/doc/data-api#captions_index
-        elif data.status_code == status.HTTP_200_OK and not wistia_data:
-            message = 'For now, video platform doesn\'t have any timed transcript for this video.'
+        if data.status_code == status.HTTP_200_OK:
+            try:
+                wistia_data = json.loads(data.text)
+            except ValueError:
+                wistia_data = False
+
+            if wistia_data:
+                transcripts_data = [
+                    [el.get('language'), el.get('english_name'), el.get('text')]
+                    for el in wistia_data]
+                # Populate default_transcripts
+                for lang_code, lang_label, text in transcripts_data:
+                    # lang_code, fetched from Wistia API, is a 3 character language code as specified by ISO-639-2.
+                    # Reference: https://wistia.com/doc/data-api#captions_show
+                    # Convert from ISO-639-2 to ISO-639-1; reference: https://pythonhosted.org/babelfish/
+                    try:
+                        lang_code = babelfish.Language(lang_code).alpha2
+                    except ValueError:
+                        # In case of B or T codes, e.g. 'fre'.
+                        # Reference: https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes
+                        lang_code = babelfish.Language.fromalpha3b(lang_code).alpha2   # pylint: disable=no-member
+                    lang_label = self.get_transcript_language_parameters(lang_code)[1]
+                    transcript_url = 'url_can_not_be_generated'
+                    default_transcript = {
+                        'lang': lang_code,
+                        'label': lang_label,
+                        'url': transcript_url,
+                        'text': text,
+                    }
+                    default_transcripts.append(default_transcript)
+                    self.default_transcripts.append(default_transcript)
+            # If captions do not exist for a video, the response will be an empty JSON array.
+            # Reference: https://wistia.com/doc/data-api#captions_index
+            else:
+                message = 'For now, video platform doesn\'t have any timed transcript for this video.'
         # If a video does not exist, the response will be an empty HTTP 404 Not Found.
         # Reference: https://wistia.com/doc/data-api#captions_index
         elif data.status_code == status.HTTP_404_NOT_FOUND:
             message = "Wistia video {video_id} doesn't exist.".format(video_id=str(video_id))
+        else:
+            message = "Invalid request."
         return default_transcripts, message
 
     @staticmethod
