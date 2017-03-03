@@ -25,6 +25,7 @@ from webob import Response
 
 from .backends.base import BaseVideoPlayer
 from .constants import PlayerName, status
+from .exceptions import ApiClientError
 from .settings import ALL_LANGUAGES
 from .fields import RelativeTime
 from .utils import render_template, render_resource, resource_string, ugettext as _
@@ -496,7 +497,10 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         if is_not_default_account_id:  # pylint: disable=unsubscriptable-object
             kwargs['account_id'] = self.account_id
         # Fetch captions list (available/default transcripts list) from video platform API
-        default_transcripts, transcripts_autoupload_message = player.get_default_transcripts(**kwargs)
+        try:
+            default_transcripts, transcripts_autoupload_message = player.get_default_transcripts(**kwargs)
+        except ApiClientError:
+            default_transcripts, transcripts_autoupload_message = [], _('Failed to fetch default transcripts.')
         # Default transcripts should contain transcripts of distinct languages only
         distinct_default_transcripts = player.clean_default_transcripts(default_transcripts)
         # Needed for frontend
