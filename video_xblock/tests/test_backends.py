@@ -18,18 +18,10 @@ from video_xblock.backends import (
     vimeo
 )
 from video_xblock.tests.mocks import (
-    YoutubeAuthMock,
-    WistiaAuthMock,
-    BrightcoveAuthMock,
-    VimeoAuthMock,
-    YoutubeDefaultTranscriptsMock,
-    BrightcoveDefaultTranscriptsMock,
-    WistiaDefaultTranscriptsMock,
-    VimeoDefaultTranscriptsMock,
-    YoutubeDownloadTranscriptMock,
-    BrightcoveDownloadTranscriptMock,
-    WistiaDownloadTranscriptMock,
-    VimeoDownloadTranscriptMock
+    brightcove as brightcove_mock,
+    vimeo as vimeo_mock,
+    wistia as wistia_mock,
+    youtube as youtube_mock
 )
 
 
@@ -48,24 +40,24 @@ class TestCustomBackends(VideoXBlockTestBase):
     ]
 
     auth_mocks = [
-        YoutubeAuthMock,
-        BrightcoveAuthMock,
-        WistiaAuthMock,
-        VimeoAuthMock,
+        youtube_mock.YoutubeAuthMock,
+        brightcove_mock.BrightcoveAuthMock,
+        wistia_mock.WistiaAuthMock,
+        vimeo_mock.VimeoAuthMock,
     ]
 
     default_trans_mocks = [
-        YoutubeDefaultTranscriptsMock,
-        BrightcoveDefaultTranscriptsMock,
-        WistiaDefaultTranscriptsMock,
-        VimeoDefaultTranscriptsMock,
+        youtube_mock.YoutubeDefaultTranscriptsMock,
+        brightcove_mock.BrightcoveDefaultTranscriptsMock,
+        wistia_mock.WistiaDefaultTranscriptsMock,
+        vimeo_mock.VimeoDefaultTranscriptsMock,
     ]
 
     download_transcript_mocks = [
-        YoutubeDownloadTranscriptMock,
-        BrightcoveDownloadTranscriptMock,
-        WistiaDownloadTranscriptMock,
-        VimeoDownloadTranscriptMock,
+        youtube_mock.YoutubeDownloadTranscriptMock,
+        brightcove_mock.BrightcoveDownloadTranscriptMock,
+        wistia_mock.WistiaDownloadTranscriptMock,
+        vimeo_mock.VimeoDownloadTranscriptMock,
     ]
 
     @XBlock.register_temp_plugin(brightcove.BrightcovePlayer, 'brightcove')
