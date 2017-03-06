@@ -18,6 +18,9 @@ engines:
     enabled: true
   markdownlint:
     enabled: true
+    checks:
+      MD024: # Multiple headers with the same content
+        enabled: false # Disabled because of CHANGELOG.md
   radon:
     enabled: true
 ratings:
