@@ -4,4 +4,5 @@
   <a href="{{ field.value }}" target="_blank" class="download-action download-setting {% if field.value %}{% else %}is-hidden{% endif %}" download="{{ field.file_name}}">{% trans "Download" %}</a>
 </div>
 <div class="status-upload"></div>
+<div class="status-error"></div>
 <input type="hidden" class="field-data-control" data-field-name="{{field.name}}" id="metadata-file-uploader-{{ field.name }}" value="{{ field.value }}">

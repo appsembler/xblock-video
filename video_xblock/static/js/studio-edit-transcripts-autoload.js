@@ -35,29 +35,6 @@ function createStatusMessageElement(langCode, actionSelector) {
 }
 
 /**
- * Display message with results on a performed action.
- */
-function showStatus(message, type, successSelector, errorSelector) {
-    'use strict';
-    var selectorToEmpty = '';
-    var selectorToShow = '';
-    // Only one success message is to be displayed at once
-    $('.api-request').empty();
-    if (type === 'success') {
-        selectorToEmpty = errorSelector;
-        selectorToShow = successSelector;
-    } else if (type === 'error') {
-        selectorToEmpty = successSelector;
-        selectorToShow = errorSelector;
-    }
-    $(selectorToEmpty).empty();
-    $(selectorToShow).text(message).show();
-    setTimeout(function() {
-        $(errorSelector).hide();
-    }, 5000);
-}
-
-/**
  *  Manage default transcripts labels display depending on enabled/available subs presence.
  */
 function setDisplayDefaultTranscriptsLabel(isNotDisplayedDefaultSub, labelElement) {
@@ -229,6 +206,9 @@ function removeEnabledTranscriptBlock(enabledTranscript, initialDefaultTranscrip
     var isSuccessfulRemoval;
     var isStoredVideoPlatform;
     var isNotPresentEnabledTranscripts;
+    var message, status;
+    var SUCCESS = 'success';
+    var ERROR = 'error';
     $enabledTranscriptBlock.remove();
     isNotPresentEnabledTranscripts = !$('div.enabled-default-transcripts-section:visible').length;
     // Hide label of enabled transcripts if no such items left
@@ -241,26 +221,23 @@ function removeEnabledTranscriptBlock(enabledTranscript, initialDefaultTranscrip
     allEnabledTranscripts = getDefaultTranscriptsArray('enabled');
     isSuccessfulRemoval = $.inArray(langCode, allEnabledTranscripts) === -1; // Is not in array
     isStoredVideoPlatform = $.inArray(langCode, initialDefaultTranscriptsLangCodes) !== -1;  // Is in array
-    // Display message with results on removal
+    // Display message with results of removal
     if (isSuccessfulRemoval && isStoredVideoPlatform) {
-        showStatus(
-            successMessageRemoval,
-            'success',
-            '.api-request.remove-default-transcript.' + langCode + '.status-success',
-            '.api-request.remove-default-transcript.' + langCode + '.status-error');
+        message = successMessageRemoval;
+        status = SUCCESS;
     } else if (isSuccessfulRemoval && !isStoredVideoPlatform) {
-        showStatus(
-            errorMessage,
-            'error',
-            '.api-request.remove-default-transcript.' + langCode + '.status-success',
-            '.api-request.remove-default-transcript.' + langCode + '.status-error');
+        status = ERROR;
+        message = errorMessage;
     } else {
-        showStatus(
-            failureMessage,
-            'error',
-            '.api-request.remove-default-transcript.' + langCode + '.status-success',
-            '.api-request.remove-default-transcript.' + langCode + '.status-error');
+        status = ERROR;
+        message = failureMessage;
     }
+    showStatus(
+        message,
+        status,
+        $('.api-request.remove-default-transcript.' + langCode + '.status-success'),
+        $('.api-request.remove-default-transcript.' + langCode + '.status-error')
+    );
 }
 
 /**
