@@ -28,8 +28,6 @@ before_script:
   # Install bower, eslint, eslint-config-edx-es5 and their dependencies
   - make tools
   - make deps-test
-  # Prepare for js tests
-  - make prepare-for-js
 
 script:
   - make quality-py
