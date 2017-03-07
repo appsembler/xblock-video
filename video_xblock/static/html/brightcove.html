@@ -16,5 +16,8 @@
       {{ transcripts }}
     </video>
     <script src="{{ brightcove_js_url }}"></script>
+    {% for vjs_plugin in vjs_plugins %}
+        <script type="text/javascript">{{ vjs_plugin }}</script>
+    {% endfor %}
     <div id="transcript"></div>
 </div>

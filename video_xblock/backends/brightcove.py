@@ -373,7 +373,7 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         context['player_state'] = json.dumps(context['player_state'])
 
         frag = Fragment(
-            self.render_resource('static/html/brightcove.html', **context)
+            self.render_template('brightcove.html', **context)
         )
         frag.add_css_url(
             'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'
@@ -385,16 +385,9 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
             'static/js/base.js',
             'static/js/toggle-button.js'
         ]
-        if json.loads(context['player_state'])['transcripts']:
-            js_files += [
-                'static/bower_components/videojs-transcript/dist/videojs-transcript.js',
-                'static/js/videojs-transcript.js'
-            ]
         js_files += [
             'static/js/videojs-tabindex.js',
             'static/js/videojs_event_plugin.js',
-            'static/bower_components/videojs-offset/dist/videojs-offset.js',
-            'static/js/videojs-speed-handler.js',
             'static/js/brightcove-videojs-init.js'
         ]
 
@@ -405,6 +398,26 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
             self.resource_string('static/css/brightcove.css')
         )
         return frag
+
+    def get_player_html(self, **context):
+        """
+        Add VideoJS plugins to the context and render player html using base class logic.
+        """
+        vjs_plugins = [
+            self.resource_string(
+                'static/bower_components/videojs-offset/dist/videojs-offset.js'
+            ),
+            self.resource_string('static/js/videojs-speed-handler.js')
+        ]
+        if context.get('transcripts'):
+            vjs_plugins += [
+                self.resource_string(
+                    'static/bower_components/videojs-transcript/dist/videojs-transcript.js'
+                ),
+                self.resource_string('static/js/videojs-transcript.js')
+            ]
+        context['vjs_plugins'] = vjs_plugins
+        return super(BrightcovePlayer, self).get_player_html(**context)
 
     def dispatch(self, _request, suffix):
         """
