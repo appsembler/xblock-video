@@ -6,6 +6,26 @@
 
 XBlock to embed videos hosted on different video platform into your courses.
 
+The idea of crowd-funded universal video-xblock was brought to the
+audience by Nate (Appsembler) on Open edX Con 2016 in Stanford.
+It was well-received and first funds were gathered.
+
+The development was initiated  by Raccoon Gang team, basing on
+previously developed wistia-xblock. Raccoon Gang guys created universal
+pluggable interface and implemented several video-backends:
+
+- Brightcove
+- Html5
+- Vimeo
+- Wistia
+- Youtube
+
+Appsembler and Raccoon Gang are presenting the talk on the story of
+video-xblock on Open edX Con 2017 in Madrid.
+
+We welcome open-source community to add more video-backends as well as
+fix issues.
+
 ## Installation
 
 ```shell
