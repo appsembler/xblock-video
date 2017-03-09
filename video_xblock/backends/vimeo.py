@@ -64,21 +64,3 @@ class VimeoPlayer(BaseVideoPlayer):
             "vimeo": {"iv_load_policy": 1},
         })
         return result
-
-    def authenticate_api(self, **kwargs):  # pylint: disable=unused-argument
-        """
-        Current Vimeo captions API doesn't require authentication, but this may change.
-        """
-        return {}, ''
-
-    def get_default_transcripts(self, **kwargs):  # pylint: disable=unused-argument
-        """
-        Fetch transcripts list from a video platform.
-        """
-        return [], ''
-
-    def download_default_transcript(self, url, language_code):  # pylint: disable=unused-argument
-        """
-        Download default transcript in WebVVT format.
-        """
-        return u''

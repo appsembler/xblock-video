@@ -5,6 +5,7 @@ YouTube Video player plugin.
 
 import HTMLParser
 import json
+import httplib
 import re
 import urllib
 
@@ -12,7 +13,6 @@ import requests
 from lxml import etree
 
 from video_xblock import BaseVideoPlayer
-from video_xblock.constants import status
 from video_xblock.utils import ugettext as _
 from video_xblock.exceptions import VideoXBlockException
 
@@ -89,12 +89,6 @@ class YoutubePlayer(BaseVideoPlayer):
         })
         return result
 
-    def authenticate_api(self, **kwargs):
-        """
-        Current Youtube captions API doesn't require authentication, but this may change.
-        """
-        return {}, ''
-
     def fetch_default_transcripts_languages(self, video_id):
         """
         Fetch available transcripts languages from a Youtube server.
@@ -127,7 +121,7 @@ class YoutubePlayer(BaseVideoPlayer):
                       'Error: {}'.format(str(exception))
             return available_languages, message
 
-        if data.status_code == status.HTTP_200_OK and data.text:
+        if data.status_code == httplib.OK and data.text:
             youtube_data = etree.fromstring(data.content, parser=utf8_parser)
             empty_subs = False if [el.get('transcript_list') for el in youtube_data] else True
             available_languages = [
@@ -148,8 +142,7 @@ class YoutubePlayer(BaseVideoPlayer):
         # Fetch available transcripts' languages from API
         video_id = kwargs.get('video_id')
         available_languages, message = self.fetch_default_transcripts_languages(video_id)
-
-        default_transcripts = []
+        self.default_transcripts = []
         for lang_code, lang_translated, transcript_name in available_languages:  # pylint: disable=unused-variable
             self.captions_api['params']['lang'] = lang_code
             self.captions_api['params']['name'] = transcript_name
@@ -159,14 +152,12 @@ class YoutubePlayer(BaseVideoPlayer):
             )
             # Update default transcripts languages parameters in accordance with pre-configured language settings
             lang_code, lang_label = self.get_transcript_language_parameters(lang_code)
-            default_transcript = {
+            self.default_transcripts.append({
                 'lang': lang_code,
                 'label': lang_label,
                 'url': transcript_url,
-            }
-            default_transcripts.append(default_transcript)
-        self.default_transcripts = default_transcripts
-        return default_transcripts, message
+            })
+        return self.default_transcripts, message
 
     @staticmethod
     def format_transcript_timing(sec, period_type=None):
@@ -177,11 +168,12 @@ class YoutubePlayer(BaseVideoPlayer):
             sec (str): Transcript timing in seconds with milliseconds resolution.
             period_type (str): Timing period type (whether `end` or `start`).
         """
-        # Get rid of overlapping periods.
-        if period_type == 'end' and float(sec) >= 0.001:
-            float_sec = float(sec) - 0.001
-            sec = float_sec
-        mins, secs = divmod(sec, 60)  # pylint: disable=unused-variable
+        # Youtube returns transcripts with the equal endtime and startime for previous and next transcript blocks
+        # respectively. That is why transcript blocks are overlapping. Get rid of it by decreasing timing on 0.001.
+        float_sec = float(sec)
+        sec = float_sec - 0.001 if period_type == 'end' and float_sec >= 0.001 else sec
+
+        mins, secs = divmod(sec, 60)
         hours, mins = divmod(mins, 60)
         hours_formatted = str(int(hours)).zfill(2)
         mins_formatted = str(int(mins)).zfill(2)

@@ -22,12 +22,12 @@ var player_state = {
 };
 var xblockUsageId = window.location.hash.slice(1);
 var transcripts = {};
-player_state_obj.transcripts.forEach(function loopTranscript(transcript) {
+player_state_obj.transcripts.forEach(function(transcript) {
     transcripts[transcript.lang] = {
         'label': transcript.label,
         'url': transcript.url
     }
-})
+});
 /** Get transcript url for current caption language */
 var getDownloadTranscriptUrl = function(player) {
     var downloadTranscriptUrl;
@@ -37,7 +37,7 @@ var getDownloadTranscriptUrl = function(player) {
         downloadTranscriptUrl = '#';
     };
     return downloadTranscriptUrl;
-}
+};
 
 /** Restore default or previously saved player state */
 var setInitialState = function(player, state) {

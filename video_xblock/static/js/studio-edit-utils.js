@@ -31,25 +31,21 @@ function fillValues(fields) {
 /**
  * Display message with results of a performed action (e.g. a transcript manual or automatic upload).
  */
-function showStatus(message, type, successMessageElement, errorMessageElement) {
+function showStatus(message, type, $statusElement) {
     'use strict';
-    var elementToEmpty = '';
-    var elementToShow = '';
-    var SUCCESS = 'success';
-    var ERROR = 'error';
+    var hideIn = 5000; // 5 seconds
+    var successClass = 'status-success';
+    var errorClass = 'status-error';
     // Only one success message is to be displayed at once
-    $('.api-request').empty();
-    if (type === SUCCESS) {
-        // TODO: Use one element to display status with appropriate styling
-        elementToEmpty = errorMessageElement;
-        elementToShow = successMessageElement;
-    } else if (type === ERROR) {
-        elementToEmpty = successMessageElement;
-        elementToShow = errorMessageElement;
+    $('.api-response').empty();
+    if (type === 'success') {
+        $statusElement.removeClass(errorClass).addClass(successClass);
+    } else if (type === 'error') {
+        $statusElement.removeClass(successClass).addClass(errorClass);
     }
-    if (elementToEmpty) { elementToEmpty.empty(); }
-    elementToShow.text(message).show();
+
+    $statusElement.show().text(message);
     setTimeout(function() {
-        elementToShow.hide();
-    }, 5000);
+        $statusElement.hide();
+    }, hideIn);
 }

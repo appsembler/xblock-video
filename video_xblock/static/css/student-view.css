@@ -1,3 +1,6 @@
+.is-hidden {
+  display: none !important;
+}
 .wrapper-comp-settings .file-uploader .xblock-edit-settings .upload-setting,
 .wrapper-comp-settings .file-uploader .xblock-edit-settings .download-setting {
     width: 47%;
@@ -31,8 +34,4 @@
 .video-download-button-custom a:hover {
     background-color: #1aa1de;
     color: #fff;
-}
-
-.is-hidden {
-  display: none !important;
 }

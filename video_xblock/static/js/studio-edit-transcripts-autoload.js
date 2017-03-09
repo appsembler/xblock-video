@@ -7,30 +7,20 @@
  */
 function createStatusMessageElement(langCode, actionSelector) {
     'use strict';
-    var errorMessageElementParentSelector = '';
-    var successMessageElementParentSelector = '';
-    var isNotDisplayedErrorMessageElement;
-    var isNotDisplayedSuccessMessageElement;
-    var $errorMessageUpload;
-    var $successMessageUpload;
+
+    var parentSelector = '';
+    var messageSelector = '.api-response.' + actionSelector + '.' + langCode + '.status';
+    var $messageUpload;
     if (actionSelector === 'upload-default-transcript') {
-        errorMessageElementParentSelector = 'available-default-transcripts-section';
-        successMessageElementParentSelector = 'enabled-default-transcripts-section';
+        parentSelector = 'available-default-transcripts-section';
     } else if (actionSelector === 'remove-default-transcript') {
-        errorMessageElementParentSelector = 'enabled-default-transcripts-section';
-        successMessageElementParentSelector = 'available-default-transcripts-section';
+        parentSelector = 'enabled-default-transcripts-section';
     }
-    isNotDisplayedErrorMessageElement = $('.api-request.' + actionSelector + '.' + langCode + '.status-error')
-            .length === 0;
-    isNotDisplayedSuccessMessageElement = $('.api-request.' + actionSelector + '.' + langCode + '.status-success')
-            .length === 0;
-    if (isNotDisplayedErrorMessageElement && isNotDisplayedSuccessMessageElement) {
-        $errorMessageUpload = $('<div>',
-            {class: 'api-request ' + actionSelector + ' ' + langCode + ' status-error'});
-        $errorMessageUpload.appendTo($('.' + errorMessageElementParentSelector + ':visible').last());
-        $successMessageUpload = $('<div>',
-            {class: 'api-request ' + actionSelector + ' ' + langCode + ' status-success'});
-        $successMessageUpload.appendTo($('.' + successMessageElementParentSelector + ':visible').last());
+
+    if ($(messageSelector).length === 0) {
+        $messageUpload = $('<div>',
+            {class: messageSelector});
+        $messageUpload.appendTo($('.' + parentSelector + ':visible').last());
     }
 }
 
@@ -199,9 +189,6 @@ function removeEnabledTranscriptBlock(enabledTranscript, initialDefaultTranscrip
     // Remove enabled transcript of choice
     var $enabledTranscriptBlock = $('div[value=' + langCode + ']').closest('div.enabled-default-transcripts-section');
     var $enabledLabel = $('div.custom-field-section-label.enabled-transcripts');
-    var successMessageRemoval = langLabel + ' transcripts are successfully removed from the list of enabled ones.';
-    var errorMessage = langLabel + ' transcripts are removed, but can not be uploaded from the video platform.';
-    var failureMessage = langLabel + ' transcripts are not neither removed nor added to the list of available ones.';
     var allEnabledTranscripts;
     var isSuccessfulRemoval;
     var isStoredVideoPlatform;
@@ -223,20 +210,19 @@ function removeEnabledTranscriptBlock(enabledTranscript, initialDefaultTranscrip
     isStoredVideoPlatform = $.inArray(langCode, initialDefaultTranscriptsLangCodes) !== -1;  // Is in array
     // Display message with results of removal
     if (isSuccessfulRemoval && isStoredVideoPlatform) {
-        message = successMessageRemoval;
+        message = gettext('{langLabel} transcripts are successfully removed from the list of enabled ones.');
         status = SUCCESS;
     } else if (isSuccessfulRemoval && !isStoredVideoPlatform) {
+        message = gettext('{langLabel} transcripts are removed, but can not be uploaded from the video platform.');
         status = ERROR;
-        message = errorMessage;
     } else {
+        message = gettext('{langLabel} transcripts are not neither removed nor added to the list of available ones.');
         status = ERROR;
-        message = failureMessage;
     }
     showStatus(
-        message,
+        message.replace('{langLabel}', langLabel),
         status,
-        $('.api-request.remove-default-transcript.' + langCode + '.status-success'),
-        $('.api-request.remove-default-transcript.' + langCode + '.status-error')
+        $('.api-response.remove-default-transcript.' + langCode + '.status')
     );
 }
 

@@ -286,7 +286,6 @@ class BaseVideoPlayer(Plugin):
         """
         return '<script>' + self.render_resource(path, **context) + '</script>'
 
-    @abc.abstractmethod
     def get_default_transcripts(self, **kwargs):  # pylint: disable=unused-argument
         """
         Fetch transcripts list from a video platform.
@@ -309,8 +308,7 @@ class BaseVideoPlayer(Plugin):
         """
         return [], ''
 
-    @abc.abstractmethod
-    def authenticate_api(self, **kwargs):
+    def authenticate_api(self, **kwargs):  # pylint: disable=unused-argument
         """
         Authenticate to a video platform's API in order to perform authorized requests.
 
@@ -322,7 +320,6 @@ class BaseVideoPlayer(Plugin):
         """
         return {}, ''
 
-    @abc.abstractmethod
     def download_default_transcript(self, url, language_code):  # pylint: disable=unused-argument
         """
         Download default transcript from a video platform API and format it accordingly to the WebVTT standard.

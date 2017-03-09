@@ -15,25 +15,19 @@
                 {% include "fields/boolean.html" with field=field %}
 
             {% elif field.has_values %}
-                <span>has_values</span>
-                {% include "fields/has_values.html" with field=field %}
+                {% include "fields/dropdown.html" with field=field %}
 
             {% elif field.type == "string" or field.type == "datepicker" %}
                 {% include "fields/string.html" with field=field %}
 
             {% elif field.type == "integer" or field.type == "float" %}
-                <span>number</span>
                 {% include "fields/number.html" with field=field %}
 
-            {% elif field.type == "text" or field.type == "html" %}
-                <span>text</span>
-                {% include "fields/text.html" with field=field %}
+            {% elif field.type == "text" or field.type == "html" or field.type == 'generic' or field.type == 'list' or field.type == 'set' %}
+                {% include "fields/textbox.html" with field=field %}
 
             {% elif field.type == 'set' and field.has_list_values %}
-                <span>set</span>
                 {% include "fields/set.html" with field=field %}
-            {% elif field.type == 'generic' or field.type == 'list' or field.type == 'set' %}
-                <span>generic</span>
 
             {% elif field.type == 'handout' %}
                 {% include "fields/file-uploader.html" with field=field %}
@@ -47,7 +41,7 @@
                     {% include 'studio-edit-token.html' %}
                 {% endif %}
             {% else %}
-              Unsupported field type. This setting cannot be edited.
+              {% trans "Unsupported field type. This setting cannot be edited." %}
             {% endif %}
 
             {% if field.allow_reset %}

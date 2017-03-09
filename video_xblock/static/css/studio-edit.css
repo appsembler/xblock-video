@@ -193,11 +193,11 @@
     min-width: 240px;
 }
 
-.api-request.status-success {
+.api-response.status-success {
     color: #51c67b;
 }
 
-.api-request.status-error {
+.api-response.status-error {
     color: #b20610;
 }
 

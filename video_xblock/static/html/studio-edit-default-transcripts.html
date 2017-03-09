@@ -29,12 +29,12 @@
               </a>
             </div>
           </div>
-          <div class="api-request remove-default-transcript {{ default_transcript.lang }} status-error"></div>
+          <div class="api-response remove-default-transcript {{ default_transcript.lang }} status"></div>
         {% endfor %}
     {% endif %}
     {% for initial_default_transcript in initial_default_transcripts %}
       <!-- Success message of available transcript upload is to be displayed. -->
-      <div class="api-request upload-default-transcript {{ initial_default_transcript.lang }} status-success"></div>
+      <div class="api-response upload-default-transcript {{ initial_default_transcript.lang }} status"></div>
     {% endfor %}
     <!----------------------- Hidden block (enabled sub) ---------------------->
     <div class="enabled-default-transcripts-section is-hidden">
@@ -72,11 +72,11 @@
               </a>
             </div>
           </div>
-          <div class="api-request upload-default-transcript {{ default_transcript.lang }} status-error"></div>
+          <div class="api-response upload-default-transcript {{ default_transcript.lang }} status"></div>
         {% endfor %}
         {% for transcript in transcripts %}
           <!-- Success message of enabled transcript removal is to be displayed. -->
-          <div class="api-request remove-default-transcript {{ transcripts.lang }} status-success"></div>
+          <div class="api-response remove-default-transcript {{ transcripts.lang }} status"></div>
         {% endfor %}
         <!----------------------- Hidden block (available sub) ---------------------->
         <div class="available-default-transcripts-section is-hidden">

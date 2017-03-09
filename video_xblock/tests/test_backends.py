@@ -177,6 +177,9 @@ class TestCustomBackends(VideoXBlockTestBase):
     @data(*(zip(backends, media_ids, default_trans_mocks)))
     @unpack
     def test_get_default_transcripts(self, backend, media_id, trans_mock):
+        """
+        Check getting list of default transcripts.
+        """
         player = self.player[backend]
         for event in trans_mock.get_outcomes():
             mock = trans_mock(event=event, xblock=self.xblock, mock_magic=self.xblock.metadata)

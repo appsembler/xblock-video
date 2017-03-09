@@ -5,13 +5,13 @@ Wistia Video player plugin.
 
 import HTMLParser
 import json
+import httplib
 import re
 
 import requests
 import babelfish
 
 from video_xblock import BaseVideoPlayer
-from video_xblock.constants import status
 from video_xblock.utils import ugettext as _
 from video_xblock.exceptions import VideoXBlockException
 
@@ -132,7 +132,7 @@ class WistiaPlayer(BaseVideoPlayer):
         auth_data['token'] = token
         url = self.captions_api.get('auth_sample_url').format(token=str(token))
         response = requests.get('https://' + url)
-        if response.status_code == status.HTTP_401_UNAUTHORIZED:
+        if response.status_code == httplib.UNAUTHORIZED:
             error_message = "Authentication failed. " \
                             "Please ensure you have provided a valid master token, using Video API Token field."
         return auth_data, error_message
@@ -162,9 +162,8 @@ class WistiaPlayer(BaseVideoPlayer):
         video_id = kwargs.get('video_id')
         token = kwargs.get('token')
         url = self.captions_api['url'].format(token=token, media_id=video_id)
-        default_transcripts = []
         message = ''
-
+        self.default_transcripts = []
         # Fetch available transcripts' languages (codes and English labels), and assign its' urls.
         try:
             data = requests.get('https://' + url)
@@ -172,9 +171,9 @@ class WistiaPlayer(BaseVideoPlayer):
             # Probably, current API has changed
             message = 'No timed transcript may be fetched from a video platform. ' \
                       'Error: {}'.format(str(exception))
-            return default_transcripts, message
+            return self.default_transcripts, message
 
-        if data.status_code == status.HTTP_200_OK:
+        if data.status_code == httplib.OK:
             try:
                 wistia_data = json.loads(data.text)
             except ValueError:
@@ -196,26 +195,24 @@ class WistiaPlayer(BaseVideoPlayer):
                         # Reference: https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes
                         lang_code = babelfish.Language.fromalpha3b(lang_code).alpha2   # pylint: disable=no-member
                     lang_label = self.get_transcript_language_parameters(lang_code)[1]
-                    transcript_url = 'url_can_not_be_generated'
-                    default_transcript = {
+                    self.default_transcripts.append({
                         'lang': lang_code,
                         'label': lang_label,
-                        'url': transcript_url,
+                        #  default transcript url can't be generated but shouldn't be empty
+                        'url': 'url_can_not_be_generated',
                         'text': text,
-                    }
-                    default_transcripts.append(default_transcript)
-                    self.default_transcripts.append(default_transcript)
+                    })
             # If captions do not exist for a video, the response will be an empty JSON array.
             # Reference: https://wistia.com/doc/data-api#captions_index
             else:
                 message = 'For now, video platform doesn\'t have any timed transcript for this video.'
         # If a video does not exist, the response will be an empty HTTP 404 Not Found.
         # Reference: https://wistia.com/doc/data-api#captions_index
-        elif data.status_code == status.HTTP_404_NOT_FOUND:
+        elif data.status_code == httplib.NOT_FOUND:
             message = "Wistia video {video_id} doesn't exist.".format(video_id=str(video_id))
         else:
             message = "Invalid request."
-        return default_transcripts, message
+        return self.default_transcripts, message
 
     @staticmethod
     def format_transcript_text_line(line):
