@@ -182,7 +182,8 @@ class WistiaPlayer(BaseVideoPlayer):
             if wistia_data:
                 transcripts_data = [
                     [el.get('language'), el.get('english_name'), el.get('text')]
-                    for el in wistia_data]
+                    for el in wistia_data
+                ]
                 # Populate default_transcripts
                 for lang_code, lang_label, text in transcripts_data:
                     # lang_code, fetched from Wistia API, is a 3 character language code as specified by ISO-639-2.

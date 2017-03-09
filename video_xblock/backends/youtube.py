@@ -7,6 +7,7 @@ import HTMLParser
 import json
 import httplib
 import re
+import textwrap
 import urllib
 
 import requests
@@ -203,11 +204,15 @@ class YoutubePlayer(BaseVideoPlayer):
                 text_encoded = text.encode('utf8', 'ignore')
                 text = text_encoded.replace('\n', ' ')
                 unescaped_text = html_parser.unescape(text.decode('utf8'))
-                sub_element = \
-                    unicode(element_number) + u'\n' + \
-                    unicode(timing) + u'\n' + \
-                    unicode(unescaped_text) + u'\n\n'
-        return sub_element
+                sub_element = u"""\
+                {element_number}
+                {timing}
+                {unescaped_text}
+
+                """.format(
+                    element_number=element_number, timing=timing, unescaped_text=unescaped_text
+                )
+        return textwrap.dedent(sub_element)
 
     def download_default_transcript(self, url=None, language_code=None):  # pylint: disable=unused-argument
         """

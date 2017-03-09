@@ -9,10 +9,7 @@ function fillValues(fields) {
     'use strict';
     var values = {};
     var notSet = []; // List of field names that should be set to default values
-    var i;
-    var field;
-    for (i = 0; i < fields.length; i++) {
-        field = fields[i];
+    fields.forEach(function(field) {
         if (field.isSet()) {
             values[field.name] = field.val();
         } else {
@@ -23,7 +20,7 @@ function fillValues(fields) {
         if (field.hasEditor()) {
             field.removeEditor();
         }
-    }
+    });
     return {values: values, defaults: notSet};
 }
 
