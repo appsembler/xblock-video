@@ -26,8 +26,9 @@ player_state_obj.transcripts.forEach(function(transcript) {
     transcripts[transcript.lang] = {
         'label': transcript.label,
         'url': transcript.url
-    }
+    };
 });
+
 /** Get transcript url for current caption language */
 var getDownloadTranscriptUrl = function(player) {
     var downloadTranscriptUrl;
