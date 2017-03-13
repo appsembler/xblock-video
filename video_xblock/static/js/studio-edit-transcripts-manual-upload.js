@@ -9,9 +9,10 @@
 function displayStatusCaptions(statusType, statusMessage, $parentDiv) {
     'use strict';
     showStatus(
-        statusMessage,
+        $('.status', $parentDiv),
         statusType,
-        $('.status', $parentDiv));
+        statusMessage
+    );
 }
 
 /**
@@ -20,9 +21,10 @@ function displayStatusCaptions(statusType, statusMessage, $parentDiv) {
 function displayStatusTranscripts(statusType, statusMessage, currentLiTag) {
     'use strict';
     showStatus(
-        statusMessage,
+        $('.status', $(currentLiTag)),
         statusType,
-        $('.status', $(currentLiTag)));
+        statusMessage
+    );
 }
 
 /**

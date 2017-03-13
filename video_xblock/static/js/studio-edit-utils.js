@@ -31,9 +31,9 @@ function fillValues(fields) {
  * @param {String}         type    Message type: 'success' or 'error'.
  * @param {jQuery Element} $el     Container element where message should be displayed.
  */
-function showStatus(message, type, $el) {
+function showStatus($el, type, message) {
     'use strict';
-    var fiveSeconds = 5000;
+    var msgShowTime = 5000; // 5 seconds
     // Only one success message is to be displayed at once
     $('.api-response').empty();
 
@@ -42,5 +42,5 @@ function showStatus(message, type, $el) {
 
     setTimeout(function() {
         $el.addClass('is-hidden');
-    }, fiveSeconds);
+    }, msgShowTime);
 }

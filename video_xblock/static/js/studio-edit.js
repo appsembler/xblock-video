@@ -393,9 +393,9 @@ function StudioEditableXBlock(runtime, element) {
         })
         .always(function() {
             showStatus(
-                message,
+                $('.api-response.authenticate.status'),
                 status,
-                $('.api-response.authenticate.status')
+                message
             );
         });
     }
@@ -439,9 +439,9 @@ function StudioEditableXBlock(runtime, element) {
         })
         .always(function() {
             showStatus(
-                message,
+                $('.api-response.upload-default-transcript.' + currentLanguageCode + '.status'),
                 status,
-                $('.api-response.upload-default-transcript.' + currentLanguageCode + '.status')
+                message
             );
         });
     }
