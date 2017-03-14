@@ -32,10 +32,6 @@
           <div class="api-response remove-default-transcript {{ default_transcript.lang }} status"></div>
         {% endfor %}
     {% endif %}
-    {% for initial_default_transcript in initial_default_transcripts %}
-      <!-- Success message of available transcript upload is to be displayed. -->
-      <div class="api-response upload-default-transcript {{ initial_default_transcript.lang }} status"></div>
-    {% endfor %}
     <!-- Hidden block (enabled sub) -->
     <div class="enabled-default-transcripts-section is-hidden">
       <div class="default-transcripts-label" value=""></div>
