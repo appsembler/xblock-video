@@ -13,12 +13,12 @@
  */
 domReady(function() {
     'use strict';
-    var videoPlayer = document.getElementById('{{ video_player_id }}');
+    var videoPlayer = document.getElementById(window.videoPlayerId);
     var dataSetup = JSON.parse(videoPlayer.getAttribute('data-setup'));
     var playbackRates = dataSetup.playbackRates;
     var docfrag = document.createDocumentFragment();
     // VideoJS Player() object necessary for context menu creation
-    var player = videojs('{{ video_player_id }}');
+    var player = videojs(window.videoPlayerId);
 
     /**
     * Cross-browser wrapper for element.matches

@@ -344,18 +344,19 @@ body {
 }
 
 #transcript {
-  max-height: 100%;
-  overflow: scroll;
   font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
   font-size: 14px;
   background-color: inherit;
 }
 
 .transcript-body {
+  max-height: 100%;
+  overflow: scroll;
   padding: 0 0 0 20px;
 }
 
 .transcript-line {
+  position: relative;
   margin-bottom: 8px;
   border: 0;
   padding: 0;

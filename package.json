@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "bower": "^1.8.0",
+    "eslint": "^2.12.0",
+    "eslint-config-edx-es5": "2.0.0",
+    "eslint-plugin-dollar-sign": "0.0.5",
+    "eslint-plugin-import": "^1.9.2",
+    "jasmine-core": "^2.5.2 ",
+    "karma": "^1.5.0",
+    "karma-jasmine": "^1.1.0",
+    "karma-phantomjs-launcher": "^1.0.2",
+    "karma-coverage": "^1.1.1",
+    "karma-coveralls": "^1.1.2",
+    "karma-chrome-launcher": "^2.0.0"
+
+  }
+}

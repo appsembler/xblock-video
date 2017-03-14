@@ -1,11 +1,15 @@
-
-/** Javascript for VideoXBlock.student_view() */
+/**
+ * Javascript for VideoXBlock.student_view()
+ * @param runtime Runtime object.
+ * @param element xblock's html element. Or object which contains html block we needed as element[0].
+ */
 function VideoXBlockStudentViewInit(runtime, element) {
     'use strict';
-    var stateHandlerUrl = runtime.handlerUrl(element, 'save_player_state');
-    var eventHandlerUrl = runtime.handlerUrl(element, 'publish_event');
-    var downloadTranscriptHandlerUrl = runtime.handlerUrl(element, 'download_transcript');
-    var usageId = element.attributes['data-usage-id'].value;
+    var xblockElement = typeof(element[0]) !== 'undefined' ? element[0] : element;
+    var stateHandlerUrl = runtime.handlerUrl(xblockElement, 'save_player_state');
+    var eventHandlerUrl = runtime.handlerUrl(xblockElement, 'publish_event');
+    var downloadTranscriptHandlerUrl = runtime.handlerUrl(xblockElement, 'download_transcript');
+    var usageId = xblockElement.attributes['data-usage-id'].value;
     window.videoXBlockState = window.videoXBlockState || {};
     var handlers = window.videoXBlockState.handlers =  // eslint-disable-line vars-on-top
         window.videoXBlockState.handlers || {
@@ -61,14 +65,16 @@ function VideoXBlockStudentViewInit(runtime, element) {
     }
     /** Updates transcript download url if it is enabled */
     function updateTranscriptDownloadUrl(downloadTranscriptUrl) {
-        var downloadLinkEl = document.getElementById('download-transcript-link');
+        var downloadLinkEl = document.getElementById('download-transcript-button');
+        var link;
         if (downloadLinkEl) {
+            link = downloadLinkEl.getElementsByTagName('a')[0];
             if (downloadTranscriptUrl) {
-                downloadLinkEl.href = downloadTranscriptHandlerUrl + '?' + downloadTranscriptUrl;
-                downloadLinkEl.classList.remove('is-disabled');
+                link.href = downloadTranscriptHandlerUrl + '?' + downloadTranscriptUrl;
+                downloadLinkEl.classList.remove('is-hidden');
             } else {
-                downloadLinkEl.href = '#';
-                downloadLinkEl.classList.add('is-disabled');
+                link.href = '#';
+                downloadLinkEl.classList.add('is-hidden');
             }
         }
     }

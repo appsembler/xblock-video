@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-This is the common settings file, intended to set defaults
-"""
+Common settings file, intended to set defaults.
 
-# Source:
-#  https://github.com/edx/edx-platform/blob/master/lms/envs/common.py#L2457
+Source:
+  https://github.com/edx/edx-platform/blob/open-release/eucalyptus.master/lms/envs/common.py#L2390
+"""
 
 ALL_LANGUAGES = (
     [u"aa", u"Afar"],

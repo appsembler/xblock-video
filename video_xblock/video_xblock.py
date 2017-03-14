@@ -1,15 +1,15 @@
 """
-Video XBlock provides a convenient way to embed videos hosted on
-supported platforms into your course.
+Video XBlock provides a convenient way to embed videos hosted on supported platforms into your course.
+
 All you need to provide is video url, this XBlock does the rest for you.
 """
 
 import datetime
-import json
-import logging
-import os
 import functools
-import pkg_resources
+import json
+import httplib
+import logging
+import os.path
 import requests
 
 from xblock.core import XBlock
@@ -18,17 +18,18 @@ from xblock.fragment import Fragment
 from xblock.validation import ValidationMessage
 from xblockutils.studio_editable import StudioEditableXBlockMixin
 
-from xmodule.contentstore.django import contentstore  # pylint: disable=import-error
-from xmodule.contentstore.content import StaticContent  # pylint: disable=import-error
+from xmodule.contentstore.django import contentstore
+from xmodule.contentstore.content import StaticContent
 
-from django.template import Template, Context
 from pycaption import detect_format, WebVTTWriter
 from webob import Response
 
-from .backends.base import BaseVideoPlayer, html_parser
+from .backends.base import BaseVideoPlayer
+from .constants import PlayerName
+from .exceptions import ApiClientError
 from .settings import ALL_LANGUAGES
 from .fields import RelativeTime
-from .utils import ugettext as _
+from .utils import render_template, render_resource, resource_string, ugettext as _
 
 
 log = logging.getLogger(__name__)
@@ -36,14 +37,15 @@ log = logging.getLogger(__name__)
 
 class TranscriptsMixin(XBlock):
     """
-    TranscriptsMixin class to encapsulate transcripts-related logic
+    TranscriptsMixin class to encapsulate transcripts-related logic.
     """
 
     @staticmethod
     def convert_caps_to_vtt(caps):
         """
-        Utility method converts any supported transcripts into WebVTT format.
-        Supported input formats: DFXP/TTML - SAMI - SCC - SRT - WebVTT
+        Utility method to convert any supported transcripts into WebVTT format.
+
+        Supported input formats: DFXP/TTML - SAMI - SCC - SRT - WebVTT.
 
         Arguments:
             caps (unicode): Raw transcripts.
@@ -58,9 +60,11 @@ class TranscriptsMixin(XBlock):
 
     def route_transcripts(self, transcripts):
         """
-        Re-routes non .vtt transcripts to `str_to_vtt` handler.
-        """
+        Re-route non .vtt transcripts to `str_to_vtt` handler.
 
+        Arguments:
+            transcripts (unicode): Raw transcripts.
+        """
         transcripts = json.loads(transcripts) if transcripts else []
         for tran in transcripts:
             if not tran['url'].endswith('.vtt'):
@@ -72,14 +76,13 @@ class TranscriptsMixin(XBlock):
     @XBlock.handler
     def srt_to_vtt(self, request, suffix=''):  # pylint: disable=unused-argument
         """
-        Fetches raw transcripts, converts them into WebVTT format and returns back.
+        Fetch raw transcripts, convert them into WebVTT format and return back.
 
         Path to raw transcripts is passed in as `request.query_string`.
 
         Arguments:
             request (webob.Request): The request to handle
-            suffix (string): The remainder of the url, after the handler url prefix, if available
-
+            suffix (string): The remainder of the url, after the handler url prefix, if available.
         Returns:
             webob.Response: WebVTT transcripts wrapped in Response object.
         """
@@ -90,8 +93,7 @@ class TranscriptsMixin(XBlock):
 
 class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
     """
-    Main VideoXBlock class.
-    Responsible for saving video settings and rendering it for students.
+    Main VideoXBlock class, responsible for saving video settings and rendering it for students.
     """
 
     icon_class = "video"
@@ -107,6 +109,26 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         default='',
         display_name=_('Video URL'),
         help=_('URL of the video page. E.g. https://example.wistia.com/medias/12345abcde'),
+        scope=Scope.content
+    )
+
+    download_video_allowed = Boolean(
+        default=False,
+        scope=Scope.content,
+        display_name=_('Video Download Allowed'),
+        help=_(
+            "Allow students to download this video if they cannot use the edX video player."
+            " A link to download the file appears below the video."
+        ),
+        resettable_editor=False
+    )
+
+    download_video_url = String(
+        default='',
+        display_name=_('Video file URL'),
+        help=_("The URL where you've posted non hosted versions of the video. URL must end in .mpeg, .mp4, .ogg, or"
+               " .webm. (For browser compatibility, we strongly recommend .mp4 and .webm format.) To allow students to"
+               " download these videos, set Video Download Allowed to True."),
         scope=Scope.content
     )
 
@@ -126,7 +148,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
     )
 
     player_name = String(
-        default='dummy-player',
+        default=PlayerName.DUMMY,
         scope=Scope.content
     )
 
@@ -164,8 +186,9 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         scope=Scope.content,
         display_name=_('Upload transcript'),
         help=_(
-            'Add transcripts in different languages. Click below to specify a language and upload an .srt transcript'
-            ' file for that language.'
+            'Add transcripts in different languages. Click below to '
+            'specify a language and upload a .srt or a .vtt transcript '
+            'file for that language. Maximum file size is 300 KB.'
         )
     )
 
@@ -252,11 +275,16 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         help="Captions are enabled or not"
     )
 
-    editable_fields = (
-        'display_name', 'href', 'start_time', 'end_time', 'account_id',
-        'player_id', 'handout', 'transcripts', 'download_transcript_allowed',
-        'default_transcripts', 'token'
+    basic_fields = (
+        'display_name', 'href'
     )
+
+    advanced_fields = (
+        'start_time', 'end_time', 'handout', 'transcripts',
+        'download_transcript_allowed', 'default_transcripts', 'download_video_allowed',
+        'download_video_url'
+    )
+
     player_state_fields = (
         'current_time', 'muted', 'playback_rate', 'volume',
         'transcripts_enabled', 'captions_enabled', 'captions_language'
@@ -265,7 +293,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
     @property
     def player_state(self):
         """
-        Returns video player state as a dictionary
+        Return video player state as a dictionary.
         """
         course = self.runtime.modulestore.get_course(self.course_id)
         transcripts = json.loads(self.transcripts) if self.transcripts else []
@@ -282,13 +310,19 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             'transcripts_enabled': self.transcripts_enabled,
             'captions_enabled': self.captions_enabled,
             'captions_language': self.captions_language or course.language,
-            'transcripts_object': json.dumps(transcripts_object)
+            'transcripts_object': transcripts_object
         }
 
     @staticmethod
     def get_brightcove_js_url(account_id, player_id):
         """
-        Returns url to brightcove player js file considering account_id and player_id
+        Return url to brightcove player js file, considering `account_id` and `player_id`.
+
+        Arguments:
+            account_id (str): Account id fetched from video xblock.
+            player_id (str): Player id fetched from video xblock.
+        Returns:
+            Url to brightcove player js (str).
         """
         return "https://players.brightcove.net/{account_id}/{player_id}_default/index.min.js".format(
             account_id=account_id,
@@ -298,7 +332,10 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
     @player_state.setter
     def player_state(self, state):
         """
-        Saves video player state passed in as a dict into xblock's fields
+        Save video player state passed in as a dict into xblock's fields.
+
+        Arguments:
+            state (dict): Video player state key-value pairs.
         """
         self.current_time = state.get('current_time', self.current_time)
         self.muted = state.get('muted', self.muted)
@@ -309,67 +346,114 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         self.captions_enabled = state.get('captions_enabled', self.captions_enabled)
         self.captions_language = state.get('captions_language', self.captions_language)
 
-    def validate_field_data(self, validation, data):
+    @property
+    def editable_fields(self):
         """
-        Validate data submitted via xblock edit pop-up
+        Return list of xblock's editable fields used by StudioEditableXBlockMixin.clean_studio_edits().
         """
-        if data.account_id and data.player_id:
+        return self.get_player().editable_fields
+
+    @staticmethod
+    def add_validation_message(validation, message_text):
+        """
+        Add error message on xblock fields validation.
+
+        Attributes:
+            validation (xblock.validation.Validation): Object containing validation information for an xblock instance.
+            message_text (unicode): Message text per se.
+        """
+        validation.add(ValidationMessage(ValidationMessage.ERROR, message_text))
+
+    def validate_account_id_data(self, validation, data):
+        """
+        Validate account id value which is mandatory.
+
+        Attributes:
+            validation (xblock.validation.Validation): Object containing validation information for an xblock instance.
+            data (xblock.internal.VideoXBlockWithMixins): Object containing data on xblock.
+        """
+        is_provided_account_id = \
+            data.account_id != self.fields['account_id'].default  # pylint: disable=unsubscriptable-object
+        # Validate provided account id
+        if is_provided_account_id:
             try:
                 response = requests.head(VideoXBlock.get_brightcove_js_url(data.account_id, data.player_id))
-                if response.status_code != 200:
-                    validation.add(ValidationMessage(
-                        ValidationMessage.ERROR,
-                        _(u"Invalid Player Id, please recheck")
-                    ))
+                if response.status_code != httplib.OK:
+                    self.add_validation_message(validation, _(u"Invalid Account Id, please recheck."))
             except requests.ConnectionError:
-                validation.add(ValidationMessage(
-                    ValidationMessage.ERROR,
-                    _(u"Can't validate submitted player id at the moment. Please try to save settings one more time.")
-                ))
+                self.add_validation_message(
+                    validation,
+                    _(u"Can't validate submitted account id at the moment. "
+                      u"Please try to save settings one more time.")
+                )
+        # Account Id field is mandatory
+        else:
+            self.add_validation_message(
+                validation,
+                _(u"Account Id can not be empty. Please provide a valid Brightcove Account Id.")
+            )
 
-        if data.href == '':
-            return
+    def validate_href_data(self, validation, data):
+        """
+        Validate href value.
+
+        Attributes:
+            validation (xblock.validation.Validation): Object containing validation information for an xblock instance.
+            data (xblock.internal.VideoXBlockWithMixins): Object containing data on xblock.
+        """
+        is_not_provided_href = \
+            data.href == self.fields['href'].default  # pylint: disable=unsubscriptable-object
+        is_matched_href = False
         for _player_name, player_class in BaseVideoPlayer.load_classes():
             if player_class.match(data.href):
-                return
+                is_matched_href = True
+        # Validate provided video href value
+        if not (is_not_provided_href or is_matched_href):
+            self.add_validation_message(
+                validation,
+                _(u"Incorrect or unsupported video URL, please recheck.")
+            )
 
-        validation.add(ValidationMessage(
-            ValidationMessage.ERROR,
-            _(u"Incorrect or unsupported video URL, please recheck.")
-        ))
+    def validate_field_data(self, validation, data):
+        """
+        Validate data submitted via xblock edit pop-up.
 
-    def resource_string(self, path):
-        """
-        Handy helper for getting resources from our kit.
-        """
-        data = pkg_resources.resource_string(__name__, path)
-        return data.decode("utf8")
+        Reference:
+            https://github.com/edx/xblock-utils/blob/v1.0.3/xblockutils/studio_editable.py#L245
 
-    def render_resource(self, path, **context):
+        Attributes:
+            validation (xblock.validation.Validation): Object containing validation information for an xblock instance.
+            data (xblock.internal.VideoXBlockWithMixins): Object containing data on xblock.
         """
-        Renders static resource using provided context
+        is_brightcove = str(self.player_name) == 'brightcove-player'
 
-        Returns: django.utils.safestring.SafeText
-        """
-        html = Template(self.resource_string(path))
-        return html_parser.unescape(
-            html.render(Context(context))
-        )
+        if is_brightcove:
+            self.validate_account_id_data(validation, data)
+
+        self.validate_href_data(validation, data)
 
     def student_view(self, context=None):  # pylint: disable=unused-argument
         """
-        The primary view of the VideoXBlock, shown to students
-        when viewing courses.
+        The primary view of the `VideoXBlock`, shown to students when viewing courses.
         """
-
         player_url = self.runtime.handler_url(self, 'render_player')
         download_transcript_handler_url = self.runtime.handler_url(self, 'download_transcript')
         transcript_download_link = self.get_transcript_download_link()
         full_transcript_download_link = ''
+
+        # Use field `href` for Html5 player.
+        # Use field `download_video_url` for other players. Don't show button if this field is empty.
+        download_video_url = False
+        if self.download_video_allowed:
+            if self.player_name == PlayerName.HTML5:
+                download_video_url = self.href
+            elif self.download_video_url:
+                download_video_url = self.download_video_url
+
         if transcript_download_link:
             full_transcript_download_link = download_transcript_handler_url + transcript_download_link
         frag = Fragment(
-            self.render_resource(
+            render_resource(
                 'static/html/student_view.html',
                 player_url=player_url,
                 display_name=self.display_name,
@@ -377,18 +461,19 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
                 handout=self.handout,
                 transcripts=self.route_transcripts(self.transcripts),
                 download_transcript_allowed=self.download_transcript_allowed,
+                download_video_url=download_video_url,
                 handout_file_name=self.get_file_name_from_path(self.handout),
                 transcript_download_link=full_transcript_download_link
             )
         )
-        frag.add_javascript(self.resource_string("static/js/video_xblock.js"))
-        frag.add_css(self.resource_string("static/css/handout.css"))
+        frag.add_javascript(resource_string("static/js/video_xblock.js"))
+        frag.add_css(resource_string("static/css/student-view.css"))
         frag.initialize_js('VideoXBlockStudentViewInit')
         return frag
 
     def studio_view(self, context):  # pylint: disable=unused-argument
         """
-        Render a form for editing this XBlock
+        Render a form for XBlock editing.
         """
         fragment = Fragment()
         player = self.get_player()
@@ -414,14 +499,22 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         if is_not_default_account_id:  # pylint: disable=unsubscriptable-object
             kwargs['account_id'] = self.account_id
         # Fetch captions list (available/default transcripts list) from video platform API
-        self.default_transcripts, transcripts_autoupload_message = player.get_default_transcripts(**kwargs)
+        try:
+            default_transcripts, transcripts_autoupload_message = player.get_default_transcripts(**kwargs)
+        except ApiClientError:
+            default_transcripts, transcripts_autoupload_message = [], _('Failed to fetch default transcripts.')
+        # Default transcripts should contain transcripts of distinct languages only
+        distinct_default_transcripts = player.clean_default_transcripts(default_transcripts)
         # Needed for frontend
-        initial_default_transcripts = self.default_transcripts
-        # Exclude enabled transcripts (fetched from video xblock) from the list of available ones.
-        self.default_transcripts = player.filter_default_transcripts(self.default_transcripts, transcripts)
+        initial_default_transcripts = distinct_default_transcripts
+        # Exclude enabled transcripts from the list of available ones, and remove duplicates
+        filtered_default_transcripts = player.filter_default_transcripts(distinct_default_transcripts, transcripts)
+        self.default_transcripts = filtered_default_transcripts
         if self.default_transcripts:
             self.default_transcripts.sort(key=lambda l: l['label'])
-
+        # Prepare basic_fields and advanced_fields for them to be rendered
+        basic_fields = self.prepare_studio_editor_fields(player.basic_fields)
+        advanced_fields = self.prepare_studio_editor_fields(player.advanced_fields)
         context = {
             'fields': [],
             'courseKey': self.location.course_key,  # pylint: disable=no-member
@@ -431,17 +524,13 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             'default_transcripts': self.default_transcripts,
             'initial_default_transcripts': initial_default_transcripts,
             'auth_error_message': auth_error_message,
-            'transcripts_autoupload_message': transcripts_autoupload_message
+            'transcripts_autoupload_message': transcripts_autoupload_message,
+            'basic_fields': basic_fields,
+            'advanced_fields': advanced_fields,
         }
 
-        # Customize display of the particular xblock fields per each video platform.
-        token_help_message, customised_editable_fields = \
-            player.customize_xblock_fields_display(self.editable_fields)  # pylint: disable=unsubscriptable-object
-        self.fields['token'].help = token_help_message  # pylint: disable=unsubscriptable-object
-        self.editable_fields = customised_editable_fields
-
         # Build a list of all the fields that can be edited:
-        for field_name in self.editable_fields:
+        for field_name in self.get_player().editable_fields:
             field = self.fields[field_name]  # pylint: disable=unsubscriptable-object
             assert field.scope in (Scope.content, Scope.settings), (
                 "Only Scope.content or Scope.settings fields can be used with "
@@ -452,26 +541,34 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             if field_info is not None:
                 context["fields"].append(field_info)
 
-        fragment.content = self.render_resource('static/html/studio_edit.html', **context)
-        fragment.add_css(self.resource_string("static/css/handout.css"))
-        fragment.add_css(self.resource_string("static/css/transcripts-upload.css"))
-        fragment.add_css(self.resource_string("static/css/studio-edit.css"))
-        fragment.add_javascript(self.resource_string("static/js/studio-edit.js"))
+        fragment.content = render_template('studio-edit.html', **context)
+        fragment.add_css(resource_string("static/css/student-view.css"))
+        fragment.add_css(resource_string("static/css/transcripts-upload.css"))
+        fragment.add_css(resource_string("static/css/studio-edit.css"))
+        fragment.add_javascript(resource_string("static/js/studio-edit-utils.js"))
+        fragment.add_javascript(resource_string("static/js/studio-edit.js"))
+        fragment.add_javascript(resource_string("static/js/studio-edit-transcripts-autoload.js"))
+        fragment.add_javascript(resource_string("static/js/studio-edit-transcripts-manual-upload.js"))
         fragment.initialize_js('StudioEditableXBlock')
         return fragment
 
     @XBlock.handler
     def render_player(self, request, suffix=''):  # pylint: disable=unused-argument
         """
-        student_view() loads this handler as an iframe to display actual
-        video player.
+        View `student_view` loads this handler as an iframe to display actual video player.
+
+        Arguments:
+            request (webob.Request): Request to handle.
+            suffix (string): Slug used for routing.
+        Returns:
+            Rendered html string as a Response (webob.Response).
         """
         player = self.get_player()
         save_state_url = self.runtime.handler_url(self, 'save_player_state')
-        transcripts = self.render_resource(
+        transcripts = render_resource(
             'static/html/transcripts.html',
             transcripts=self.route_transcripts(self.transcripts)
-        )
+        ).strip()
         return player.get_player_html(
             url=self.href, autoplay=False, account_id=self.account_id, player_id=self.player_id,
             video_id=player.media_id(self.href),
@@ -481,14 +578,19 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             start_time=int(self.start_time.total_seconds()),  # pylint: disable=no-member
             end_time=int(self.end_time.total_seconds()),  # pylint: disable=no-member
             brightcove_js_url=VideoXBlock.get_brightcove_js_url(self.account_id, self.player_id),
-            transcripts=transcripts
+            transcripts=transcripts,
         )
 
     @XBlock.json_handler
     def save_player_state(self, request, suffix=''):  # pylint: disable=unused-argument
         """
-        XBlock handler to save playback player state.
-        Called by student_view's JavaScript
+        Xblock handler to save playback player state. Called by JavaScript of `student_view`.
+
+        Arguments:
+            request (dict): Request data to handle.
+            suffix (str): Slug used for routing.
+        Returns:
+            Data on success (dict).
         """
         player_state = {
             'current_time': request['currentTime'],
@@ -506,8 +608,13 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
     @XBlock.json_handler
     def publish_event(self, data, suffix=''):  # pylint: disable=unused-argument
         """
-        Handler to publish XBlock event from frontend.
-        Called by student_view's JavaScript
+        Handler to publish XBlock event from frontend. Called by JavaScript of `student_view`.
+
+        Arguments:
+            data (dict): Data from frontend on the event.
+            suffix (string): Slug used for routing.
+        Returns:
+            Data on result (dict).
         """
         try:
             eventType = data.pop('eventType')  # pylint: disable=invalid-name
@@ -521,25 +628,75 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         """
         Given POST data dictionary 'data', clean the data before validating it.
 
-        Tries to detect player by submitted video url. If fails, it defaults to 'dummy-player'
+        Try to detect player by submitted video url. If fails, it defaults to 'dummy-player'.
+
+        Arguments:
+            data (dict): POST data.
         """
         data['player_name'] = self.fields['player_name'].default  # pylint: disable=unsubscriptable-object
         for player_name, player_class in BaseVideoPlayer.load_classes():
-            if player_name == 'dummy-player':
+            if player_name == PlayerName.DUMMY:
                 continue
             if player_class.match(data['href']):
                 data['player_name'] = player_name
 
     def get_player(self):
         """
-        Helper method to load video player by entry-point label
+        Helper method to load video player by entry-point label.
+
+        Returns:
+            Current player object (instance of a platform-specific player class).
         """
         player = BaseVideoPlayer.load_class(self.player_name)
         return player(self)
 
+    def _get_field_help(self, field_name, field):
+        """
+        Get help text for field.
+
+        First try to load override from video backend, then check field definition
+        and lastly fall back to empty string.
+        """
+        backend_fields_help = self.get_player().fields_help
+        if field_name in backend_fields_help:
+            return backend_fields_help[field_name]
+        elif field.help:
+            return field.help
+        return ''
+
+    def initialize_studio_field_info(self, field_name, field, field_type=None):
+        """
+        Initialize studio editor's field info.
+
+        Arguments:
+            field_name (str): Name of a video XBlock field whose info is to be made.
+            field (xblock.fields): Video XBlock field object.
+            field_type (str): Type of field.
+        Returns:
+            info (dict): Information on a field.
+        """
+        info = super(VideoXBlock, self)._make_field_info(field_name, field)
+        info['help'] = self._get_field_help(field_name, field)
+        if field_type:
+            info['type'] = field_type
+        if field_name == 'handout':
+            info['file_name'] = self.get_file_name_from_path(self.handout)
+            info['value'] = self.get_path_for(self.handout)
+        return info
+
     def _make_field_info(self, field_name, field):
         """
-        Overrides and extends data of built-in method
+        Override and extend data of built-in method.
+
+        Create the information that the template needs to render a form field for this field.
+        Reference:
+            https://github.com/edx/xblock-utils/blob/v1.0.3/xblockutils/studio_editable.py#L96
+
+        Arguments:
+            field_name (str): Name of a video XBlock field whose info is to be made.
+            field (xblock.fields): Video XBlock field object.
+        Returns:
+            info (dict): Information on a field to be rendered in the studio editor modal.
         """
         if field_name in ('start_time', 'end_time'):
             # RelativeTime field isn't supported by default.
@@ -550,34 +707,41 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
                 'default': field.default,
                 'value': field.read_from(self),
                 'has_values': False,
-                'help': field.help if field.help else "",
                 'allow_reset': field.runtime_options.get('resettable_editor', True),
                 'list_values': None,
                 'has_list_values': False,
                 'type': 'string',
             }
+        elif field_name in ('handout', 'transcripts', 'default_transcripts', 'token'):
+            info = self.initialize_studio_field_info(field_name, field, field_type=field_name)
         else:
-            info = super(VideoXBlock, self)._make_field_info(field_name, field)
-            if field_name == 'handout':
-                info['type'] = 'file_uploader'
-                info['file_name'] = self.get_file_name_from_path(self.handout)
-                info['value'] = self.get_path_for(self.handout)
-            elif field_name == 'transcripts':
-                info['type'] = 'transcript_uploader'
-            elif field_name == 'default_transcripts':
-                info['type'] = 'default_transcript_uploader'
-            elif field_name == 'token':
-                info['type'] = 'token_authorization'
+            info = self.initialize_studio_field_info(field_name, field)
         return info
+
+    def prepare_studio_editor_fields(self, fields):
+        """
+        Order xblock fields in studio editor modal.
+
+        Arguments:
+            fields (tuple): Names of Xblock fields.
+        Returns:
+            made_fields (list): XBlock fields prepared to be rendered in a studio edit modal.
+        """
+        made_fields = [
+            self._make_field_info(key, self.fields[key])  # pylint: disable=unsubscriptable-object
+            for key in fields
+        ]
+        return made_fields
 
     def get_file_name_from_path(self, field):
         """
-        Helper for getting filename from string with path to mongoDB storage.
+        Helper for getting filename from string with path to MongoDB storage.
+
         Example of string:
             asset-v1-RaccoonGang+1+2018+type@asset+block@<filename>
 
-        Args:
-            field: The path to file.
+        Arguments:
+            field (str): The path to file.
         Returns:
             The name of file with an extension.
         """
@@ -585,9 +749,15 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
 
     def get_path_for(self, file_field):
         """
-        Url retrieved after storing file field in mongoDB look like this:
+        Return downloaded asset url with slash in start of it.
+
+        Url, retrieved after storing of the file field in MongoDB, looks like this:
             'asset-v1-RaccoonGang+1+2018+type@asset+block@<filename>'
-        Returns downloaded asset url with slash in start of it
+
+        Arguments:
+            file_field (str): name a file is stored in MongoDB under.
+        Returns:
+            Full path of a downloaded asset.
         """
         if file_field:
             return os.path.join('/', file_field)
@@ -595,7 +765,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
 
     def get_transcript_download_link(self):
         """
-        Returns link for downloading transcript of the current captions language if it exists
+        Return link for downloading of a transcript of the current captions' language (if a transcript exists).
         """
         transcripts = json.loads(self.transcripts) if self.transcripts else []
         for transcript in transcripts:
@@ -606,9 +776,13 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
     @XBlock.handler
     def download_transcript(self, request, suffix=''):  # pylint: disable=unused-argument
         """
-        Function for downloading a transcript.
+        Download a transcript.
+
+        Arguments:
+            request (webob.Request): Request to handle.
+            suffix (string): Slug used for routing.
         Returns:
-            The file with the correct name
+            File with the correct name.
         """
         trans_path = self.get_path_for(request.query_string)
         result = requests.get(request.host_url + request.query_string).text
@@ -627,9 +801,11 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         Dispatch request to XBlock's player.
 
         Arguments:
-            request: incoming request data.
-            suffix: slug used for routing.
-
+            request (xblock.django.request.DjangoWebobRequest): Incoming request data.
+            suffix (str): Slug used for routing.
+        Returns:
+             Depending on player's `dispatch()` entry point, either info on video / Brightcove account or None value
+             (when performing some action via Brightcove API) may be returned.
         """
         return self.get_player().dispatch(request, suffix)
 
@@ -638,10 +814,14 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         """
         Dispatcher for a requests sent by dynamic Front-end components.
 
-        Typical use case: Front-end wants to check with backend if it's ok to show
-        certain part of UI.
-        """
+        Typical use case: Front-end wants to check with backend if it's ok to show certain part of UI.
 
+        Arguments:
+            _request (xblock.django.request.DjangoWebobRequest): Incoming request data. Not used.
+            suffix (str): Slug used for routing.
+        Returns:
+             Response object, containing response data.
+        """
         resp = {
             'success': True,
             'data': {}
@@ -650,7 +830,7 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             resp['data'] = {'metadata': self.metadata}
         elif suffix == 'can-show-backend-settings':
             player = self.get_player()
-            if str(self.player_name) == 'brightcove-player':
+            if str(self.player_name) == PlayerName.BRIGHTCOVE:
                 resp['data'] = player.can_show_settings()
             else:
                 resp['data'] = {'canShow': False}
@@ -660,20 +840,18 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
 
     def authenticate_video_api(self, token=''):
         """
-        Authenticates to a video platform's API.
+        Authenticate to a video platform's API.
 
         Arguments:
             token (str): token provided by a user before the save button was clicked (for handlers).
-
         Returns:
-            error_message (dict): status message for template rendering, and
-            auth_data (dict): tokens and credentials, necessary to perform authorised API requests.
+            error_message (dict): Status message for template rendering.
+            auth_data (dict): Tokens and credentials, necessary to perform authorised API requests.
         """
-
         # TODO move auth fields validation and kwargs population to specific backends
         # Handles a case where no token was provided by a user
         is_default_token = self.token == self.fields['token'].default  # pylint: disable=unsubscriptable-object
-        is_youtube_player = str(self.player_name) != 'youtube-player'  # pylint: disable=unsubscriptable-object
+        is_youtube_player = str(self.player_name) != PlayerName.YOUTUBE  # pylint: disable=unsubscriptable-object
         if is_default_token and is_youtube_player:
             error_message = 'In order to authenticate to a video platform\'s API, please provide a Video API Token.'
             return {}, error_message
@@ -683,16 +861,16 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             kwargs = {'token': self.token}
 
         # Handles a case where no account_id was provided by a user
-        if str(self.player_name) == 'brightcove-player':
+        if str(self.player_name) == PlayerName.BRIGHTCOVE:
             if self.account_id == self.fields['account_id'].default:  # pylint: disable=unsubscriptable-object
                 error_message = 'In order to authenticate to a video platform\'s API, please provide an Account Id.'
                 return {}, error_message
             kwargs['account_id'] = self.account_id
 
         player = self.get_player()
-        if str(self.player_name) == 'brightcove-player' and not self.metadata.get('client_id'):
+        if str(self.player_name) == PlayerName.BRIGHTCOVE and not self.metadata.get('client_id'):
             auth_data, error_message = player.authenticate_api(**kwargs)
-        elif str(self.player_name) == 'brightcove-player' and self.metadata.get('client_id'):
+        elif str(self.player_name) == PlayerName.BRIGHTCOVE and self.metadata.get('client_id'):
             auth_data = {
                 'client_secret': self.metadata.get('client_secret'),
                 'client_id': self.metadata.get('client_id'),
@@ -708,11 +886,13 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
     @XBlock.json_handler
     def authenticate_video_api_handler(self, data, suffix=''):  # pylint: disable=unused-argument
         """
-        XBlock handler to authenticate to a video platform's API.
-        Called by studio_view's JavaScript.
+        Xblock handler to authenticate to a video platform's API. Called by JavaScript of `studio_view`.
 
+        Arguments:
+            data (dict): Data from frontend, necessary for authentication (tokens, account id, etc).
+            suffix (str): Slug used for routing.
         Returns:
-            response (dict): status message.
+            response (dict): Status messages key-value pairs.
         """
         # Fetch a token provided by a user before the save button was clicked.
         if str(data) != self.token:
@@ -729,8 +909,11 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
 
     def update_metadata_authentication(self, auth_data, player):
         """
-        Update video xblock's metadata field with video platform's API authentication data
-        (in particular, tokens and credentials).
+        Update video xblock's metadata field with video platform's API authentication data.
+
+        Arguments:
+            auth_data (dict): Data containing credentials necessary for authentication.
+            player (object): Object of a platform-specific player class.
         """
         # In case of successful authentication:
         for key in auth_data:
@@ -749,7 +932,13 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
     @XBlock.json_handler
     def upload_default_transcript_handler(self, data, suffix=''):  # pylint: disable=unused-argument
         """
-        Function for uploading a transcript fetched a video platform's API to video xblock.
+        Upload a transcript, fetched from a video platform's API, to video xblock.
+
+        Arguments:
+            data (dict): Data from frontend on a default transcript to be fetched from a video platform.
+            suffix (str): Slug used for routing.
+        Returns:
+            response (dict): Data on a default transcript, fetched from a video platform.
 
         """
         player = self.get_player()

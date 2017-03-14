@@ -4,7 +4,7 @@
 
 domReady(function() {
     'use strict';
-    var player = videojs('{{ video_player_id }}');
+    var player = videojs(window.videoPlayerId);
     window.videojs = videojs;
     videojs.plugin('xblockEventPlugin', window.xblockEventPlugin);
     player.xblockEventPlugin();

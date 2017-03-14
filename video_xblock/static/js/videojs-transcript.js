@@ -4,7 +4,7 @@
 domReady(function() {
     'use strict';
 
-    videojs('{{ video_player_id }}').ready(function() {
+    videojs(window.videoPlayerId).ready(function() {
         var enableTrack = false;
         var player_ = this;
         var cssClasses = 'vjs-custom-caption-button vjs-menu-button vjs-menu-button-popup vjs-control vjs-button';

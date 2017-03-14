@@ -10,32 +10,24 @@
  * State is saved at certain events.
  */
 
-/** Run a callback when DOM is fully loaded */
-var domReady = function(callback) {
-    if (document.readyState === "interactive" || document.readyState === "complete") {
-        callback();
-    } else {
-        document.addEventListener("DOMContentLoaded", callback);
-    }
-};
+var player_state_obj = window.playerStateObj;
 var player_state = {
-    volume: {{ player_state.volume }},
-    currentTime: {{ player_state.current_time }},
-    playbackRate: {{ player_state.playback_rate }},
-    muted: {{ player_state.muted | yesno:'true,false' }},
-    transcriptsEnabled: {{ player_state.transcripts_enabled | yesno:'true,false' }},
-    captionsEnabled: {{ player_state.captions_enabled | yesno:'true,false' }},
-    captionsLanguage: '{{ player_state.captions_language }}'
+    volume: player_state_obj.volume,
+    currentTime: player_state_obj.current_time,
+    playbackRate: player_state_obj.playback_rate,
+    muted: player_state_obj.muted,
+    transcriptsEnabled: player_state_obj.transcripts_enabled,
+    captionsEnabled: player_state_obj.captions_enabled,
+    captionsLanguage: player_state_obj.captions_language
 };
 var xblockUsageId = window.location.hash.slice(1);
-var transcripts = { // eslint-disable-line
-    {% for transcript in player_state.transcripts %} // eslint-disable-line
-        '{{transcript.lang}}': { // eslint-disable-line
-            'label': '{{transcript.label}}', // eslint-disable-line
-            'url': '{{transcript.url}}', // eslint-disable-line
-        }, // eslint-disable-line
-    {% endfor %} // eslint-disable-line
-}; // eslint-disable-line
+var transcripts = {};
+player_state_obj.transcripts.forEach(function(transcript) {
+    transcripts[transcript.lang] = {
+        'label': transcript.label,
+        'url': transcript.url
+    };
+});
 
 /** Get transcript url for current caption language */
 var getDownloadTranscriptUrl = function(player) {
@@ -46,7 +38,7 @@ var getDownloadTranscriptUrl = function(player) {
         downloadTranscriptUrl = '#';
     };
     return downloadTranscriptUrl;
-}
+};
 
 /** Restore default or previously saved player state */
 var setInitialState = function(player, state) {
@@ -54,8 +46,8 @@ var setInitialState = function(player, state) {
     var playbackProgress = localStorage.getItem('playbackProgress');
     if (playbackProgress){
         playbackProgress=JSON.parse(playbackProgress);
-        if (playbackProgress['{{ video_player_id }}']) {
-            stateCurrentTime = playbackProgress['{{ video_player_id }}'];
+        if (playbackProgress[window.videoPlayerId]) {
+            stateCurrentTime = playbackProgress[window.videoPlayerId];
         }
     }
     if (stateCurrentTime > 0) {
@@ -114,12 +106,12 @@ var saveProgressToLocalStore = function saveProgressToLocalStore() {
         playbackProgress = '{}';
     }
     playbackProgress = JSON.parse(playbackProgress);
-    playbackProgress['{{ video_player_id }}'] = player.ended() ? 0 : player.currentTime();
+    playbackProgress[window.videoPlayerId] = player.ended() ? 0 : player.currentTime();
     localStorage.setItem('playbackProgress',JSON.stringify(playbackProgress));
 };
 
 domReady(function() {
-    videojs('{{ video_player_id }}').ready(function() {
+    videojs(window.videoPlayerId).ready(function() {
     var player = this;
     // Restore default or previously saved player state
     setInitialState(player, player_state);
