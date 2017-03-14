@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [0.5.0] - 2017-03-14
 
 ### Added
 
@@ -20,13 +20,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - UI improvements in Studio:
   - Split Video XBlock settings into Basic & Advanced tabs.
   - Display only fields relevant to selected video.
+- Move all python dependencies into setup.py to simplify XBlock installation.
 
 ### Fixed
 
-- Move all python dependencies into setup.py to simplify XBlock installation.
 - Various bugs.
 
-## [v0.4.0] - 2017-02-07
+## [0.4.0] - 2017-02-07
 
 ### Added
 
