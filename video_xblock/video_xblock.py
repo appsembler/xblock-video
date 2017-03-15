@@ -91,7 +91,107 @@ class TranscriptsMixin(XBlock):
         return Response(self.convert_caps_to_vtt(caps))
 
 
-class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
+class PlaybackStateMixin(XBlock):
+    """
+    PlaybackStateMixin encapsulates video-playback related data.
+
+    These fields are not visible to end-user.
+    """
+
+    current_time = Float(
+        default=0,
+        scope=Scope.user_state,
+        help='Seconds played back after the start'
+    )
+
+    playback_rate = Float(
+        default=1,
+        scope=Scope.preferences,
+        help='Supported video playbacks speeds are: 0.5, 1, 1.5, 2'
+    )
+
+    volume = Float(
+        default=1,
+        scope=Scope.preferences,
+        help='Video volume: from 0 to 1'
+    )
+
+    muted = Boolean(
+        default=False,
+        scope=Scope.preferences,
+        help="Video is muted or not"
+    )
+
+    captions_language = String(
+        default='',
+        scope=Scope.preferences,
+        help="ISO code for the current language for captions and transcripts"
+    )
+
+    transcripts = String(
+        default='',
+        scope=Scope.content,
+        display_name=_('Upload transcript'),
+        help=_(
+            'Add transcripts in different languages. Click below to specify a language and upload an .srt transcript'
+            ' file for that language.'
+        )
+    )
+
+    transcripts_enabled = Boolean(
+        default=False,
+        scope=Scope.preferences,
+        help="Transcripts are enabled or not"
+    )
+
+    captions_enabled = Boolean(
+        default=False,
+        scope=Scope.preferences,
+        help="Captions are enabled or not"
+    )
+
+    @property
+    def player_state(self):
+        """
+        Return video player state as a dictionary.
+        """
+        course = self.runtime.modulestore.get_course(self.course_id)
+        transcripts = json.loads(self.transcripts) if self.transcripts else []
+        transcripts_object = {
+            trans['lang']: {'url': trans['url'], 'label': trans['label']}
+            for trans in transcripts
+        }
+        return {
+            'current_time': self.current_time,
+            'muted': self.muted,
+            'playback_rate': self.playback_rate,
+            'volume': self.volume,
+            'transcripts': transcripts,
+            'transcripts_enabled': self.transcripts_enabled,
+            'captions_enabled': self.captions_enabled,
+            'captions_language': self.captions_language or course.language,
+            'transcripts_object': transcripts_object
+        }
+
+    @player_state.setter
+    def player_state(self, state):
+        """
+        Save video player state passed in as a dict into xblock's fields.
+
+        Arguments:
+            state (dict): Video player state key-value pairs.
+        """
+        self.current_time = state.get('current_time', self.current_time)
+        self.muted = state.get('muted', self.muted)
+        self.playback_rate = state.get('playback_rate', self.playback_rate)
+        self.volume = state.get('volume', self.volume)
+        self.transcripts = state.get('transcripts', self.transcripts)
+        self.transcripts_enabled = state.get('transcripts_enabled', self.transcripts_enabled)
+        self.captions_enabled = state.get('captions_enabled', self.captions_enabled)
+        self.captions_language = state.get('captions_language', self.captions_language)
+
+
+class VideoXBlock(TranscriptsMixin, PlaybackStateMixin, StudioEditableXBlockMixin, XBlock):
     """
     Main VideoXBlock class, responsible for saving video settings and rendering it for students.
     """
@@ -181,17 +281,6 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         help=_('You can upload handout file for students')
     )
 
-    transcripts = String(
-        default='',
-        scope=Scope.content,
-        display_name=_('Upload transcript'),
-        help=_(
-            'Add transcripts in different languages. Click below to '
-            'specify a language and upload a .srt or a .vtt transcript '
-            'file for that language. Maximum file size is 300 KB.'
-        )
-    )
-
     download_transcript_allowed = Boolean(
         default=False,
         scope=Scope.content,
@@ -232,49 +321,6 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         scope=Scope.content
     )
 
-    # Playback state fields
-    current_time = Float(
-        default=0,
-        scope=Scope.user_state,
-        help='Seconds played back after the start'
-    )
-
-    playback_rate = Float(
-        default=1,
-        scope=Scope.preferences,
-        help='Supported video playbacks speeds are: 0.5, 1, 1.5, 2'
-    )
-
-    volume = Float(
-        default=1,
-        scope=Scope.preferences,
-        help='Video volume: from 0 to 1'
-    )
-
-    muted = Boolean(
-        default=False,
-        scope=Scope.preferences,
-        help="Video is muted or not"
-    )
-
-    captions_language = String(
-        default='',
-        scope=Scope.preferences,
-        help="ISO code for the current language for captions and transcripts"
-    )
-
-    transcripts_enabled = Boolean(
-        default=False,
-        scope=Scope.preferences,
-        help="Transcripts are enabled or not"
-    )
-
-    captions_enabled = Boolean(
-        default=False,
-        scope=Scope.preferences,
-        help="Captions are enabled or not"
-    )
-
     basic_fields = (
         'display_name', 'href'
     )
@@ -285,33 +331,12 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
         'download_video_url'
     )
 
-    player_state_fields = (
-        'current_time', 'muted', 'playback_rate', 'volume',
-        'transcripts_enabled', 'captions_enabled', 'captions_language'
-    )
-
     @property
-    def player_state(self):
+    def editable_fields(self):
         """
-        Return video player state as a dictionary.
+        Return list of xblock's editable fields used by StudioEditableXBlockMixin.clean_studio_edits().
         """
-        course = self.runtime.modulestore.get_course(self.course_id)
-        transcripts = json.loads(self.transcripts) if self.transcripts else []
-        transcripts_object = {
-            trans['lang']: {'url': trans['url'], 'label': trans['label']}
-            for trans in transcripts
-        }
-        return {
-            'current_time': self.current_time,
-            'muted': self.muted,
-            'playback_rate': self.playback_rate,
-            'volume': self.volume,
-            'transcripts': transcripts,
-            'transcripts_enabled': self.transcripts_enabled,
-            'captions_enabled': self.captions_enabled,
-            'captions_language': self.captions_language or course.language,
-            'transcripts_object': transcripts_object
-        }
+        return self.get_player().editable_fields
 
     @staticmethod
     def get_brightcove_js_url(account_id, player_id):
@@ -328,30 +353,6 @@ class VideoXBlock(TranscriptsMixin, StudioEditableXBlockMixin, XBlock):
             account_id=account_id,
             player_id=player_id
         )
-
-    @player_state.setter
-    def player_state(self, state):
-        """
-        Save video player state passed in as a dict into xblock's fields.
-
-        Arguments:
-            state (dict): Video player state key-value pairs.
-        """
-        self.current_time = state.get('current_time', self.current_time)
-        self.muted = state.get('muted', self.muted)
-        self.playback_rate = state.get('playback_rate', self.playback_rate)
-        self.volume = state.get('volume', self.volume)
-        self.transcripts = state.get('transcripts', self.transcripts)
-        self.transcripts_enabled = state.get('transcripts_enabled', self.transcripts_enabled)
-        self.captions_enabled = state.get('captions_enabled', self.captions_enabled)
-        self.captions_language = state.get('captions_language', self.captions_language)
-
-    @property
-    def editable_fields(self):
-        """
-        Return list of xblock's editable fields used by StudioEditableXBlockMixin.clean_studio_edits().
-        """
-        return self.get_player().editable_fields
 
     @staticmethod
     def add_validation_message(validation, message_text):
