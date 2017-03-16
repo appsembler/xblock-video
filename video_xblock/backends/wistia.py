@@ -27,10 +27,10 @@ class WistiaPlayer(BaseVideoPlayer):
         r'https?:\/\/(.+)?(wistia.com|wi.st)\/(medias|embed)\/(?P<media_id>.*)'
     )
 
-    advanced_fields = (
-        'start_time', 'end_time', 'handout', 'transcripts',
-        'download_transcript_allowed', 'token', 'default_transcripts'
-    )
+    # advanced_fields = (
+    #     'start_time', 'end_time', 'handout', 'transcripts',
+    #     'download_transcript_allowed', 'token', 'default_transcripts'
+    # )
 
     # Token field is stored in metadata only if authentication was successful
     metadata_fields = ['token', ]

@@ -336,10 +336,14 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         """
         return super(BrightcovePlayer, self).basic_fields + ('account_id',)
 
-    advanced_fields = (
-        'player_id', 'start_time', 'end_time', 'handout', 'transcripts',
-        'download_transcript_allowed', 'token', 'default_transcripts'
-    )
+    @property
+    def advanced_fields(self):
+        """
+        Tuple of VideoXBlock fields to display in Basic tab of edit modal window.
+
+        Brightcove videos require Brightcove Account id.
+        """
+        return ('player_id',) + super(BrightcovePlayer, self).advanced_fields
 
     fields_help = {
         'token': 'You can generate a BC token following the guide of '

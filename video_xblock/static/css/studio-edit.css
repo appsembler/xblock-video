@@ -15,7 +15,8 @@
 .upload-transcript,
 .download-setting,
 /*#submit-re-transcode,*/
-#video-api-authenticate {
+#video-api-authenticate,
+#threeplaymedia-api-transcripts {
   display: inline-block;
   width: 46%;
   border: 1px solid #009fe6;
@@ -29,13 +30,15 @@
 }
 
 /*#submit-re-transcode,*/
-#video-api-authenticate {
+#video-api-authenticate,
+#threeplaymedia-api-transcripts {
   margin-top: 10px;
   width: 92%;
   padding: 10px;
 }
 
-.token {
+.token,
+.threeplaymedia {
   margin-left: 27px;
   width: 100%;
 }
@@ -61,7 +64,8 @@
 
 .upload-transcript:hover,
 .add-transcript:hover,
-#video-api-authenticate:hover {
+#video-api-authenticate:hover,
+#threeplaymedia-api-transcripts:hover {
   border: 1px solid #009fe6;
   background-color: #009fe6;
   color: #fff;

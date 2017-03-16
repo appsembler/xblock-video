@@ -16,6 +16,8 @@ class VimeoPlayer(BaseVideoPlayer):
     # Reference: https://vimeo.com/153979733
     url_re = re.compile(r'https?:\/\/(.+)?(vimeo.com)\/(?P<media_id>.*)')
 
+    metadata_fields = []
+
     # Vimeo API for requesting transcripts.
     captions_api = {}
 
