@@ -106,22 +106,13 @@ class BaseVideoPlayer(Plugin):
         return []
 
     @property
-    def editable_fields(self):
-        """
-        Tuple of all editable VideoXBlock fields to display in studio edit window.
-
-        Defaults to contatenation of `basic_fields` and `advanced_fields`.
-        """
-        return tuple(itertools.chain(self.basic_fields, self.advanced_fields))
-
-    @property
     def basic_fields(self):
         """
         Tuple of VideoXBlock fields to display in Basic tab of edit modal window.
 
         Subclasses can extend or redefine list if needed. Defaults to a tuple defined by VideoXBlock.
         """
-        return self.xblock.basic_fields
+        return ('display_name', 'href')
 
     @property
     def advanced_fields(self):
@@ -130,7 +121,11 @@ class BaseVideoPlayer(Plugin):
 
         Subclasses can extend or redefine list if needed. Defaults to a tuple defined by VideoXBlock.
         """
-        return self.xblock.advanced_fields
+        return (
+            'start_time', 'end_time', 'handout', 'transcripts',
+            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
+            'default_transcripts', 'download_video_allowed', 'download_video_url'
+        )
 
     @property
     def fields_help(self):

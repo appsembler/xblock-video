@@ -21,7 +21,12 @@ class Html5Player(BaseVideoPlayer):
 
         Hide `download_video_url` field for Html5Player.
         """
-        return [field for field in super(Html5Player, self).advanced_fields if field != 'download_video_url']
+        return tuple(
+            field for field in super(Html5Player, self).advanced_fields
+            if field not in self.exclude_advanced_fields
+        )
+
+    exclude_advanced_fields = ('default_transcripts', 'download_video_url')
 
     # Html API for requesting transcripts.
     captions_api = {}

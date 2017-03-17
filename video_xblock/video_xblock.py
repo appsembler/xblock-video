@@ -398,6 +398,11 @@ class PlaybackStateMixin(XBlock):
 class VideoXBlock(TranscriptsMixin, PlaybackStateMixin, StudioEditableXBlockMixin, ContentStoreMixin, XBlock):
     """
     Main VideoXBlock class, responsible for saving video settings and rendering it for students.
+
+    VideoXBlock only provide a storage falicities for fields data, but not
+    decide what fields to show to user. `BaseVideoPlayer` and it's subclassess
+    declare what fields are required for proper configuration of a video.
+    See `BaseVideoPlayer.basic_fields` and `BaseVideoPlayer.advanced_fields`.
     """
 
     icon_class = "video"
@@ -540,23 +545,6 @@ class VideoXBlock(TranscriptsMixin, PlaybackStateMixin, StudioEditableXBlockMixi
                '`metadata_fields` property.'),
         scope=Scope.content
     )
-
-    basic_fields = (
-        'display_name', 'href'
-    )
-
-    advanced_fields = (
-        'start_time', 'end_time', 'handout', 'transcripts',
-        'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
-        'default_transcripts', 'download_video_allowed', 'download_video_url'
-    )
-
-    @property
-    def editable_fields(self):
-        """
-        Return list of xblock's editable fields used by StudioEditableXBlockMixin.clean_studio_edits().
-        """
-        return self.get_player().editable_fields
 
     @staticmethod
     def get_brightcove_js_url(account_id, player_id):
@@ -737,7 +725,6 @@ class VideoXBlock(TranscriptsMixin, PlaybackStateMixin, StudioEditableXBlockMixi
         basic_fields = self.prepare_studio_editor_fields(player.basic_fields)
         advanced_fields = self.prepare_studio_editor_fields(player.advanced_fields)
         context = {
-            'fields': [],
             'courseKey': self.location.course_key,  # pylint: disable=no-member
             'languages': languages,
             'transcripts': transcripts,
@@ -749,18 +736,6 @@ class VideoXBlock(TranscriptsMixin, PlaybackStateMixin, StudioEditableXBlockMixi
             'basic_fields': basic_fields,
             'advanced_fields': advanced_fields,
         }
-
-        # Build a list of all the fields that can be edited:
-        for field_name in self.get_player().editable_fields:
-            field = self.fields[field_name]  # pylint: disable=unsubscriptable-object
-            assert field.scope in (Scope.content, Scope.settings), (
-                "Only Scope.content or Scope.settings fields can be used with "
-                "StudioEditableXBlockMixin. Other scopes are for user-specific data and are "
-                "not generally created/configured by content authors in Studio."
-            )
-            field_info = self._make_field_info(field_name, field)
-            if field_info is not None:
-                context["fields"].append(field_info)
 
         fragment.content = render_template('studio-edit.html', **context)
         fragment.add_css(resource_string("static/css/student-view.css"))
