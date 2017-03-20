@@ -9,7 +9,7 @@ from video_xblock import BaseVideoPlayer
 
 class VimeoPlayer(BaseVideoPlayer):
     """
-    VimeoPlayer is used for videos hosted on the Vimeo.com.
+    VimeoPlayer is used for videos hosted on vimeo.com.
     """
 
     # Regex is taken from http://regexr.com/3a2p0
