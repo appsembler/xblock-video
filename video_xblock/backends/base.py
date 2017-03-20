@@ -106,6 +106,15 @@ class BaseVideoPlayer(Plugin):
         return []
 
     @property
+    def editable_fields(self):
+        """
+        Tuple of all editable VideoXBlock fields to be validated.
+
+        Defaults to concatenation of `basic_fields` and `advanced_fields`.
+        """
+        return tuple(itertools.chain(self.basic_fields, self.advanced_fields))
+
+    @property
     def basic_fields(self):
         """
         Tuple of VideoXBlock fields to display in Basic tab of edit modal window.
