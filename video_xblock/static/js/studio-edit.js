@@ -339,10 +339,12 @@ function StudioEditableXBlock(runtime, element) {
     var $standardTranscriptRemover = $('.remove-action');
     var $langChoiceItem = $('.language-transcript-selector', element);
     var $videoApiAuthenticator = $('#video-api-authenticate', element);
+    var $3playmediaTranscriptsApi = $('#threeplaymedia-api-transcripts', element);
     var gotTranscriptsValue = $('input[data-field-name="transcripts"]').val();
     var downloadTranscriptHandlerUrl = runtime.handlerUrl(element, 'download_transcript');
     var authenticateVideoApiHandlerUrl = runtime.handlerUrl(element, 'authenticate_video_api_handler');
     var uploadDefaultTranscriptHandlerUrl = runtime.handlerUrl(element, 'upload_default_transcript_handler');
+    var getTranscripts3playmediaApiHandlerUrl = runtime.handlerUrl(element, 'get_transcripts_3playmedia_api_handler');
     var currentLanguageCode;
     var currentLanguageLabel;
     var initialDefaultTranscriptsData = getInitialDefaultTranscriptsData();
@@ -355,6 +357,59 @@ function StudioEditableXBlock(runtime, element) {
     transcriptsValue.forEach(function(transcriptValue) {
         disabledLanguages.push(transcriptValue.lang)
     });
+
+    /**
+     * Get transcripts from 3playmedia's API and show result message.
+     */
+    function getTranscripts3playmediaApi(data) {
+        var message, status, includeLang;
+        var options = {
+            type: 'POST',
+            url: getTranscripts3playmediaApiHandlerUrl,
+            dataType: 'json',
+            data: JSON.stringify(data),
+        };
+
+        $.ajax(options)
+        .done(function(response) {
+            var success_message = response['success_message'];
+            var error_message = response['error_message'];
+            if (success_message && response.transcripts) {
+                response.transcripts.forEach(function (item) {
+                    includeLang = transcriptsValue.find(function (element) {
+                        return element.lang == item.lang;
+                    });
+                    // Add a transcript from the 3playmedia only for non exists language
+                    if (!includeLang) {
+                        createTranscriptBlock(item.lang, item.label, transcriptsValue, item.url);
+                        pushTranscript(item.lang, item.label, item.url, '', transcriptsValue);
+                        pushTranscriptsValue(transcriptsValue);
+                    }
+                });
+            }
+
+            if (success_message) {
+                message = success_message;
+                status = SUCCESS;
+            } else {
+                message = error_message;
+                status = ERROR;
+            }
+        })
+        .fail(function(jqXHR) {
+            status = ERROR;
+            if (jqXHR.responseText) { // Try to get more specific error message we can show to user.
+                message = extractErrorMessage(jqXHR.responseText);
+            } else {
+                message = gettext('This may be happening because of an error with our server or your ' +
+                'internet connection. Try refreshing the page or making sure you are online.');
+            }
+            runtime.notify('error', {title: gettext('Unable to update settings'), message: message});
+        })
+        .always(function() {
+            showStatus($('.threeplaymedia.status'), status, message);
+        });
+    }
 
     /**
      * Authenticate to video platform's API and show result message.
@@ -379,7 +434,7 @@ function StudioEditableXBlock(runtime, element) {
             else if (error_message) {
                 message = error_message;
                 status = ERROR;
-            };
+            }
         })
         .fail(function(jqXHR) {
             message = gettext('This may be happening because of an error with our server or your ' +
@@ -577,6 +632,14 @@ function StudioEditableXBlock(runtime, element) {
         event.stopPropagation();
         var $data = $('.token', element).val();
         authenticateVideoApi($data);
+    });
+
+    $3playmediaTranscriptsApi.on('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        var $api_key = $('.threeplaymedia-api-key', element).val();
+        var $file_id = $('#xb-field-edit-threeplaymedia_file_id', element).val();
+        getTranscripts3playmediaApi({api_key: $api_key, file_id: $file_id});
     });
 
     $('.lang-select').on('change', function(event) {

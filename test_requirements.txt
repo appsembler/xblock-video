@@ -4,7 +4,7 @@ PyContracts==1.7.1   # xmodule dependency
 sortedcontainers==0.9.2  # xmodule dependency
 Pillow==3.1.1  # xmodule dependency
 
-coveralls==1.1
+coverage==4.3.4
 django==1.8.12
 ddt==1.1.1
 edx-lint==0.5.2

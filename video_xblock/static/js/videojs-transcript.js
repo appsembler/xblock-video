@@ -33,7 +33,8 @@ domReady(function() {
                 showTrackSelector: false,
                 showTitle: false,
                 followPlayerTrack: true,
-                tabIndex: 10
+                tabIndex: 10,
+                scrollToCenter: true
             });
             transcript.el().addEventListener('click', function() {
                 player_.trigger('transcriptstatechanged');

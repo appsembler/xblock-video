@@ -47,7 +47,7 @@ module.exports = function (config) {
         reporters: ['progress', 'coverage'],
 
         coverageReporter: {
-            type: 'lcovonly', // lcov or lcovonly are required for generating lcov.info files
+            type: 'cobertura',
             dir: 'coverage/',
             repoToken: 'St0myP2WKubt2SrFuyQDZI7Y1gsxDIiiX'
         },
