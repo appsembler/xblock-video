@@ -26,6 +26,7 @@ from webob import Response
 from .backends.base import BaseVideoPlayer
 from .constants import PlayerName
 from .exceptions import ApiClientError
+from .mixins import SettingsMixin
 from .settings import ALL_LANGUAGES
 from .fields import RelativeTime
 from .utils import render_template, render_resource, resource_string, ugettext as _
@@ -395,7 +396,10 @@ class PlaybackStateMixin(XBlock):
         self.captions_language = state.get('captions_language', self.captions_language)
 
 
-class VideoXBlock(TranscriptsMixin, PlaybackStateMixin, StudioEditableXBlockMixin, ContentStoreMixin, XBlock):
+class VideoXBlock(
+        SettingsMixin, TranscriptsMixin, PlaybackStateMixin,
+        StudioEditableXBlockMixin, ContentStoreMixin, XBlock
+):
     """
     Main VideoXBlock class, responsible for saving video settings and rendering it for students.
 
@@ -442,7 +446,7 @@ class VideoXBlock(TranscriptsMixin, PlaybackStateMixin, StudioEditableXBlockMixi
     )
 
     account_id = String(
-        default='',
+        default='default',
         display_name=_('Account Id'),
         help=_('Your Brightcove account id'),
         scope=Scope.content,
@@ -832,6 +836,7 @@ class VideoXBlock(TranscriptsMixin, PlaybackStateMixin, StudioEditableXBlockMixi
         Given POST data dictionary 'data', clean the data before validating it.
 
         Try to detect player by submitted video url. If fails, it defaults to 'dummy-player'.
+        Also, populate xblock's default values from settings.
 
         Arguments:
             data (dict): POST data.
@@ -842,6 +847,8 @@ class VideoXBlock(TranscriptsMixin, PlaybackStateMixin, StudioEditableXBlockMixi
                 continue
             if player_class.match(data['href']):
                 data['player_name'] = player_name
+                data = self.populate_default_values(data)
+                break
 
     def get_player(self):
         """
