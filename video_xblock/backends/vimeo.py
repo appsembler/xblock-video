@@ -40,8 +40,8 @@ class VimeoPlayer(BaseVideoPlayer):
             self.render_resource('static/html/vimeo.html', **context)
         )
         js_files = [
-            'static/bower_components/videojs-vimeo/src/Vimeo.js',
-            'static/bower_components/videojs-offset/dist/videojs-offset.min.js'
+            'static/vendor/js/Vimeo.js',
+            'static/vendor/js/videojs-offset.min.js'
         ]
 
         for js_file in js_files:

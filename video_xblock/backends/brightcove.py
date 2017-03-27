@@ -409,14 +409,14 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         """
         vjs_plugins = [
             self.resource_string(
-                'static/bower_components/videojs-offset/dist/videojs-offset.js'
+                'static/vendor/js/videojs-offset.min.js'
             ),
             self.resource_string('static/js/videojs-speed-handler.js')
         ]
         if context.get('transcripts'):
             vjs_plugins += [
                 self.resource_string(
-                    'static/bower_components/videojs-transcript/dist/videojs-transcript.js'
+                    'static/vendor/js/videojs-transcript.min.js'
                 ),
                 self.resource_string('static/js/videojs-transcript.js')
             ]

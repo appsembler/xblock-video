@@ -1,8 +1,0 @@
-{
-  "directory": "video_xblock/static/bower_components",
-  "scripts": {
-    "preinstall": "",
-    "postinstall": "",
-    "preuninstall": ""
-  }
-}

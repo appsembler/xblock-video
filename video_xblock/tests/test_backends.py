@@ -32,13 +32,6 @@ class TestCustomBackends(VideoXBlockTestBase):
     Unit tests for custom video xblock backends.
     """
     backends = ['youtube', 'brightcove', 'wistia', 'vimeo', 'html5']
-    media_ids = ['44zaxzFsthY', '45263567468485', 'HRrr784kH8932Z', '202889234']
-    media_urls = [
-        'https://www.youtube.com/watch?v=44zaxzFsthY',
-        'https://studio.brightcove.com/products/videocloud/media/videos/45263567468485',
-        'https://wi.st/medias/HRrr784kH8932Z',
-        'https://vimeo.com/202889234'
-    ]
 
     auth_mocks = [
         youtube_mock.YoutubeAuthMock,
@@ -94,20 +87,6 @@ class TestCustomBackends(VideoXBlockTestBase):
             player = self.player[backend]
             res = player(self.xblock).get_player_html(**context)
             self.assertIn('window.videojs', res.body)
-
-    @data(*zip(backends, media_urls))
-    @unpack
-    def test_match(self, backend, url):
-        """
-        Check if provided video `href` validates in right way.
-        """
-        player = self.player[backend]
-        res = player.match(url)
-        self.assertTrue(bool(res))
-
-        # test wrong data
-        res = player.match('http://wrong.url')
-        self.assertFalse(bool(res))
 
     expected_basic_fields = [
         ('display_name', 'href'),
@@ -189,15 +168,41 @@ class TestCustomBackends(VideoXBlockTestBase):
             except VideoXBlockException as ex:
                 self.assertIn(_('Not all the languages of transcripts fetched from video platform'), ex.message)
 
+    media_ids = [
+        '44zaxzFsthY', '45263567468485', 'HRrr784kH8932Z', '202889234',
+        'https://example.com/sample.mp4'
+    ]
+    media_urls = [
+        'https://www.youtube.com/watch?v=44zaxzFsthY',
+        'https://studio.brightcove.com/products/videocloud/media/videos/45263567468485',
+        'https://wi.st/medias/HRrr784kH8932Z',
+        'https://vimeo.com/202889234',
+        'https://example.com/sample.mp4',
+    ]
+
     @data(*zip(backends, media_urls, media_ids))
     @unpack
     def test_media_id(self, backend, url, expected_media_id):
         """
-        Check that media id is extracted from the video url.
+        Check that media id is extracted from the video url for {0} backend
         """
         player = self.player[backend](self.xblock)
         res = player.media_id(url)
         self.assertEqual(res, expected_media_id)
+
+    @data(*zip(backends, media_urls))
+    @unpack
+    def test_match(self, backend, url):
+        """
+        Check if provided video `href` validates in right way for {0} backend
+        """
+        player = self.player[backend]
+        res = player.match(url)
+        self.assertTrue(bool(res))
+
+        # test wrong data
+        res = player.match('http://wrong.url')
+        self.assertFalse(bool(res))
 
     @data(*zip(backends, ['some_token'] * len(backends), auth_mocks))
     @unpack

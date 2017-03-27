@@ -4,7 +4,7 @@ import os
 from setuptools import setup
 
 
-VERSION = '0.6.0'
+VERSION = '0.6.1'
 DESCRIPTION = 'Video XBlock to embed videos hosted on different video platforms into your courseware'
 
 

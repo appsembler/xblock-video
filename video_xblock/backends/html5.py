@@ -56,7 +56,7 @@ class Html5Player(BaseVideoPlayer):
             self.render_resource('static/html/html5.html', **context)
         )
         js_files = [
-            'static/bower_components/videojs-offset/dist/videojs-offset.min.js',
+            'static/vendor/js/videojs-offset.min.js',
             'static/js/player-context-menu.js'
         ]
 

@@ -65,8 +65,8 @@ class YoutubePlayer(BaseVideoPlayer):
         )
 
         js_files = [
-            'static/bower_components/videojs-youtube/dist/Youtube.min.js',
-            'static/bower_components/videojs-offset/dist/videojs-offset.min.js'
+            'static/vendor/js/Youtube.min.js',
+            'static/vendor/js/videojs-offset.min.js'
         ]
 
         for js_file in js_files:
