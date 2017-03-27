@@ -44,7 +44,7 @@ dev-install:
 	# Install package using pip to leverage pip's cache and shorten CI build time
 	pip install --process-dependency-links -e .
 
-deps-test: deps-js ## Install dependencies required to run tests
+deps-test: ## Install dependencies required to run tests
 	pip install -r test_requirements.txt
 
 deps-js: tools
