@@ -16,7 +16,7 @@ module.exports = function (config) {
         // list of files / patterns to load in the browser
         files: [
             'js/base.js',
-            'bower_components/video-js/dist/video.js',
+            'vendor/js/video.min.js',
             'js/spec/test_context.js',
             'js/player_state.js',
             'js/spec/*_spec.js'

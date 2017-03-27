@@ -8,8 +8,6 @@ engines:
       languages:
       - javascript
       - python
-    exclude_fingerprints:
-    - ffaa02171edd2e7b1184b6eacdbed97f
   eslint:
     # Disabled since CodeClimate doesn't yet support eslint-config-edx plugin
     enabled: false
@@ -29,4 +27,5 @@ ratings:
   - "**.js"
   - "**.md"
   - "**.py"
-exclude_paths: []
+exclude_paths:
+- "**/vendor/**/*"

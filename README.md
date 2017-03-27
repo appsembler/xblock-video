@@ -31,11 +31,8 @@ fix issues.
 ```shell
 sudo -sHu edxapp
 source ~/edxapp_env
-# Clone and install xblock
-git clone https://github.com/raccoongang/xblock-video.git
-cd xblock-video
-# Install Python and JavaScript dependencies
-make deps
+# Install VideoXBlock using pip
+pip install --process-dependency-links -e "git+https://github.com/raccoongang/xblock-video.git@dev#egg=video_xblock"
 ```
 
 ## Enabling in Studio

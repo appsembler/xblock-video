@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Simplify VideoXBlock installation by bundling JS/CSS dependencies into
+  `static/vendor` subdirectory.
+
 ## [0.6.0] - 2017-03-23
 
 ### Added
