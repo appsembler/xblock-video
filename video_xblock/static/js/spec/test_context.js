@@ -4,16 +4,17 @@
 window.videoPlayerId = 'test_id';
 window.playerStateObj = {
     volume: 1,
-    current_time: 0,
-    playback_rate: 1,
+    currentTime: 0,
+    playbackRate: 1,
     muted: false,
-    transcripts: [{
-        lang: 'en',
-        label: 'English',
-        url: 'http://test.url'
-    }],
-    transcripts_enabled: false,
-    captions_enabled: false,
-    captions_language: 'en'
+    transcriptsObject: {
+        en: {
+            label: 'English',
+            url: 'http://test.url'
+        }
+    },
+    transcriptsEnabled: false,
+    captionsEnabled: false,
+    captionsLanguage: 'en'
 };
 

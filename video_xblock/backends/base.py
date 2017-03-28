@@ -173,22 +173,22 @@ class BaseVideoPlayer(Plugin):
             'static/vendor/js/video.min.js',
             'static/vendor/js/videojs-contextmenu.min.js',
             'static/vendor/js/videojs-contextmenu-ui.min.js',
-            'static/js/video-speed.js',
-            'static/js/player_state.js',
-            'static/js/videojs-speed-handler.js'
+            'static/js/videojs/video-speed.js',
+            'static/js/student-view/player-state.js',
+            'static/js/videojs/videojs-speed-handler.js'
         ]
 
         if json.loads(context['player_state'])['transcripts']:
             js_files += [
                 'static/vendor/js/videojs-transcript.min.js',
-                'static/js/transcript-download.js',
-                'static/js/videojs-transcript.js'
+                'static/js/student-view/transcript-download.js',
+                'static/js/videojs/videojs-transcript.js'
             ]
 
         js_files += [
-            'static/js/videojs-tabindex.js',
-            'static/js/toggle-button.js',
-            'static/js/videojs_event_plugin.js'
+            'static/js/videojs/videojs-tabindex.js',
+            'static/js/videojs/toggle-button.js',
+            'static/js/videojs/videojs-event-plugin.js'
         ]
 
         for js_file in js_files:
@@ -216,7 +216,7 @@ class BaseVideoPlayer(Plugin):
                 "offset": {
                     "start": context['start_time'],
                     "end": context['end_time'],
-                    "current_time": context['player_state']['current_time'],
+                    "current_time": context['player_state']['currentTime'],
                 },
                 "videoJSSpeedHandler": {},
             }

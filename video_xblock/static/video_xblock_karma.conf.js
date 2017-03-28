@@ -18,7 +18,6 @@ module.exports = function (config) {
             'js/base.js',
             'vendor/js/video.min.js',
             'js/spec/test_context.js',
-            'js/player_state.js',
             'js/spec/*_spec.js'
         ],
         plugins: [
