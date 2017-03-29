@@ -306,7 +306,7 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
     BrightcovePlayer is used for videos hosted on the Brightcove Video Cloud.
     """
 
-    url_re = re.compile(r'https:\/\/studio.brightcove.com\/products\/videocloud\/media\/videos\/(?P<media_id>\d+)')
+    url_re = re.compile(r'https:\/\/studio.brightcove.com\/products(?:\/videocloud\/media)?\/videos\/(?P<media_id>\d+)')
     metadata_fields = ['access_token', 'client_id', 'client_secret', ]
 
     # Current api for requesting transcripts.
