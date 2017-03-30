@@ -94,11 +94,7 @@ var PlayerState = function(player, playerState) {
     var saveProgressToLocalStore = function() {
         var playerObj = this;
         var playbackProgress;
-        try {
-            playbackProgress = JSON.parse(localStorage.getItem('playbackProgress'));
-        } catch (err) {
-            playbackProgress = {};
-        }
+        playbackProgress = JSON.parse(localStorage.getItem('playbackProgress') || '{}');
         playbackProgress[window.videoPlayerId] = playerObj.ended() ? 0 : playerObj.currentTime();
         localStorage.setItem('playbackProgress', JSON.stringify(playbackProgress));
     };

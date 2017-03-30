@@ -89,39 +89,39 @@ class TestCustomBackends(VideoXBlockTestBase):
             self.assertIn('window.videojs', res.body)
 
     expected_basic_fields = [
-        ('display_name', 'href'),
-        ('display_name', 'href', 'account_id'),
-        ('display_name', 'href'),
-        ('display_name', 'href'),
-        ('display_name', 'href'),
+        ['display_name', 'href'],
+        ['display_name', 'href', 'account_id'],
+        ['display_name', 'href'],
+        ['display_name', 'href'],
+        ['display_name', 'href'],
     ]
 
     expected_advanced_fields = [
-        (
+        [  # Youtube
             'start_time', 'end_time', 'handout', 'transcripts',
             'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
             'default_transcripts', 'download_video_allowed', 'download_video_url'
-        ),
-        (
-            'player_id', 'start_time', 'end_time', 'handout', 'transcripts',
+        ],
+        [  # Brightcove
+            'player_id', 'start_time', 'end_time', 'handout', 'transcripts', 'token',
             'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
             'default_transcripts', 'download_video_allowed', 'download_video_url'
-        ),
-        (
+        ],
+        [  # Wistia
+            'start_time', 'end_time', 'handout', 'transcripts', 'token',
+            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
+            'default_transcripts', 'download_video_allowed', 'download_video_url'
+        ],
+        [  # Vimeo
             'start_time', 'end_time', 'handout', 'transcripts',
             'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
             'default_transcripts', 'download_video_allowed', 'download_video_url'
-        ),
-        (
-            'start_time', 'end_time', 'handout', 'transcripts',
-            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
-            'default_transcripts', 'download_video_allowed', 'download_video_url'
-        ),
-        (
+        ],
+        [  # Html5
             'start_time', 'end_time', 'handout', 'transcripts',
             'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
             'download_video_allowed',
-        ),
+        ],
     ]
 
     @data(*zip(backends, expected_basic_fields, expected_advanced_fields))
@@ -131,8 +131,8 @@ class TestCustomBackends(VideoXBlockTestBase):
         Test basic_fields & advanced_fields for {0} backend
         """
         player = self.player[backend](self.xblock)
-        self.assertTupleEqual(player.basic_fields, expected_basic_fields)
-        self.assertTupleEqual(player.advanced_fields, expected_advanced_fields)
+        self.assertListEqual(player.basic_fields, expected_basic_fields)
+        self.assertListEqual(player.advanced_fields, expected_advanced_fields)
 
     @data(
         ([{'lang': 'ru'}], [{'lang': 'en'}, {'lang': 'uk'}]),

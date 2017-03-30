@@ -334,7 +334,7 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
 
         Brightcove videos require Brightcove Account id.
         """
-        return super(BrightcovePlayer, self).basic_fields + ('account_id',)
+        return super(BrightcovePlayer, self).basic_fields + ['account_id']
 
     @property
     def advanced_fields(self):
@@ -343,7 +343,10 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
 
         Brightcove videos require Brightcove Account id.
         """
-        return ('player_id',) + super(BrightcovePlayer, self).advanced_fields
+        fields_list = ['player_id'] + super(BrightcovePlayer, self).advanced_fields
+        # Add `token` field before `threeplaymedia_file_id`
+        fields_list.insert(fields_list.index('threeplaymedia_file_id'), 'token')
+        return fields_list
 
     fields_help = {
         'token': 'You can generate a BC token following the guide of '

@@ -57,6 +57,18 @@ class WistiaPlayer(BaseVideoPlayer):
                  'Please ensure appropriate operations scope has been set on the video platform.'
     }
 
+    @property
+    def advanced_fields(self):
+        """
+        Tuple of VideoXBlock fields to display in Basic tab of edit modal window.
+
+        Brightcove videos require Brightcove Account id.
+        """
+        fields_list = super(WistiaPlayer, self).advanced_fields
+        # Add `token` field before `threeplaymedia_file_id`
+        fields_list.insert(fields_list.index('threeplaymedia_file_id'), 'token')
+        return fields_list
+
     def media_id(self, href):
         """
         Extract Platform's media id from the video url.
@@ -76,10 +88,6 @@ class WistiaPlayer(BaseVideoPlayer):
         frag = super(WistiaPlayer, self).get_frag(**context)
         frag.add_content(
             self.render_resource('static/html/wistiavideo.html', **context)
-        )
-
-        frag.add_javascript(
-            self.render_resource('static/js/context.js', **context)
         )
 
         js_files = [

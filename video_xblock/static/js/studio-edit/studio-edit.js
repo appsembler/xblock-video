@@ -44,7 +44,7 @@ function StudioEditableXBlock(runtime, element) {
 
     /** Toggle studio editor's current tab.
      */
-    function toggleEditorTab(tabName) {
+    function toggleEditorTab(event, tabName) {
         var $tabDisable;
         var $tabEnable;
         var $otherTabName;
@@ -77,7 +77,7 @@ function StudioEditableXBlock(runtime, element) {
             // Bind listeners to the toggle buttons
             $('.edit-menu-tab').click(function(event) {
                 currentTabName = $(event.currentTarget).attr('data-tab-name');
-                toggleEditorTab(currentTabName);
+                toggleEditorTab(event, currentTabName);
             });
         }
     }());
