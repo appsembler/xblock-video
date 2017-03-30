@@ -59,15 +59,15 @@ class VideoXBlockTests(VideoXBlockTestBase):
         self.assertDictEqual(
             self.xblock.player_state,
             {
-                'current_time': self.xblock.current_time,
+                'currentTime': self.xblock.current_time,
                 'muted': self.xblock.muted,
-                'playback_rate': self.xblock.playback_rate,
+                'playbackRate': self.xblock.playback_rate,
                 'volume': self.xblock.volume,
                 'transcripts': [],
-                'transcripts_enabled': self.xblock.transcripts_enabled,
-                'captions_enabled': self.xblock.captions_enabled,
-                'captions_language': 'en',
-                'transcripts_object': {}
+                'transcriptsEnabled': self.xblock.transcripts_enabled,
+                'captionsEnabled': self.xblock.captions_enabled,
+                'captionsLanguage': 'en',
+                'transcriptsObject': {}
             }
         )
 
@@ -98,20 +98,20 @@ class VideoXBlockTests(VideoXBlockTestBase):
             'transcriptsEnabled': True,
             'captionsEnabled': True,
             'captionsLanguage': 'ru',
-            'transcripts_object': {}
+            'transcriptsObject': {}
         }
         factory = RequestFactory()
         request = factory.post('', json.dumps(data), content_type='application/json')
         response = self.xblock.save_player_state(request)
         self.assertEqual('{"success": true}', response.body)  # pylint: disable=no-member
         self.assertDictEqual(self.xblock.player_state, {
-            'current_time': data['currentTime'],
+            'currentTime': data['currentTime'],
             'muted': data['muted'],
-            'playback_rate': data['playbackRate'],
+            'playbackRate': data['playbackRate'],
             'volume': data['volume'],
             'transcripts': data['transcripts'],
-            'transcripts_enabled': data['transcriptsEnabled'],
-            'captions_enabled': data['captionsEnabled'],
-            'captions_language': data['captionsLanguage'],
-            'transcripts_object': {}
+            'transcriptsEnabled': data['transcriptsEnabled'],
+            'captionsEnabled': data['captionsEnabled'],
+            'captionsLanguage': data['captionsLanguage'],
+            'transcriptsObject': {}
         })

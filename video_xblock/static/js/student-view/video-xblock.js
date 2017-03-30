@@ -14,7 +14,8 @@ function VideoXBlockStudentViewInit(runtime, element) {
     var handlers = window.videoXBlockState.handlers =  // eslint-disable-line vars-on-top
         window.videoXBlockState.handlers || {
             saveState: {},
-            analytics: {}
+            analytics: {},
+            downloadTranscriptChanged: {}
         };
     handlers.saveState[usageId] = stateHandlerUrl;
     handlers.analytics[usageId] = eventHandlerUrl;

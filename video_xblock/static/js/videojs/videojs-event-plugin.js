@@ -128,7 +128,7 @@
          onShowLanguageMenu, onHideLanguageMenu, onShowTranscript, onHideTranscript, onShowCaptions, onHideCaptions
          */
         this.log = function(eventName, data) {
-            var xblockUsageId = window.location.hash.slice(1);
+            var xblockUsageId = getXblockUsageId();
             data = data || {};  //  eslint-disable-line no-param-reassign
             data.eventType = 'xblock-video.' + eventName;  //  eslint-disable-line no-param-reassign
             parent.postMessage({

@@ -21,10 +21,10 @@ class Html5Player(BaseVideoPlayer):
 
         Hide `download_video_url` field for Html5Player.
         """
-        return tuple(
+        return [
             field for field in super(Html5Player, self).advanced_fields
             if field not in self.exclude_advanced_fields
-        )
+        ]
 
     exclude_advanced_fields = ('default_transcripts', 'download_video_url')
 
@@ -57,7 +57,7 @@ class Html5Player(BaseVideoPlayer):
         )
         js_files = [
             'static/vendor/js/videojs-offset.min.js',
-            'static/js/player-context-menu.js'
+            'static/js/videojs/player-context-menu.js'
         ]
 
         for js_file in js_files:

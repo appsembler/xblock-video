@@ -52,3 +52,17 @@ def ugettext(text):
     Dummy ugettext method that doesn't do anything.
     """
     return text
+
+
+def underscore_to_mixedcase(value):
+    """
+    Convert variables with under_score to mixedCase style.
+    """
+    def mixedcase():
+        """Mixedcase generator."""
+        yield str.lower
+        while True:
+            yield str.capitalize
+
+    mix = mixedcase()
+    return "".join(mix.next()(x) if x else '_' for x in value.split("_"))

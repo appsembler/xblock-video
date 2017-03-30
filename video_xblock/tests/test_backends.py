@@ -77,7 +77,7 @@ class TestCustomBackends(VideoXBlockTestBase):
                     'label': 'English',
                     'url': 'http://test.url'
                 }],
-                'current_time': ''
+                'currentTime': ''
             },
             'url': 'https://example.com/video.mp4',
             'start_time': '',
@@ -89,39 +89,39 @@ class TestCustomBackends(VideoXBlockTestBase):
             self.assertIn('window.videojs', res.body)
 
     expected_basic_fields = [
-        ('display_name', 'href'),
-        ('display_name', 'href', 'account_id'),
-        ('display_name', 'href'),
-        ('display_name', 'href'),
-        ('display_name', 'href'),
+        ['display_name', 'href'],
+        ['display_name', 'href', 'account_id'],
+        ['display_name', 'href'],
+        ['display_name', 'href'],
+        ['display_name', 'href'],
     ]
 
     expected_advanced_fields = [
-        (
+        [  # Youtube
             'start_time', 'end_time', 'handout', 'transcripts',
             'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
             'default_transcripts', 'download_video_allowed', 'download_video_url'
-        ),
-        (
-            'player_id', 'start_time', 'end_time', 'handout', 'transcripts',
+        ],
+        [  # Brightcove
+            'player_id', 'start_time', 'end_time', 'handout', 'transcripts', 'token',
             'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
             'default_transcripts', 'download_video_allowed', 'download_video_url'
-        ),
-        (
+        ],
+        [  # Wistia
+            'start_time', 'end_time', 'handout', 'transcripts', 'token',
+            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
+            'default_transcripts', 'download_video_allowed', 'download_video_url'
+        ],
+        [  # Vimeo
             'start_time', 'end_time', 'handout', 'transcripts',
             'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
             'default_transcripts', 'download_video_allowed', 'download_video_url'
-        ),
-        (
-            'start_time', 'end_time', 'handout', 'transcripts',
-            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
-            'default_transcripts', 'download_video_allowed', 'download_video_url'
-        ),
-        (
+        ],
+        [  # Html5
             'start_time', 'end_time', 'handout', 'transcripts',
             'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
             'download_video_allowed',
-        ),
+        ],
     ]
 
     @data(*zip(backends, expected_basic_fields, expected_advanced_fields))
@@ -131,8 +131,8 @@ class TestCustomBackends(VideoXBlockTestBase):
         Test basic_fields & advanced_fields for {0} backend
         """
         player = self.player[backend](self.xblock)
-        self.assertTupleEqual(player.basic_fields, expected_basic_fields)
-        self.assertTupleEqual(player.advanced_fields, expected_advanced_fields)
+        self.assertListEqual(player.basic_fields, expected_basic_fields)
+        self.assertListEqual(player.advanced_fields, expected_advanced_fields)
 
     @data(
         ([{'lang': 'ru'}], [{'lang': 'en'}, {'lang': 'uk'}]),
@@ -173,36 +173,49 @@ class TestCustomBackends(VideoXBlockTestBase):
         'https://example.com/sample.mp4'
     ]
     media_urls = [
-        'https://www.youtube.com/watch?v=44zaxzFsthY',
-        'https://studio.brightcove.com/products/videocloud/media/videos/45263567468485',
-        'https://wi.st/medias/HRrr784kH8932Z',
-        'https://vimeo.com/202889234',
-        'https://example.com/sample.mp4',
+        [  # Youtube
+            'https://www.youtube.com/watch?v=44zaxzFsthY'
+        ],
+        [  # Brightcove
+            'https://studio.brightcove.com/products/videocloud/media/videos/45263567468485',
+            'https://studio.brightcove.com/products/videos/45263567468485',
+        ],
+        [  # Wistia
+            'https://wi.st/medias/HRrr784kH8932Z'
+        ],
+        [  # Vimeo
+            'https://vimeo.com/202889234'
+        ],
+        [  # Html5
+            'https://example.com/sample.mp4'
+        ],
     ]
 
     @data(*zip(backends, media_urls, media_ids))
     @unpack
-    def test_media_id(self, backend, url, expected_media_id):
+    def test_media_id(self, backend, urls, expected_media_id):
         """
         Check that media id is extracted from the video url for {0} backend
         """
-        player = self.player[backend](self.xblock)
-        res = player.media_id(url)
-        self.assertEqual(res, expected_media_id)
+        for url in urls:
+            player = self.player[backend](self.xblock)
+            res = player.media_id(url)
+            self.assertEqual(res, expected_media_id)
 
     @data(*zip(backends, media_urls))
     @unpack
-    def test_match(self, backend, url):
+    def test_match(self, backend, urls):
         """
         Check if provided video `href` validates in right way for {0} backend
         """
-        player = self.player[backend]
-        res = player.match(url)
-        self.assertTrue(bool(res))
+        for url in urls:
+            player = self.player[backend]
+            res = player.match(url)
+            self.assertTrue(bool(res))
 
-        # test wrong data
-        res = player.match('http://wrong.url')
-        self.assertFalse(bool(res))
+            # test wrong data
+            res = player.match('http://wrong.url')
+            self.assertFalse(bool(res))
 
     @data(*zip(backends, ['some_token'] * len(backends), auth_mocks))
     @unpack

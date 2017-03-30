@@ -4,30 +4,6 @@
  */
 
 /**
- * Display message with results of a performed action with captions.
- */
-function displayStatusCaptions(statusType, statusMessage, $parentDiv) {
-    'use strict';
-    showStatus(
-        $('.status', $parentDiv),
-        statusType,
-        statusMessage
-    );
-}
-
-/**
- * Display message with results of a performed action with transcripts.
- */
-function displayStatusTranscripts(statusType, statusMessage, currentLiTag) {
-    'use strict';
-    showStatus(
-        $('.status', $(currentLiTag)),
-        statusType,
-        statusMessage
-    );
-}
-
-/**
  * Ensure transcript text's timing has two-digits.
  * By default max value of RelativeTime field on Backend is 23:59:59, that is 86399 seconds.
  */
@@ -108,14 +84,12 @@ function validateTranscriptFile(event, fieldName, filename, $fileUploader) {
     var fileExtension = filename.split('.').pop();
     var fileSize = $fileUploader[0].files[0].size;
     var acceptedFormats = $fileUploader[0].accept || '.vtt .srt';
-    var isEmptyExtension = fileExtension === '';
     var isNotAcceptedExtension = acceptedFormats.indexOf(fileExtension) === -1;
-    var isNotAcceptedFormat = isEmptyExtension || isNotAcceptedExtension;
+    var isNotAcceptedFormat = fileExtension === '' || isNotAcceptedExtension;
     // The maximum file size allowed is 300 KB. Tripple size of LoTR subtitles
     var maxFileSize = 307200;
     var isNotAcceptedSize = fileSize > maxFileSize;
     var errorMessage = 'Couldn\'t upload "' + filename + '". ';
-    var $parentDiv;
     var currentLiIndex;
     var currentLiTag;
     var isValid = true;
@@ -132,12 +106,15 @@ function validateTranscriptFile(event, fieldName, filename, $fileUploader) {
     // Display validation error message if a transcript/caption file may not be not accepted
     if (!isValid) {
         if (fieldName === 'handout') {
-            $parentDiv = $('.file-uploader');
-            displayStatusCaptions('error', errorMessage, $parentDiv);
+            showStatus($('.file-uploader .status'), 'error', errorMessage);
         } else {
             currentLiIndex = $(event.currentTarget).attr('data-li-index');
             currentLiTag = $('.language-transcript-selector').children()[parseInt(currentLiIndex, 10)];
-            displayStatusTranscripts('error', errorMessage, currentLiTag);
+            showStatus(
+                $(currentLiTag).find($('.status')),
+                'error',
+                errorMessage
+            );
         }
     }
 
@@ -209,11 +186,7 @@ function removeTranscript(lang, transcriptsValue) {
 function disableOption($langChoiceItem, disabledLanguages) {
     'use strict';
     $langChoiceItem.find('option').each(function() {
-        if (disabledLanguages.indexOf($(this).val()) > -1) {
-            $(this).attr('disabled', true);
-        } else {
-            $(this).attr('disabled', false);
-        }
+        $(this).attr('disabled', disabledLanguages.indexOf($(this).val()) > -1);
     });
 }
 
@@ -223,7 +196,7 @@ function disableOption($langChoiceItem, disabledLanguages) {
 function pushTranscriptsValue(transcriptsValue) {
     'use strict';
     transcriptsValue.forEach(function(transcriptValue, index) {
-        if (transcriptValue.lang === '' || transcriptValue.label === '' || transcriptValue.url === '') {
+        if ([transcriptValue.lang, transcriptValue.label, transcriptValue.url].indexOf('') !== -1) {
             transcriptsValue.splice(index, 1);
         }
     });
@@ -235,24 +208,20 @@ function pushTranscriptsValue(transcriptsValue) {
  */
 function createTranscriptBlock(langCode, langLabel, transcriptsValue, downloadTranscriptHandlerUrl) {
     'use strict';
-    var $createdOption;
     var $createdLi;
-    var $createdUploadReplace;
     var $createdDownload;
     var externalResourceUrl;
     var externalDownloadUrl;
     // Create a transcript block if not already displayed
     $('.add-transcript').trigger('click');
     // Select language option
-    $createdOption = $('li.list-settings-item:visible select').last();
-    $createdOption.val(langCode);
+    $('li.list-settings-item:visible select').last().val(langCode);
     $createdLi = $('li.list-settings-item:visible').last();
     // Update language label
     $createdLi.val(langLabel);
-    $createdUploadReplace = $createdLi.find('a.upload-setting.upload-transcript:hidden');
-    $createdUploadReplace
+    $createdLi.find('a.upload-setting.upload-transcript:hidden')
         .removeClass('is-hidden')
-        .html('Replace')
+        .html(gettext('Replace'))
         .attr({'data-lang-code': langCode, 'data-lang-label': langLabel});
     $createdDownload = $createdLi.find('a.download-transcript.download-setting:hidden');
     $createdDownload.removeClass('is-hidden');
