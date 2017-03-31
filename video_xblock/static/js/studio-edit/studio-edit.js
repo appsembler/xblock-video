@@ -12,8 +12,6 @@ function StudioEditableXBlock(runtime, element) {
     'use strict';
 
     var fields = [];
-    // Studio includes a copy of tinyMCE and its jQuery plugin
-    var tinyMceAvailable = (typeof $.fn.tinymce !== 'undefined');  // TODO: Remove TinyMCE
     var datepickerAvailable = (typeof $.fn.datepicker !== 'undefined'); // Studio includes datepicker jQuery plugin
     var $defaultTranscriptsSwitcher = $('input.default-transcripts-switch-input');
     var $enabledLabel = $('div.custom-field-section-label.enabled-transcripts');
@@ -285,7 +283,6 @@ function StudioEditableXBlock(runtime, element) {
         fields.push({
             name: $wrapper.data('field-name'),
             isSet: function() { return $wrapper.hasClass('is-set'); },
-            hasEditor: function() { return tinyMceAvailable && $field.tinymce(); },
             val: function() {
                 var val = $field.val();
                 // Cast values to the appropriate type so that we send nice clean JSON over the wire:
@@ -310,9 +307,6 @@ function StudioEditableXBlock(runtime, element) {
                 } else {
                     return val;
                 }
-            },
-            removeEditor: function() {
-                $field.tinymce().remove();
             }
         });
         $field.bind('change input paste', fieldChanged($wrapper, $resetButton));
@@ -324,27 +318,6 @@ function StudioEditableXBlock(runtime, element) {
             // Remove all enabled default transcripts
             removeAllEnabledTranscripts(initialDefaultTranscriptsData, bindUploadListenerAvailableTranscript);
         });
-        if (type === 'html' && tinyMceAvailable) {
-            tinyMCE.baseURL = baseUrl + '/js/vendor/tinymce/js/tinymce';
-            $field.tinymce({
-                theme: 'modern',
-                skin: 'studio-tmce4',
-                height: '200px',
-                formats: {code: {inline: 'code'}},
-                codemirror: {path: '' + baseUrl + '/js/vendor'},
-                convert_urls: false,
-                plugins: 'link codemirror',
-                menubar: false,
-                statusbar: false,
-                toolbar_items_size: 'small',
-                toolbar: 'formatselect | styleselect | bold italic underline forecolor wrapAsCode | bullist numlist' +
-                ' outdent indent blockquote | link unlink | code',
-                resize: 'both',
-                setup: function(ed) {
-                    ed.on('change', fieldChanged($wrapper, $resetButton));
-                }
-            });
-        }
 
         if (type === 'datepicker' && datepickerAvailable) {
             $field.datepicker('destroy');
@@ -418,13 +391,6 @@ function StudioEditableXBlock(runtime, element) {
     });
 
     $(element).find('.cancel-button').bind('click', function(event) {
-        // Remove TinyMCE instances to make sure jQuery does not try to access stale instances
-        // when loading editor for another block:
-        fields.forEach(function(field) {
-            if (field.hasEditor()) {
-                field.removeEditor();
-            }
-        });
         event.preventDefault();
         runtime.notify('cancel', {});
     });
