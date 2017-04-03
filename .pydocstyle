@@ -1,0 +1,5 @@
+[pydocstyle]
+# Open edX style dictates to always use multiline docstrings (reason to exclude D200 error code).
+# Multi-line docstring summary should start at the second line (D203).
+# 1 blank line should not be required before class docstring (D212).
+ignore = D200,D203,D212

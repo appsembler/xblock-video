@@ -1,0 +1,27 @@
+{
+    "extends": "eslint-config-edx-es5",
+    "globals": {
+        "videojs": true,
+        "domReady": true,
+        "getXblockUsageId": true,
+        "getTranscriptUrl": true,
+        "getDownloadTranscriptUrl": true,
+        "showStatus": true,
+        "gettext": true
+    },
+    "rules": {
+        "no-underscore-dangle": [
+            "error", {"allow": [
+                // VideoJS components' attributes
+                "childNameIndex_", "el_", "kind_", "labelEl_", "options_", "player_", "tracks_"
+            ]}
+        ],
+        "require-jsdoc": ["error", {
+            "require": {
+                "FunctionDeclaration": true,
+                "MethodDefinition": true,
+                "ClassDeclaration": true
+            }
+        }]
+    }
+}

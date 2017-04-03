@@ -1,0 +1,52 @@
+.vjs-contextmenu-ui-menu,
+.vjs-contextmenu-ui-submenu {
+    position: absolute;
+}
+
+.vjs-contextmenu-ui-menu .vjs-menu-content,
+.vjs-contextmenu-ui-submenu {
+    background-color: #2B333F;
+    background-color: rgba(43, 51, 63, 0.9);
+    border-radius: 0.3em;
+    padding: 0.25em;
+}
+
+
+.vjs-contextmenu-ui-submenu {
+    left: 100%;
+    top: 7em;
+    width: 50%;
+    display : none;
+}
+.vjs-contextmenu-ui-submenu:hover{
+    display : block;
+}
+
+.vjs-menu-item:last-of-type:hover .vjs-contextmenu-ui-submenu{
+    display : block;
+}
+
+.vjs-contextmenu-ui-menu .vjs-menu-item,
+.vjs-contextmenu-ui-menu .vjs-submenu-item {
+    border-radius: 0.3em;
+    cursor: pointer;
+    margin: 0 0 1px;
+    padding: 0.5em 1em;
+    font-size: 2em;
+    line-height: 1.2;
+    text-transform: none;
+    text-align: left;
+}
+
+.vjs-contextmenu-ui-submenu .vjs-submenu-item {
+    text-shadow: initial;
+    font-size: 1em;
+}
+
+.vjs-contextmenu-ui-menu .vjs-menu-item:active,
+.vjs-contextmenu-ui-menu .vjs-menu-item:hover,
+.vjs-contextmenu-ui-menu .vjs-submenu-item:active,
+.vjs-contextmenu-ui-submenu .vjs-submenu-item:hover {
+    background-color: rgba(0, 0, 0, 0.5);
+    text-shadow: 0em 0em 1em white;
+}

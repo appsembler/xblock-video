@@ -1,0 +1,111 @@
+{% load i18n %}
+
+<div class="custom-field-list">
+
+    <div class="custom-field-section-label main-section-label">{% trans "Show default transcripts" %}</div>
+       <input type="checkbox" class="default-transcripts-switch-input" id="default-transcript-onoff-switch">
+       <label class="default-transcripts-switch" for="default-transcript-onoff-switch">
+         <div class="default-transcripts-slider"></div>
+       </label>
+
+    <div class="default-transcripts-wrapper">
+      <div class="custom-field-section-label enabled-transcripts">{% trans "Enabled transcripts" %}</div>
+      {% if transcripts  %}
+      <!-- Display a list of transcripts fetched from a video xblock -->
+        {% for transcript in transcripts %}
+          <div class="enabled-default-transcripts-section">
+            <div class="default-transcripts-label" value="{{ transcript.lang }}">
+              {{ transcript.label }}
+            </div>
+            <div class="default-transcripts-actions">
+              <a href="{{ download_transcript_handler_url }}?{{ transcript.url }}" class="default-transcripts-action-link download-transcript download-setting">
+                {% trans "Download" %}
+              </a>
+              <a href="#" class="default-transcripts-action-link remove-default-transcript"
+                 data-lang-code="{{ transcript.lang }}"
+                 data-lang-label="{{ transcript.label }}"
+              >
+                {% trans "Delete" %}
+              </a>
+            </div>
+          </div>
+          <div class="api-response remove-default-transcript {{ default_transcript.lang }} status"></div>
+        {% endfor %}
+    {% endif %}
+    <!-- Hidden block (enabled sub) -->
+    <div class="enabled-default-transcripts-section is-hidden">
+      <div class="default-transcripts-label" value=""></div>
+      <div class="default-transcripts-actions">
+        <a href="#" class="default-transcripts-action-link download-transcript download-setting">
+          {% trans "Download" %}
+        </a>
+        <a href="#"
+           class="default-transcripts-action-link remove-default-transcript"
+           data-lang-code=""
+           data-lang-label=""
+        >
+          {% trans "Delete" %}
+        </a>
+      </div>
+    </div>
+    <!-- End of a hidden block -->
+
+    <div class="custom-field-section-label available-transcripts">{% trans "Available transcripts" %}</div>
+    {% if default_transcripts %}
+      <!-- Display a list of transcripts fetched from a video platform (API) -->
+        {% for default_transcript in default_transcripts %}
+          <div class="available-default-transcripts-section">
+            <div class="default-transcripts-label" value="{{ default_transcript.lang }}">
+              {{ default_transcript.label }}
+            </div>
+            <div class="default-transcripts-actions">
+              <a class="default-transcripts-action-link upload-default-transcript"
+                 data-change-field-name="{{ field.name }}"
+                 data-lang-code="{{ default_transcript.lang }}"
+                 data-lang-label="{{ default_transcript.label }}"
+                 data-download-url="{{ default_transcript.url }}" >
+                {% trans "Upload" %}
+              </a>
+            </div>
+          </div>
+          <div class="api-response upload-default-transcript {{ default_transcript.lang }} status"></div>
+        {% endfor %}
+        {% for transcript in transcripts %}
+          <!-- Success message of enabled transcript removal is to be displayed. -->
+          <div class="api-response remove-default-transcript {{ transcripts.lang }} status"></div>
+        {% endfor %}
+        <!-- Hidden block (available sub) -->
+        <div class="available-default-transcripts-section is-hidden">
+          <div class="default-transcripts-label" value=""></div>
+          <div class="default-transcripts-actions">
+            <a class="default-transcripts-action-link upload-default-transcript"
+               data-change-field-name="{{ field.name }}"
+               data-lang-code=""
+               data-lang-label=""
+               data-download-url="" >
+              {% trans "Upload" %}
+            </a>
+          </div>
+        </div>
+        <!-- End of a hidden block -->
+    {% else %}
+      <div class="default-transcripts-status status-error">
+        <span class="icon fa fa-remove" aria-hidden="true"></span>
+        {% trans "No timed transcript" %}
+      </div>
+      <div class="tip setting-help">
+        <!--{{ auth_error_message }} -->
+        {{ transcripts_autoupload_message }}
+        {% trans "You can add transcripts using the Upload Transcript field." %}
+      </div>
+    {% endif %}
+    <div class="is-hidden"> {{ initial_default_transcripts }} </div> <!-- Unfiltered default transcripts -->
+        {% for sub in initial_default_transcripts %}
+          <div class="initial-default-transcript"
+               data-lang-code="{{ sub.lang }}"
+               data-lang-label="{{ sub.label }}"
+               data-download-url="{{ sub.url }}">
+          </div>
+        {% endfor %}
+    </div>
+</div>

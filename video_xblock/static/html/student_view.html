@@ -1,0 +1,36 @@
+{% load i18n %}
+<h3 class="hd hd-2">{{display_name}}</h3>
+<iframe
+    src="{{player_url}}#{{usage_id}}"
+    frameborder="0"
+    scrolling="no"
+    allowfullscreen
+    mozallowfullscreen
+    webkitallowfullscreen
+    width="100%"
+    height="600px"
+>
+</iframe>
+<ul class="wrapper-downloads-custom">
+    {% if handout %}
+        <li class="video-handout video-download-button-custom">
+            <a href="{{ handout }}" class="download-handout" download="{{ handout_file_name }}">{% trans 'Download Handout' %}</a>
+        </li>
+    {% endif %}
+    {% if download_transcript_allowed and transcripts %}
+        <li class="video-transcript video-download-button-custom
+            {% if not transcript_download_link %}is-hidden{% endif %}"
+            id="download-transcript-button">
+            <a  class="download-transcript"
+                href="{{ transcript_download_link }}">{% trans 'Download transcript' %}</a>
+        </li>
+    {% endif %}
+    {% if download_video_url %}
+        <li class="video-download-button-custom">
+            <a href="{{ download_video_url }}" class="download-video" download
+               title="{% trans 'Right-click and save link as to download file' %}"
+               target="_blank">{% trans 'Download Video file' %}</a>
+        </li>
+    {% endif %}
+</ul>
+

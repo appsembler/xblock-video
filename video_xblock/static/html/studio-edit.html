@@ -1,0 +1,18 @@
+{% load i18n %}
+
+<div class="editor-with-buttons">
+    <div class="wrapper-comp-settings is-active editor-with-buttons" id="settings-tab">
+        {% include "studio-edit-tab.html" with name='basic' fields=basic_fields %}
+        {% include "studio-edit-tab.html" with name='advanced' fields=advanced_fields %}
+    </div>
+    <div class="xblock-actions">
+        <ul>
+            <li class="action-item">
+                <a href="#" class="button action-primary save-button">{% trans "Save" %}</a>
+            </li>
+            <li class="action-item">
+                <a href="#" class="button cancel-button">{% trans "Cancel" %}</a>
+            </li>
+        </ul>
+    </div>
+</div>

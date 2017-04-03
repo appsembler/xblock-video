@@ -1,0 +1,11 @@
+<select
+  class="field-data-control"
+  id="xb-field-edit-{{field.name}}"
+>
+  <option value="1" {% if field.value %}selected{% endif %}>
+    True {% if field.default %}&emsp;(Default){% endif %}
+  </option>
+  <option value="0" {% if not field.value %}selected{% endif %}>
+    False {% if not field.default %}&emsp;(Default){% endif %}
+  </option>
+</select>

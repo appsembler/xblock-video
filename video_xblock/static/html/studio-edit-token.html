@@ -1,0 +1,17 @@
+{% load i18n %}
+
+<div class="custom-field-list">
+  <div class="custom-field-section-label">{% trans "Client Token" %}</div>
+  <input
+    type="text"
+    class="field-data-control token"
+    id="xb-field-edit-{{field.name}}"
+    value="{{field.value|default_if_none:''}}"
+  >
+  <div class="field-elements-wrapper">
+    <button id="video-api-authenticate">
+      <span aria-hidden="true"></span>{% trans "Connect to video platform" %}<span class="sr"></span>
+    </button>
+  </div>
+  <div class="api-response authenticate status"></div>
+</div>

@@ -1,0 +1,9 @@
+<input
+  type="number"
+  class="field-data-control"
+  id="xb-field-edit-{{field.name}}"
+  {% if field.step %} step="{{field.step}}" {% elif field.type == "integer" %} step=1 {% endif %}
+  {% if field.max %} max="{{field.max}}" {% endif %}
+  {% if field.min %} min="{{field.min}}" {% endif %}
+  value="{{field.value|default_if_none:""}}"
+>

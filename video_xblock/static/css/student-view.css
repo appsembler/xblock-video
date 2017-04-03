@@ -1,0 +1,37 @@
+.is-hidden {
+  display: none !important;
+}
+.wrapper-comp-settings .file-uploader .xblock-edit-settings .upload-setting,
+.wrapper-comp-settings .file-uploader .xblock-edit-settings .download-setting {
+    width: 47%;
+}
+.upload-success {
+    position: absolute;
+}
+
+.wrapper-downloads-custom {
+    margin: 0;
+    padding: 0;
+    background-color: #f0f3f5;
+}
+
+.video-download-button-custom {
+    display: inline-block;
+    vertical-align: top;
+    margin: 10px;
+}
+
+.video-download-button-custom a {
+    transition: all 0.25s ease-in-out 0s;
+    font-size: 14px;
+    line-height: 14px;
+    float: left;
+    border-radius: 3px;
+    background-color: #fff;
+    padding: 15px;
+}
+
+.video-download-button-custom a:hover {
+    background-color: #1aa1de;
+    color: #fff;
+}

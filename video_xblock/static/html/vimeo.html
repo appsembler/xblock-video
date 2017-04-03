@@ -1,0 +1,11 @@
+<video
+  id="{{ video_player_id }}"
+  class="video-js vjs-default-skin"
+  controls
+  height="560"
+  data-setup='{{ data_setup }}'
+>
+<!-- height="560" it's height of iframe minus height of control bar -->
+  {{ transcripts }}
+</video>
+<div id="transcript"></div>

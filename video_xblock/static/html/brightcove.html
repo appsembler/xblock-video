@@ -1,0 +1,23 @@
+<div class="display-flex">
+    <video data-video-id="{{ video_id }}"
+        id="{{ video_player_id }}"
+        data-account="{{ account_id }}"
+        data-player="{{player_id}}"
+        data-embed="default"
+        data-application-id
+        data-setup='{"playbackRates": [0.5, 1.0, 1.5, 2.0] }'
+        width="100%"
+        height="560"
+        class="video-js"
+        brightcove
+        controls
+    >
+    <!-- height="560" it's height of iframe minus height of control bar -->
+      {{ transcripts }}
+    </video>
+    <script src="{{ brightcove_js_url }}"></script>
+    {% for vjs_plugin in vjs_plugins %}
+        <script type="text/javascript">{{ vjs_plugin }}</script>
+    {% endfor %}
+    <div id="transcript"></div>
+</div>
