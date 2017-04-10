@@ -3,20 +3,30 @@ Django views.
 """
 from django.http import HttpResponse, HttpResponseNotFound
 from django.conf import settings
+from django.shortcuts import render
 
 from utils import get_player, player_data
 
+PLAYER_LIST = settings.PLAYER_DATA.keys()
 
-def index(request, player_name):
+
+def player_list(request):
+    """
+    View with list of players.
+    """
+    context = {'player_list': PLAYER_LIST}
+    return render(request, 'list.html', context)
+
+
+def detail(request, player_name):
     """
     View to render player.
     """
     data = player_data(player_name)
     player_cls = get_player(player_name)
     if not player_cls or not data:
-        player_list = ", ".join(settings.PLAYER_DATA.keys())
         return HttpResponseNotFound(
-            '<h1>404 Error. Unsupported player name. Choose one from list: %s</h1' % player_list
+            '<h1>404 Error. Unsupported player name. Choose one from list: %s</h1' % PLAYER_LIST
         )
     player = player_cls(data)
     response = player.get_player_html(

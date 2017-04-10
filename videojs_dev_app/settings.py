@@ -49,7 +49,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.security.SecurityMiddleware',
 )
 
-ROOT_URLCONF = 'videojs_app.urls'
+ROOT_URLCONF = 'videojs_dev_app.urls'
 
 TEMPLATES = [
     {
@@ -69,7 +69,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'videojs_app.wsgi.application'
+WSGI_APPLICATION = 'videojs_dev_app.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases
@@ -110,3 +110,8 @@ PLAYER_DATA = {
     },
 
 }
+
+try:
+    from local_settings import *
+except ImportError:
+    pass
