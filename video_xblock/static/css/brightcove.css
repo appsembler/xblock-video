@@ -493,3 +493,7 @@ body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
 .display-flex {
   display: flex;
 }
+
+.vjs-text-track-display div div {
+    width: 100% !important;
+} 

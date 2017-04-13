@@ -411,3 +411,7 @@ body {
   text-align: left;
   margin-left: 8px;
 }
+
+.vjs-text-track-display div div {
+    width: 100% !important;
+} 
