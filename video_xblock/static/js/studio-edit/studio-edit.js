@@ -2,7 +2,7 @@
 removeEnabledTranscriptBlock bindUploadListenerAvailableTranscript pushTranscript pushTranscriptsValue
 createEnabledTranscriptBlock createTranscriptBlock parseRelativeTime removeAllEnabledTranscripts tinyMCE baseUrl
 validateTranscripts fillValues validateTranscriptFile removeTranscriptBlock clickUploader
-languageChecker $3playmediaTranscriptsApi getTranscripts3playmediaApiHandlerUrl*/
+languageChecker $3playmediaTranscriptsApi */
 /**
     Set up the Video xblock studio editor. This part is responsible for validation and sending of the data to a backend.
     Reference:
@@ -36,6 +36,7 @@ function StudioEditableXBlock(runtime, element) {
     var downloadTranscriptHandlerUrl = runtime.handlerUrl(element, 'download_transcript');
     var authenticateVideoApiHandlerUrl = runtime.handlerUrl(element, 'authenticate_video_api_handler');
     var uploadDefaultTranscriptHandlerUrl = runtime.handlerUrl(element, 'upload_default_transcript_handler');
+    var getTranscripts3playmediaApiHandlerUrl = runtime.handlerUrl(element, 'get_transcripts_3playmedia_api_handler');
     var currentLanguageCode;
     var initialDefaultTranscriptsData = getInitialDefaultTranscriptsData();
     var initialDefaultTranscripts = initialDefaultTranscriptsData[0];
@@ -333,7 +334,6 @@ function StudioEditableXBlock(runtime, element) {
         fields.push({
             name: $wrapper.data('field-name'),
             isSet: function() { return $wrapper.hasClass('is-set'); },
-            hasEditor: function() { return false; },
             val: function() {
                 var val = [];
                 $checkboxes.each(function() {

@@ -8,14 +8,11 @@ describe('Studio edit utils', function() {
         {
             name: 'display_name',
             isSet: function() { return true; },
-            val: function() { return 'test value'; },
-            hasEditor: function() { return false; }
+            val: function() { return 'test value'; }
         },
         {
             name: 'href',
-            isSet: function() { return false; },
-            hasEditor: function() {},
-            removeEditor: function() { return false; }
+            isSet: function() { return false; }
         }
     ];
     it("return field's fillValues", function() {
