@@ -186,7 +186,7 @@ body {
 
 .video-js .vjs-volume-menu-button:before {
     content: "\f028";
-    padding: 7px 0 0;
+    padding: 8px 0 0;
 }
 
 .video-js .vjs-fullscreen-control:before {
@@ -230,12 +230,21 @@ body {
     position: absolute;
     right: 20px;
     width: 40px;
+    font-size: 8px;
+}
+.video-js .vjs-custom-transcript-button:before {
+    padding: 8px 0 0 3px;
 }
 
 .video-js .vjs-custom-caption-button {
     position: absolute;
     right: 61px;
     width: 40px;
+    font-size: 8px;
+}
+
+.video-js .vjs-custom-caption-button:before {
+    padding: 8px 0 0 3px;
 }
 
 .video-js .vjs-fullscreen-control {
@@ -257,7 +266,7 @@ body {
     position: absolute;
     right: 182px;
     border-left: 1px dotted #4f595d;
-    width: 120px;
+    width: 128px;
 }
 
 @media (max-width: 742px) {
@@ -269,12 +278,26 @@ body {
     }
 }
 .vjs-playback-rate-value:before {
-    content: '\f0da  Speed ';
+    content: '\f0da';
+    color: #e7ecee;
     font-family: FontAwesome;
+    position: absolute;
+    font-size: 12px;
+    left: 19px;
+    top: 5px;
 }
-.vjs-playback-rate-value:hover:before {
-    content: '\f0d8  Speed ';
-    font-family: FontAwesome;
+.video-js .vjs-playback-rate:hover .vjs-playback-rate-value:before{
+    content: '\f0d8';
+}
+.vjs-playback-rate-value:after {
+    content: 'Speed';
+    font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+    font-weight: normal;
+    position: absolute;
+    left: 28px;
+    top: 3px;
+    color: #e7ecee;
 }
 .video-js .roller {
     height: 5px;
@@ -310,7 +333,9 @@ body {
 }
 .vjs-playback-rate .vjs-playback-rate-value {
     top: 3px;
-    font-weight: bold;
+    padding: 2px 0 0 76px;
+    color: #e7ecee;
+    text-align: left;
 }
 .vjs-volume-bar.vjs-slider-vertical {
     height: 100px;
@@ -321,7 +346,7 @@ body {
 }
 
 .w-control-bar {
-  display: none !important;
+    display: none !important;
 }
 
 .video-js .vjs-play-control {
@@ -339,77 +364,91 @@ body {
 }
 
 .video-js .vjs-control-enabled {
-  background-color: #171a1b;
-  color: #0ea6ec;
+    background-color: #171a1b;
+    color: #0ea6ec;
+    font-size: 8px;
+}
+
+.video-js .vjs-control-enabled:before {
+    padding: 8px 0 0 3px;
 }
 
 #transcript {
-  font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
-  font-size: 14px;
-  background-color: inherit;
+    font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+    background-color: inherit;
 }
 
 .transcript-body {
-  max-height: 100%;
-  overflow: scroll;
-  padding: 0 0 0 20px;
+    max-height: 100%;
+    overflow: scroll;
+    padding: 0 0 0 20px;
 }
 
 .transcript-line {
-  position: relative;
-  margin-bottom: 8px;
-  border: 0;
-  padding: 0;
-  color: #0074b5;
-  line-height: 1.41575em;
+    position: relative;
+    margin-bottom: 8px;
+    border: 0;
+    padding: 0;
+    color: #0074b5;
+    line-height: 1.41575em;
 }
 
 .transcript-line.is-active {
-  color: #333;
-  font-weight: 700;
+    color: #333;
+    font-weight: 700;
 }
 
 .transcript-line:hover {
-  text-decoration: underline;
-  cursor: pointer;
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 .transcript-timestamp {
-  display: none;
+    display: none;
 }
 
 .is-hidden {
-  display: none !important;
+    display: none !important;
 }
 
 .is-visible {
-  display: block !important;
+    display: block !important;
 }
 
 .vjs-custom-caption-button .vjs-menu-button-popup .vjs-menu,
 .vjs-custom-transcript-button .vjs-menu-button-popup .vjs-menu {
-  left: 0;
+    left: 0;
 }
 
 .vjs-custom-caption-button .vjs-menu,
 .vjs-custom-transcript-button .vjs-menu {
-  left: 0;
+    left: 0;
 }
 
 .vjs-custom-caption-button .vjs-menu .vjs-menu-content,
 .vjs-custom-transcript-button .vjs-menu .vjs-menu-content {
-  width: 100px;
+    width: 100px;
 }
 
 .vjs-playback-rate .vjs-menu .vjs-menu-content {
-  width: 120px;
+    width: 120px;
+    max-height: 16em;
 }
 
 .vjs-custom-caption-button .vjs-menu .vjs-menu-content li,
 .vjs-custom-transcript-button .vjs-menu .vjs-menu-content li,
 .vjs-playback-rate .vjs-menu .vjs-menu-content li {
-  text-align: left;
-  margin-left: 8px;
+    text-align: left;
+    padding: 10px 10px 10px 8px;
+    border-left: 2px solid transparent;
+    font-size: 14px;
+    color: #e7ecee;
+    font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+.vjs-playback-rate .vjs-menu .vjs-menu-content li:focus {
+    color: #0ea6ec;
+    border-left: 2px solid #0ea6ec;
 }
 
 .vjs-text-track-display div div {
