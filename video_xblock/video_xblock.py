@@ -84,8 +84,8 @@ class TranscriptsMixin(XBlock):
         reader = detect_format(caps)
         if reader:
             return WebVTTWriter().write(reader().read(caps))
-        else:
-            return u''
+
+        return u''
 
     def route_transcripts(self, transcripts):
         """
