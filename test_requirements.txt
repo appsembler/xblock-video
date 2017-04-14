@@ -1,9 +1,8 @@
 # Auto-transcripts upload is dependent on xmodule.contentstore
 git+https://github.com/edx/edx-platform.git@open-release/eucalyptus.3#egg=xmodule==0.1.1&subdirectory=common/lib/xmodule/
-git+https://github.com/edx/edx-platform.git@open-release/eucalyptus.3#egg=dogstats_wrapper==0.1&subdirectory=common/lib/dogstats/
-PyContracts~=1.7.1   # xmodule dependency
-sortedcontainers~=0.9.2  # xmodule dependency
-Pillow~=3.1.1  # xmodule dependency
+PyContracts>=1.7.1,<1.8   # xmodule dependency
+sortedcontainers>=0.9.2,<1.0  # xmodule dependency
+Pillow>=3.1.1,<4.0  # xmodule dependency
 
 coverage>=4.3.4,<5.0.0
 Django>=1.8.12,<1.9
