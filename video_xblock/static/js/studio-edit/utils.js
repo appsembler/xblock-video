@@ -15,11 +15,6 @@ function fillValues(fields) {
         } else {
             notSet.push(field.name);
         }
-        // Remove TinyMCE instances to make sure jQuery does not try to access stale instances
-        // when loading editor for another block:
-        if (field.hasEditor()) {
-            field.removeEditor();
-        }
     });
     return {values: values, defaults: notSet};
 }

@@ -47,8 +47,9 @@ function VideoXBlockStudentViewInit(runtime, element) {
     function receiveMessage(event) {
         // For Chrome, the origin property is in the event.originalEvent object.
         var origin = event.origin || event.originalEvent.origin;
-        if (origin !== document.location.protocol + '//' + document.location.host) {
-            // Discard a message received from another domain
+        if ((origin !== document.location.protocol + '//' + document.location.host) ||
+            (event.data.action === undefined)) {
+            // Discard malformed or a message received from another domain
             return;
         }
         try {

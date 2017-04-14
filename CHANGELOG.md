@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.6.4] - 2017-04-14
+
+### Changed
+
+- Improve video player controls look&feel.
+- Make subtitles responsive.
+
+### Fixed
+
+- Fetching subtitles from 3PlayMedia.
+
 ## [0.6.3] - 2017-03-30
 
 ### Changed
