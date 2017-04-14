@@ -259,11 +259,19 @@ body {
     position: absolute;
     right: 20px;
     width: 40px;
+    font-size: 8px;
+}
+.video-js .vjs-custom-transcript-button:before {
+    padding: 8px 0 0 3px;
 }
 .video-js .vjs-custom-caption-button {
     position: absolute;
     right: 61px;
     width: 40px;
+    font-size: 8px;
+}
+.video-js .vjs-custom-caption-button:before {
+    padding: 8px 0 0 3px;
 }
 .video-js .vjs-fullscreen-control {
     position: absolute;
@@ -295,12 +303,26 @@ body {
     }
 }
 .vjs-playback-rate-value:before {
-    content: '\f0da  Speed ';
+    content: '\f0da';
+    color: #e7ecee;
     font-family: FontAwesome;
+    position: absolute;
+    font-size: 12px;
+    left: 19px;
+    top: 5px;
 }
-.vjs-playback-rate-value:hover:before {
-    content: '\f0d8  Speed ';
-    font-family: FontAwesome;
+.video-js .vjs-playback-rate:hover .vjs-playback-rate-value:before{
+    content: '\f0d8';
+}
+.vjs-playback-rate-value:after {
+    content: 'Speed';
+    font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+    font-weight: normal;
+    position: absolute;
+    left: 28px;
+    top: 3px;
+    color: #e7ecee;
 }
 .bc-player-default_default .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
     width: 41px;
@@ -351,8 +373,10 @@ body {
     margin-left: 22px !important;
 }
 .vjs-playback-rate .vjs-playback-rate-value {
-    top: 4px !important;
-    font-weight: bold;
+    top: 3px !important;
+    padding: 2px 0 0 76px;
+    color: #e7ecee;
+    text-align: left;
 }
 .bc-player-default_default .vjs-menu-button-popup .vjs-menu .vjs-menu-item {
     font-weight: bold;
@@ -405,6 +429,8 @@ body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
     width: 41px;
     left: 30px;
     background: #171a1b;
+    bottom: 2.5em;
+    max-height: 16em;
 }
 
 .vjs-mousebody .video-js .vjs-progress-control:hover .vjs-play-progress.vjs-slider-bar.vjs-keep-tooltips-inside:after {
@@ -412,9 +438,18 @@ body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
 }
 
 body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item {
-    font-weight: bold;
+    text-align: left;
+    padding: 10px 10px 10px 8px;
+    border-left: 2px solid transparent;
+    font-size: 14px;
+    color: #e7ecee;
+    font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+    border-radius: 0;
+    margin: 0;
 }
-
+body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:focus {
+    text-shadow: none;
+}
 body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
     text-shadow: none;
     color: inherit;
@@ -429,6 +464,11 @@ body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
 .video-js .vjs-control-enabled {
   background-color: #171a1b;
   color: #0ea6ec;
+  font-size: 8px;
+}
+
+.video-js .vjs-control-enabled:before {
+    padding: 8px 0 0 3px;
 }
 
 .is-visible {
@@ -483,13 +523,29 @@ body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
   width: 120px !important;
 }
 
+.display-flex {
+  display: flex;
+}
+
 .vjs-custom-caption-button .vjs-menu .vjs-menu-content li,
 .vjs-custom-transcript-button .vjs-menu .vjs-menu-content li,
 .vjs-playback-rate .vjs-menu .vjs-menu-content li {
   text-align: left;
-  margin-left: 8px;
+  padding: 10px 10px 10px 8px;
+  border-left: 2px solid transparent;
+  font-size: 14px;
+  color: #e7ecee;
+  font-family: "Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+.vjs-playback-rate .vjs-menu .vjs-menu-content li:focus {
+    color: #0ea6ec;
+    border-left: 2px solid #0ea6ec;
+}
+.vjs-playback-rate .vjs-menu .vjs-menu-content li:focus {
+    color: #0ea6ec;
+    border-left: 2px solid #0ea6ec;
 }
 
-.display-flex {
-  display: flex;
-}
+.vjs-text-track-display div div {
+    width: 100% !important;
+} 
