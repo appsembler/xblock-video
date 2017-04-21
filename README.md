@@ -67,7 +67,9 @@ Sample default settings in `/edx/app/edxapp/cms.env.json`:
 
 ## Development
 
-Install dependencies and development tools:
+Prereqs: [NodeJS >= 4.0](https://docs.npmjs.com/getting-started/installing-node#updating-npm)
+
+Install development tools and dependencies:
 
 ```shell
 > make tools deps-test
