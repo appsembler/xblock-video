@@ -14,6 +14,10 @@ vendor_js := video.js/dist/video.min.js\
 			 videojs-youtube/dist/Youtube.min.js
 
 vendor_css := video.js/dist/video-js.min.css
+vendor_fonts := video-js/dist/font/VideoJS.eot\
+				video-js/dist/font/VideoJS.svg\
+				video-js/dist/font/VideoJS.ttf\
+				video-js/dist/font/VideoJS.woff
 
 all: quality test
 
@@ -57,8 +61,9 @@ coverage: ## Send coverage reports to coverage sevice
 	bash <(curl -s https://codecov.io/bash)
 
 clear-vendored:
-	rm $(vendor_dir)/js/*
-	rm $(vendor_dir)/css/*
+	rm -rf $(vendor_dir)/js/*
+	rm -rf $(vendor_dir)/css/*
+	mkdir $(vendor_dir)/css/fonts
 
 $(vendor_js): clear-vendored deps-js
 	cp $(bower_dir)/$@ $(vendor_dir)/js/$(@F)
@@ -66,7 +71,10 @@ $(vendor_js): clear-vendored deps-js
 $(vendor_css): clear-vendored deps-js
 	cp $(bower_dir)/$@ $(vendor_dir)/css/$(@F)
 
-vendored: $(vendor_js) $(vendor_css) ## Update vendored JS/CSS assets
+$(vendor_fonts): clear-vendored deps-js
+	cp $(bower_dir)/$@ $(vendor_dir)/css/fonts/$(@F)
+
+vendored: $(vendor_js) $(vendor_css) $(vendor_fonts)  ## Update vendored JS/CSS assets
 	@echo "Packaging vendor files..."
 
 help:
