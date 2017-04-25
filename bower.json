@@ -1,6 +1,6 @@
 {
   "name": "xblock-video",
-  "version": "0.2-dev",
+  "version": "0.6.5",
   "dependencies": {
     "video-js": "5.13.1",
     "videojs-youtube": "raccoongang/videojs-youtube#playback-rate-fix",

@@ -1,0 +1,16 @@
+dependencies:
+  pre:
+    - sudo apt-get update; sudo apt-get install python-lxml
+  override:
+    - nvm install stable && npm install
+    - make tools
+    - make dev-install
+    - make deps-test
+
+test:
+  override:
+    - make quality-py
+    - make quality-js
+    - make test
+  post:
+    - make coverage
