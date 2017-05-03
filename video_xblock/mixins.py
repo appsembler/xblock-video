@@ -43,9 +43,9 @@ class SettingsMixin(XBlock):
             # At the moment SettingsService is not available in the context
             # of Studio Edit modal. See https://github.com/edx/edx-platform/pull/14648
             return s_service.get_settings_bucket(self)
-        else:
-            from django.conf import settings
-            return settings.XBLOCK_SETTINGS.get(self.block_settings_key, {})
+
+        from django.conf import settings
+        return settings.XBLOCK_SETTINGS.get(self.block_settings_key, {})
 
     def populate_default_values(self, fields_dict):
         """

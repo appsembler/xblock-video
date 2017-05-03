@@ -49,7 +49,7 @@ dev-install:
 	pip install --process-dependency-links -e .
 
 deps-test: ## Install dependencies required to run tests
-	pip install -r test_requirements.txt
+	pip install -Ur test_requirements.txt
 
 deps-js: tools
 	bower install

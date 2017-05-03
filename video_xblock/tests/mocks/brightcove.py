@@ -166,8 +166,8 @@ class BrightcoveDefaultTranscriptsMock(BaseMock):
         """
         if self.event == 'no_credentials':
             return {'client_id': '', 'client_secret': ''}
-        else:
-            return self.mock
+
+        return self.mock
 
     # @XBlock.register_temp_plugin(brightcove.BrightcovePlayer, 'wistia')
     def apply_mock(self, mocked_objects):
