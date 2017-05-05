@@ -1,0 +1,6 @@
+<video_xblock
+    href="https://vimeo.com/204151304"
+    player_name="vimeo-player"
+    transcripts_enabled="true"
+    transcripts='[{"lang": "en", "label": "english", "url": "/resource/video_xblock/public/sample-transcripts.vtt"}]'
+/>

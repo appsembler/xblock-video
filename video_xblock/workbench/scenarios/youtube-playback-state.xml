@@ -1,0 +1,9 @@
+<video_xblock
+    href="www.youtube.com/watch?v=LGHItQK2fA8"
+    player_name="youtube-player"
+    end_time="00:00:33"
+    volume="0.5"
+    muted="true"
+    current_time="10"
+    playback_rate="0"
+/>

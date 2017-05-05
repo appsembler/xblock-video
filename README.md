@@ -87,6 +87,9 @@ Run tests:
 > make test
 ```
 
+VideoXBlock is bundled with a set of XBlock-SDK Workbench scenarios.
+See [workbench docs](/video_xblock/workbench/README.md) for details.
+
 ## License
 
 The code in this repository is licensed under the GPL v3 licence unless

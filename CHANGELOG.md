@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- XBlock SDK Workbench scenarios to simplify development.
+
 ## [0.6.6] - 2017-05-03
 
 ### Changed

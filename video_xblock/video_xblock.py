@@ -12,24 +12,26 @@ import os.path
 import requests
 
 from xblock.core import XBlock
+from xblock.exceptions import NoSuchServiceError
 from xblock.fields import Scope, Boolean, Float, String, Dict
 from xblock.fragment import Fragment
 from xblock.validation import ValidationMessage
 from xblockutils.studio_editable import StudioEditableXBlockMixin
 
-from xmodule.contentstore.django import contentstore
-from xmodule.contentstore.content import StaticContent
-
 from pycaption import detect_format, WebVTTWriter
 from webob import Response
 
 from .backends.base import BaseVideoPlayer
-from .constants import PlayerName
+from .constants import DEFAULT_LANG, PlayerName
 from .exceptions import ApiClientError
-from .mixins import SettingsMixin
+from .mixins import LocationMixin, SettingsMixin
+from .workbench.mixin import WorkbenchMixin
 from .settings import ALL_LANGUAGES
 from .fields import RelativeTime
-from .utils import render_template, render_resource, resource_string, underscore_to_mixedcase, ugettext as _
+from .utils import (
+    import_from, render_template, render_resource, resource_string,
+    underscore_to_mixedcase, ugettext as _
+)
 
 log = logging.getLogger(__name__)
 
@@ -51,7 +53,8 @@ class ContentStoreMixin(XBlock):
         contentstore_service = self.runtime.service(self, 'contentstore')
         if contentstore_service:
             return contentstore_service.contentstore
-        return contentstore
+
+        return import_from('xmodule.contentstore.django', 'contentstore')
 
     @property
     def static_content(self):
@@ -61,7 +64,8 @@ class ContentStoreMixin(XBlock):
         contentstore_service = self.runtime.service(self, 'contentstore')
         if contentstore_service:
             return contentstore_service.StaticContent
-        return StaticContent
+
+        return import_from('xmodule.contentstore.content', 'StaticContent')
 
 
 class TranscriptsMixin(XBlock):
@@ -125,7 +129,7 @@ class TranscriptsMixin(XBlock):
         """
         # Define location of default transcript as a future asset and prepare content to store in assets
         file_name = reference_name.replace(" ", "_") + ext
-        course_key = self.location.course_key  # pylint: disable=no-member
+        course_key = self.course_key
         content_loc = self.static_content.compute_location(course_key, file_name)  # AssetLocator object
         content = self.static_content(
             content_loc,
@@ -296,6 +300,7 @@ class TranscriptsMixin(XBlock):
         return Response(self.convert_caps_to_vtt(caps))
 
 
+@XBlock.needs('modulestore')
 class PlaybackStateMixin(XBlock):
     """
     PlaybackStateMixin encapsulates video-playback related data.
@@ -362,18 +367,30 @@ class PlaybackStateMixin(XBlock):
     )
 
     @property
+    def course_default_language(self):
+        """
+        Utility method returns course's language.
+
+        Falls back to 'en' if runtime doen't provide `modulestore` service.
+        """
+        try:
+            course = self.runtime.service(self, 'modulestore').get_course(self.course_id)
+            return course.language
+        except NoSuchServiceError:
+            return DEFAULT_LANG
+
+    @property
     def player_state(self):
         """
         Return video player state as a dictionary.
         """
-        course = self.runtime.modulestore.get_course(self.course_id)
         transcripts = json.loads(self.transcripts) if self.transcripts else []
         transcripts_object = {
             trans['lang']: {'url': trans['url'], 'label': trans['label']}
             for trans in transcripts
         }
         result = dict()
-        result['captionsLanguage'] = self.captions_language or course.language
+        result['captionsLanguage'] = self.captions_language or self.course_default_language
         result['transcriptsObject'] = transcripts_object
         result['transcripts'] = transcripts
         for field_name in self.player_state_fields:
@@ -396,8 +413,8 @@ class PlaybackStateMixin(XBlock):
 
 
 class VideoXBlock(
-        SettingsMixin, TranscriptsMixin, PlaybackStateMixin,
-        StudioEditableXBlockMixin, ContentStoreMixin, XBlock
+        SettingsMixin, TranscriptsMixin, PlaybackStateMixin, LocationMixin,
+        StudioEditableXBlockMixin, ContentStoreMixin, WorkbenchMixin, XBlock
 ):
     """
     Main VideoXBlock class, responsible for saving video settings and rendering it for students.
@@ -676,7 +693,7 @@ class VideoXBlock(
                 'static/html/student_view.html',
                 player_url=player_url,
                 display_name=self.display_name,
-                usage_id=self.location.to_deprecated_string(),  # pylint: disable=no-member
+                usage_id=self.deprecated_string,
                 handout=self.handout,
                 transcripts=self.route_transcripts(self.transcripts),
                 download_transcript_allowed=self.download_transcript_allowed,
@@ -735,7 +752,7 @@ class VideoXBlock(
         basic_fields = self.prepare_studio_editor_fields(player.basic_fields)
         advanced_fields = self.prepare_studio_editor_fields(player.advanced_fields)
         context = {
-            'courseKey': self.location.course_key,  # pylint: disable=no-member
+            'courseKey': self.course_key,
             'languages': languages,
             'transcripts': transcripts,
             'download_transcript_handler_url': download_transcript_handler_url,
@@ -778,7 +795,7 @@ class VideoXBlock(
         return player.get_player_html(
             url=self.href, autoplay=False, account_id=self.account_id, player_id=self.player_id,
             video_id=player.media_id(self.href),
-            video_player_id='video_player_{}'.format(self.location.block_id),  # pylint: disable=no-member
+            video_player_id='video_player_{}'.format(self.block_id),
             save_state_url=save_state_url,
             player_state=self.player_state,
             start_time=int(self.start_time.total_seconds()),  # pylint: disable=no-member

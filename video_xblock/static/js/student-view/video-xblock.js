@@ -9,7 +9,10 @@ function VideoXBlockStudentViewInit(runtime, element) {
     var stateHandlerUrl = runtime.handlerUrl(xblockElement, 'save_player_state');
     var eventHandlerUrl = runtime.handlerUrl(xblockElement, 'publish_event');
     var downloadTranscriptHandlerUrl = runtime.handlerUrl(xblockElement, 'download_transcript');
-    var usageId = xblockElement.attributes['data-usage-id'].value;
+    var usageId = (
+        xblockElement.attributes['data-usage-id'] ||  // Open edX runtime
+        xblockElement.attributes['data-usage']  // Workbench runtime
+    ).value;
     window.videoXBlockState = window.videoXBlockState || {};
     var handlers = window.videoXBlockState.handlers =  // eslint-disable-line vars-on-top
         window.videoXBlockState.handlers || {
