@@ -4,7 +4,7 @@ SHELL := /bin/bash
 
 bower_dir := bower_components
 vendor_dir := video_xblock/static/vendor
-vendor_js := video.js/dist/video.min.js\
+vendored_js := video.js/dist/video.min.js\
 			 videojs-contextmenu-ui/dist/videojs-contextmenu-ui.min.js\
 			 videojs-contextmenu/dist/videojs-contextmenu.min.js\
 			 videojs-offset/dist/videojs-offset.min.js\
@@ -13,11 +13,8 @@ vendor_js := video.js/dist/video.min.js\
 			 videojs-wistia/vjs.wistia.js\
 			 videojs-youtube/dist/Youtube.min.js
 
-vendor_css := video.js/dist/video-js.min.css
-vendor_fonts := video-js/dist/font/VideoJS.eot\
-				video-js/dist/font/VideoJS.svg\
-				video-js/dist/font/VideoJS.ttf\
-				video-js/dist/font/VideoJS.woff
+vendored_css := video.js/dist/video-js.min.css
+vendored_fonts := video-js/dist/font/VideoJS.eot
 
 all: quality test
 
@@ -63,18 +60,18 @@ coverage: ## Send coverage reports to coverage sevice
 clear-vendored:
 	rm -rf $(vendor_dir)/js/*
 	rm -rf $(vendor_dir)/css/*
-	mkdir $(vendor_dir)/css/fonts
+	mkdir $(vendor_dir)/css/font
 
-$(vendor_js): clear-vendored deps-js
+$(vendored_js): clear-vendored deps-js
 	cp $(bower_dir)/$@ $(vendor_dir)/js/$(@F)
 
-$(vendor_css): clear-vendored deps-js
+$(vendored_css): clear-vendored deps-js
 	cp $(bower_dir)/$@ $(vendor_dir)/css/$(@F)
 
-$(vendor_fonts): clear-vendored deps-js
-	cp $(bower_dir)/$@ $(vendor_dir)/css/fonts/$(@F)
+$(vendored_fonts): clear-vendored deps-js
+	cp $(bower_dir)/$@ $(vendor_dir)/css/font/$(@F)
 
-vendored: $(vendor_js) $(vendor_css) $(vendor_fonts)  ## Update vendored JS/CSS assets
+vendored: $(vendored_js) $(vendored_css) $(vendored_fonts)  ## Update vendored JS/CSS assets
 	@echo "Packaging vendor files..."
 
 help:
