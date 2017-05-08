@@ -52,7 +52,6 @@ module.exports = function (config) {
         coverageReporter: {
             type: 'cobertura',
             dir: 'coverage/',
-            repoToken: 'St0myP2WKubt2SrFuyQDZI7Y1gsxDIiiX'
         },
 
         // web server port

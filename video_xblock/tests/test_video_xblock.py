@@ -102,7 +102,9 @@ class VideoXBlockTests(VideoXBlockTestBase):
         }
         factory = RequestFactory()
         request = factory.post('', json.dumps(data), content_type='application/json')
+
         response = self.xblock.save_player_state(request)
+
         self.assertEqual('{"success": true}', response.body)  # pylint: disable=no-member
         self.assertDictEqual(self.xblock.player_state, {
             'currentTime': data['currentTime'],
