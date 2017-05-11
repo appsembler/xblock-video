@@ -2,6 +2,8 @@
  * Auxiliary functions for studio editor modal's JS.
  */
 
+var gettext = gettext || function(str) { return str; } // eslint-disable-line
+
 /**
  * Prepare data to be saved to video xblock.
  */

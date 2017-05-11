@@ -21,12 +21,13 @@ all: quality test
 clean: # Clean working directory
 	-rm -rf node_modules/
 	-rm -rf bower_components/
+	-rm -rf dist/
 	-find . -name *.pyc -delete
 
 test: test-py test-js ## Run tests
 
 test-py: ## Run Python tests
-	nosetests video_xblock --with-coverage --cover-package=video_xblock
+	nosetests video_xblock.tests.unit --with-coverage --cover-package=video_xblock
 
 test-js: ## Run JavaScript tests
 	karma start video_xblock/static/video_xblock_karma.conf.js

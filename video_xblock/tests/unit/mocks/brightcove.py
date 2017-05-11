@@ -4,9 +4,9 @@ Brightcove backend mocks.
 import json
 from copy import copy, deepcopy
 
-from video_xblock.exceptions import VideoXBlockException, VideoXBlockMockException
-from video_xblock.tests.mocks.base import BaseMock, RequestsMock, ResponseStub
 from video_xblock.backends import brightcove
+from video_xblock.exceptions import VideoXBlockException, VideoXBlockMockException
+from video_xblock.tests.unit.mocks.base import BaseMock, RequestsMock, ResponseStub
 
 
 class BrightcoveAuthMock(BaseMock):

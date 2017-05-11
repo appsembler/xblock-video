@@ -3,14 +3,16 @@ VideoXBlock mixins test cases.
 """
 
 from collections import Iterable
+import json
 
 from mock import patch, Mock, MagicMock, PropertyMock
 
+from django.test import RequestFactory
 from webob import Response
 from xblock.exceptions import NoSuchServiceError
 
 from video_xblock.constants import DEFAULT_LANG
-from video_xblock.tests.base import VideoXBlockTestBase
+from video_xblock.tests.unit.base import VideoXBlockTestBase
 from video_xblock.utils import loader
 from video_xblock.video_xblock import VideoXBlock
 
@@ -58,7 +60,7 @@ class ContentStoreMixinTest(VideoXBlockTestBase):
 class LocationMixinTests(VideoXBlockTestBase):
     """Test LocationMixin"""
 
-    def test_xblod_doesnt_have_location_by_default(self):
+    def test_xblock_doesnt_have_location_by_default(self):
         self.assertFalse(hasattr(self.xblock, 'location'))
 
     def test_fallback_block_id(self):
@@ -122,6 +124,118 @@ class PlaybackStateMixinTests(VideoXBlockTestBase):
             service_mock.assert_called_once_with(self.xblock, 'modulestore')
             lang_mock.assert_called_once()
             course_id_mock.assert_not_called()
+
+    def test_player_state(self):
+        """
+        Test player state property.
+        """
+        self.xblock.course_id = 'test:course:id'
+        self.xblock.runtime.modulestore = Mock(get_course=Mock)
+        self.assertDictEqual(
+            self.xblock.player_state,
+            {
+                'currentTime': self.xblock.current_time,
+                'muted': self.xblock.muted,
+                'playbackRate': self.xblock.playback_rate,
+                'volume': self.xblock.volume,
+                'transcripts': [],
+                'transcriptsEnabled': self.xblock.transcripts_enabled,
+                'captionsEnabled': self.xblock.captions_enabled,
+                'captionsLanguage': 'en',
+                'transcriptsObject': {}
+            }
+        )
+
+    def test_save_player_state(self):
+        """
+        Test player state saving.
+        """
+        self.xblock.course_id = 'test:course:id'
+        self.xblock.runtime.modulestore = Mock(get_course=Mock)
+        data = {
+            'currentTime': 5,
+            'muted': True,
+            'playbackRate': 2,
+            'volume': 0.5,
+            'transcripts': [],
+            'transcriptsEnabled': True,
+            'captionsEnabled': True,
+            'captionsLanguage': 'ru',
+            'transcriptsObject': {}
+        }
+        factory = RequestFactory()
+        request = factory.post('', json.dumps(data), content_type='application/json')
+
+        response = self.xblock.save_player_state(request)
+
+        self.assertEqual('{"success": true}', response.body)  # pylint: disable=no-member
+        self.assertDictEqual(self.xblock.player_state, {
+            'currentTime': data['currentTime'],
+            'muted': data['muted'],
+            'playbackRate': data['playbackRate'],
+            'volume': data['volume'],
+            'transcripts': data['transcripts'],
+            'transcriptsEnabled': data['transcriptsEnabled'],
+            'captionsEnabled': data['captionsEnabled'],
+            'captionsLanguage': data['captionsLanguage'],
+            'transcriptsObject': {}
+        })
+
+
+class SettingsMixinTests(VideoXBlockTestBase):
+    """
+    Test SettingsMixin
+    """
+    def test_block_settings_key_is_correct(self):
+        self.assertEqual(self.xblock.block_settings_key, 'video_xblock')
+
+    @patch('video_xblock.mixins.import_from')
+    def test_settings_property_with_runtime_service(self, import_from_mock):
+        with patch.object(self.xblock, 'runtime') as runtime_mock:
+            # Arrange
+            service_mock = runtime_mock.service
+            settings_bucket_mock = service_mock.return_value.get_settings_bucket
+            settings_bucket_mock.return_value = {'foo': 'bar'}
+
+            # Act
+            settings = self.xblock.settings
+
+            # Assert
+            self.assertEqual(settings, {'foo': 'bar'})
+            service_mock.assert_called_once_with(self.xblock, 'settings')
+            settings_bucket_mock.assert_called_once_with(self.xblock)
+            import_from_mock.assert_not_called()
+
+    @patch('video_xblock.mixins.import_from')
+    def test_settings_property_without_runtime_service(self, import_from_mock):
+        with patch.object(self.xblock, 'runtime') as runtime_mock:
+            # Arrange
+            service_mock = runtime_mock.service
+            service_mock.return_value = None
+            get_settings_mock = import_from_mock.return_value.XBLOCK_SETTINGS.get
+            get_settings_mock.return_value = {'foo': 'bar'}
+
+            # Act
+            settings = self.xblock.settings
+
+            # Assert
+            self.assertEqual(settings, {'foo': 'bar'})
+            import_from_mock.assert_called_once_with('django.conf', 'settings')
+            get_settings_mock.assert_called_once_with(
+                self.xblock.block_settings_key, {}
+            )
+
+    @patch.object(VideoXBlock, 'settings', new_callable=PropertyMock)
+    def test_populate_default_values(self, settings_mock):
+        # Arrange
+        settings_mock.return_value = {'foo': 'another bar', 'spam': 'eggs'}
+        xblock_fields_dict = {'foo': 'bar'}
+
+        # Act
+        populated_xblock_fields = self.xblock.populate_default_values(xblock_fields_dict)
+
+        # Assert
+        self.assertEqual(populated_xblock_fields, {'foo': 'bar', 'spam': 'eggs'})
 
 
 class TranscriptsMixinTests(VideoXBlockTestBase):
