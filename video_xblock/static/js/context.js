@@ -3,4 +3,3 @@
  */
 window.videoPlayerId = '{{ video_player_id }}';
 window.playerStateObj = JSON.parse('{{ player_state }}');
-

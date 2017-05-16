@@ -3,16 +3,16 @@ Test cases for video_xblock.
 """
 
 import datetime
-from mock import patch, Mock, PropertyMock
+from mock import patch, Mock, MagicMock, PropertyMock
 
 from django.conf import settings
+from web_fragments.fragment import FragmentResource
 from xblock.fragment import Fragment
 
 from video_xblock import VideoXBlock
+from video_xblock.constants import PlayerName
 from video_xblock.utils import ugettext as _
 from video_xblock.tests.unit.base import VideoXBlockTestBase
-
-from video_xblock.constants import PlayerName
 
 
 settings.configure()
@@ -120,10 +120,10 @@ class VideoXBlockTests(VideoXBlockTestBase):
         self.xblock.get_transcript_download_link = Mock(return_value='/transcript/link.vtt')
 
         # Act
-        studio_view = self.xblock.student_view(unused_context_stub)
+        student_view = self.xblock.student_view(unused_context_stub)
 
         # Assert
-        self.assertIsInstance(studio_view, Fragment)
+        self.assertIsInstance(student_view, Fragment)
         render_resource_mock.assert_called_once_with(
             'static/html/student_view.html',
             display_name='Video',
@@ -139,3 +139,100 @@ class VideoXBlockTests(VideoXBlockTestBase):
         resource_string_mock.assert_called_with('static/css/student-view.css')
         handler_url.assert_called_with(self.xblock, 'download_transcript')
         route_transcripts.assert_called_once_with(self.xblock.transcripts)
+
+    @patch('video_xblock.video_xblock.ALL_LANGUAGES', new_callable=MagicMock)
+    @patch('video_xblock.video_xblock.render_template')
+    @patch.object(VideoXBlock, 'route_transcripts')
+    @patch.object(VideoXBlock, 'authenticate_video_api')
+    @patch.object(VideoXBlock, '_update_default_transcripts')
+    @patch.object(VideoXBlock, 'prepare_studio_editor_fields')
+    @patch('video_xblock.video_xblock.resource_string')
+    def test_studio_view_uses_correct_context(
+            self, resource_string_mock, prepare_fields_mock, update_default_transcripts_mock,
+            authenticate_video_api_mock, _route_transcripts, render_template_mock,
+            all_languages_mock
+    ):
+        # Arrange
+        unused_context_stub = object()
+        all_languages_mock.__iter__.return_value = [['en', 'English']]
+        self.xblock.runtime.handler_url = handler_url_mock = Mock()
+        authenticate_video_api_mock.return_value = (object(), 'Stub auth error message')
+        update_default_transcripts_mock.return_value = (
+            ['stub1', 'stub2'], 'Stub autoupload messate'
+        )
+        prepare_fields_mock.side_effect = basic_fields_stub, advanced_fields_stub = [
+            [{'name': 'display_name'}],
+            [{'name': 'href'}]
+        ]
+        resource_string_mock.side_effect = [
+            'static/css/student-view.css',
+            'static/css/transcripts-upload.css',
+            'static/css/studio-edit.css',
+            'static/js/runtime-handlers.js',
+            'static/js/studio-edit/utils.js',
+            'static/js/studio-edit/studio-edit.js',
+            'static/js/studio-edit/transcripts-autoload.js',
+            'static/js/studio-edit/transcripts-manual-upload.js',
+        ]
+
+        expected_context = {
+            'advanced_fields': advanced_fields_stub,
+            'auth_error_message': 'Stub auth error message',
+            'basic_fields': basic_fields_stub,
+            'courseKey': 'course_key',
+            'default_transcripts': self.xblock.default_transcripts,
+            'download_transcript_handler_url': handler_url_mock.return_value,
+            'initial_default_transcripts': ['stub1', 'stub2'],
+            'languages': [{'code': 'en', 'label': 'English'}],
+            'transcripts': [],
+            'transcripts_autoupload_message': 'Stub autoupload messate',
+        }
+
+        # Act
+        self.xblock.studio_view(unused_context_stub)
+
+        # Assert
+        render_template_mock.assert_called_once_with('studio-edit.html', **expected_context)
+        handler_url_mock.assert_called_with(self.xblock, 'download_transcript')
+        update_default_transcripts_mock.assert_called_once()
+
+    @staticmethod
+    def _make_fragment_resource(file_name):
+        """
+        Helper factory method to create `FragmentResource` used in tests.
+        """
+        if file_name.endswith('.js'):
+            return FragmentResource('text', file_name, 'application/javascript', 'foot')
+        elif file_name.endswith('.css'):
+            return FragmentResource('text', file_name, 'text/css', 'head')
+
+    @patch('video_xblock.video_xblock.render_template')
+    @patch.object(VideoXBlock, 'route_transcripts')
+    @patch('video_xblock.video_xblock.resource_string')
+    def test_studio_view_uses_correct_resources(
+            self, resource_string_mock, _route_transcripts, _render_template_mock
+    ):
+        # Arrange
+        unused_context_stub = object()
+        self.xblock.runtime.handler_url = Mock()
+        resource_string_mock.side_effect = expected_resources = [
+            'static/css/student-view.css',
+            'static/css/transcripts-upload.css',
+            'static/css/studio-edit.css',
+            'static/js/runtime-handlers.js',
+            'static/js/studio-edit/utils.js',
+            'static/js/studio-edit/studio-edit.js',
+            'static/js/studio-edit/transcripts-autoload.js',
+            'static/js/studio-edit/transcripts-manual-upload.js',
+        ]
+
+        expected_fragment_resources = map(
+            self._make_fragment_resource, expected_resources
+        )
+
+        # Act
+        studio_view = self.xblock.studio_view(unused_context_stub)
+
+        # Assert
+        self.assertIsInstance(studio_view, Fragment)
+        self.assertEqual(studio_view.resources, expected_fragment_resources)

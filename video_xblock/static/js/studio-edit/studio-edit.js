@@ -2,7 +2,7 @@
 removeEnabledTranscriptBlock bindUploadListenerAvailableTranscript pushTranscript pushTranscriptsValue
 createEnabledTranscriptBlock createTranscriptBlock parseRelativeTime removeAllEnabledTranscripts tinyMCE baseUrl
 validateTranscripts fillValues validateTranscriptFile removeTranscriptBlock clickUploader
-languageChecker $3playmediaTranscriptsApi */
+languageChecker $3playmediaTranscriptsApi getHandlers */
 /**
     Set up the Video xblock studio editor. This part is responsible for validation and sending of the data to a backend.
     Reference:
@@ -33,10 +33,7 @@ function StudioEditableXBlock(runtime, element) {
     var $videoApiAuthenticator = $('#video-api-authenticate', element);
     var $3playmediaTranscriptsApi = $('#threeplaymedia-api-transcripts', element);
     var gotTranscriptsValue = $('input[data-field-name="transcripts"]').val();
-    var downloadTranscriptHandlerUrl = runtime.handlerUrl(element, 'download_transcript');
-    var authenticateVideoApiHandlerUrl = runtime.handlerUrl(element, 'authenticate_video_api_handler');
-    var uploadDefaultTranscriptHandlerUrl = runtime.handlerUrl(element, 'upload_default_transcript_handler');
-    var getTranscripts3playmediaApiHandlerUrl = runtime.handlerUrl(element, 'get_transcripts_3playmedia_api_handler');
+    var runtimeHandlers = getHandlers(runtime, element);
     var currentLanguageCode;
     var initialDefaultTranscriptsData = getInitialDefaultTranscriptsData();
     var initialDefaultTranscripts = initialDefaultTranscriptsData[0];
@@ -210,7 +207,7 @@ function StudioEditableXBlock(runtime, element) {
 
         $.ajax({
             type: 'POST',
-            url: uploadDefaultTranscriptHandlerUrl,
+            url: runtimeHandlers.uploadDefaultTranscript,
             data: JSON.stringify(data),
             dataType: 'json'
         })
@@ -219,7 +216,7 @@ function StudioEditableXBlock(runtime, element) {
             var newLabel = response.label;
             var newUrl = response.url;
             // Add a default transcript to the list of enabled ones
-            var downloadUrl = downloadTranscriptHandlerUrl + '?' + newUrl;
+            var downloadUrl = runtimeHandlers.downloadTranscript + '?' + newUrl;
             var defaultTranscript = {
                 lang: newLang,
                 label: newLabel,
@@ -265,7 +262,7 @@ function StudioEditableXBlock(runtime, element) {
             };
             uploadDefaultTranscriptsToServer(defaultTranscript);
             // Affect standard transcripts
-            createTranscriptBlock(langCode, langLabel, transcriptsValue, downloadTranscriptHandlerUrl);
+            createTranscriptBlock(langCode, langLabel, transcriptsValue, runtimeHandlers.downloadTranscript);
         });
     }
     /** Field Changed event */
@@ -411,7 +408,7 @@ function StudioEditableXBlock(runtime, element) {
         var message, status, includeLang;
         var options = {
             type: 'POST',
-            url: getTranscripts3playmediaApiHandlerUrl,
+            url: runtimeHandlers.getTranscripts3playmediaApi,
             dataType: 'json',
             data: JSON.stringify(data)
         };
@@ -465,7 +462,7 @@ function StudioEditableXBlock(runtime, element) {
 
         $.ajax({
             type: 'POST',
-            url: authenticateVideoApiHandlerUrl,
+            url: runtimeHandlers.authenticateVideoApi,
             data: JSON.stringify(data),
             dataType: 'json'
         })
@@ -517,7 +514,7 @@ function StudioEditableXBlock(runtime, element) {
         var url = '/' + response.asset.id;
         // User can upload a file without extension
         var filename = $fileUploader[0].files[0].name;
-        var downloadUrl = downloadTranscriptHandlerUrl + '?' + url;
+        var downloadUrl = runtimeHandlers.downloadTranscript + '?' + url;
         var successMessage = gettext('File "{filename}" uploaded successfully').replace('{filename}', filename);
         var $parentDiv;
         var downloadUrlServer;
@@ -679,7 +676,7 @@ function StudioEditableXBlock(runtime, element) {
         // Affect default transcripts
         uploadDefaultTranscriptsToServer(defaultTranscript);
         // Affect standard transcripts
-        createTranscriptBlock(langCode, label, transcriptsValue, downloadTranscriptHandlerUrl);
+        createTranscriptBlock(langCode, label, transcriptsValue, runtimeHandlers.downloadTranscript);
     });
 
     $defaultTranscriptRemover.click(function(event) {

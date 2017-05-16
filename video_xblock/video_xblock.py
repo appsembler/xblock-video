@@ -325,6 +325,38 @@ class VideoXBlock(
         frag.initialize_js('VideoXBlockStudentViewInit')
         return frag
 
+    def _update_default_transcripts(self, player, transcripts):
+        """
+        Private method to fetch/update default transcripts.
+        """
+        # Prepare parameters necessary to make requests to API.
+        video_id = player.media_id(self.href)
+        kwargs = {'video_id': video_id}
+        for k in self.metadata:
+            kwargs[k] = self.metadata[k]
+        # For a Brightcove player only
+        is_not_default_account_id = \
+            self.account_id is not self.fields['account_id'].default  # pylint: disable=unsubscriptable-object
+        if is_not_default_account_id:
+            kwargs['account_id'] = self.account_id
+
+        # Fetch captions list (available/default transcripts list) from video platform API
+        try:
+            default_transcripts, transcripts_autoupload_message = player.get_default_transcripts(**kwargs)
+        except ApiClientError:
+            default_transcripts, transcripts_autoupload_message = [], _('Failed to fetch default transcripts.')
+        # Default transcripts should contain transcripts of distinct languages only
+        distinct_default_transcripts = player.clean_default_transcripts(default_transcripts)
+        # Needed for frontend
+        initial_default_transcripts = distinct_default_transcripts
+        # Exclude enabled transcripts from the list of available ones, and remove duplicates
+        filtered_default_transcripts = player.filter_default_transcripts(distinct_default_transcripts, transcripts)
+        self.default_transcripts = filtered_default_transcripts
+        if self.default_transcripts:
+            self.default_transcripts.sort(key=lambda l: l['label'])
+
+        return initial_default_transcripts, transcripts_autoupload_message
+
     def studio_view(self, _context):
         """
         Render a form for XBlock editing.
@@ -340,32 +372,12 @@ class VideoXBlock(
         # Note that there is no need to authenticate to Youtube API,
         # whilst for Wistia, a sample authorised request is to be made to ensure authentication succeeded,
         # since it is needed for the auth status message generation and the player's state update with auth status.
-        auth_data, auth_error_message = self.authenticate_video_api()  # pylint: disable=unused-variable
+        _auth_data, auth_error_message = self.authenticate_video_api()
 
-        # Prepare parameters necessary to make requests to API.
-        video_id = player.media_id(self.href)
-        kwargs = {'video_id': video_id}
-        for k in self.metadata:
-            kwargs[k] = self.metadata[k]
-        # For a Brightcove player only
-        is_not_default_account_id = \
-            self.account_id is not self.fields['account_id'].default  # pylint: disable=unsubscriptable-object
-        if is_not_default_account_id:  # pylint: disable=unsubscriptable-object
-            kwargs['account_id'] = self.account_id
-        # Fetch captions list (available/default transcripts list) from video platform API
-        try:
-            default_transcripts, transcripts_autoupload_message = player.get_default_transcripts(**kwargs)
-        except ApiClientError:
-            default_transcripts, transcripts_autoupload_message = [], _('Failed to fetch default transcripts.')
-        # Default transcripts should contain transcripts of distinct languages only
-        distinct_default_transcripts = player.clean_default_transcripts(default_transcripts)
-        # Needed for frontend
-        initial_default_transcripts = distinct_default_transcripts
-        # Exclude enabled transcripts from the list of available ones, and remove duplicates
-        filtered_default_transcripts = player.filter_default_transcripts(distinct_default_transcripts, transcripts)
-        self.default_transcripts = filtered_default_transcripts
-        if self.default_transcripts:
-            self.default_transcripts.sort(key=lambda l: l['label'])
+        initial_default_transcripts, transcripts_autoupload_message = self._update_default_transcripts(
+            player, transcripts
+        )
+
         # Prepare basic_fields and advanced_fields for them to be rendered
         basic_fields = self.prepare_studio_editor_fields(player.basic_fields)
         advanced_fields = self.prepare_studio_editor_fields(player.advanced_fields)
@@ -386,6 +398,7 @@ class VideoXBlock(
         fragment.add_css(resource_string("static/css/student-view.css"))
         fragment.add_css(resource_string("static/css/transcripts-upload.css"))
         fragment.add_css(resource_string("static/css/studio-edit.css"))
+        fragment.add_javascript(resource_string("static/js/runtime-handlers.js"))
         fragment.add_javascript(resource_string("static/js/studio-edit/utils.js"))
         fragment.add_javascript(resource_string("static/js/studio-edit/studio-edit.js"))
         fragment.add_javascript(resource_string("static/js/studio-edit/transcripts-autoload.js"))
