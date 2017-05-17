@@ -37,6 +37,13 @@ class Html5Player(BaseVideoPlayer):
         """
         return href
 
+    @property
+    def download_video_url(self):
+        """
+        Return `xblock.href` which is pointing to the video file.
+        """
+        return self.xblock.href
+
     def get_type(self, href):
         """
         Get file extension for video.js type property.

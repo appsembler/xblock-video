@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.7.0] - 2017-05-17
+
+### Added
+
+- XBlock SDK Workbench scenarios to simplify development.
+- Acceptance tests on top of XBlock SDK Workbench.
+
+### Removed
+
+- Removed TravisCI integration.
+
 ## [0.6.6] - 2017-05-03
 
 ### Changed
@@ -174,4 +185,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 [0.6.4]: https://github.com/raccoongang/xblock-video/compare/v0.6.3...v0.6.4
 [0.6.5]: https://github.com/raccoongang/xblock-video/compare/v0.6.4...v0.6.5
 [0.6.6]: https://github.com/raccoongang/xblock-video/compare/v0.6.5...v0.6.6
-[Unreleased]: https://github.com/raccoongang/xblock-video/compare/v0.6.6...HEAD
+[0.7.0]: https://github.com/raccoongang/xblock-video/compare/v0.6.6...v0.7.0
+[Unreleased]: https://github.com/raccoongang/xblock-video/compare/v0.7.0...HEAD

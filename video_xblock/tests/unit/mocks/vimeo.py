@@ -2,7 +2,7 @@
 Vimeo backend mocks.
 """
 
-from video_xblock.tests.mocks.base import BaseMock
+from video_xblock.tests.unit.mocks.base import BaseMock
 
 
 class VimeoAuthMock(BaseMock):

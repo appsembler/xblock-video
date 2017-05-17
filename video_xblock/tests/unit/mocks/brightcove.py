@@ -4,9 +4,9 @@ Brightcove backend mocks.
 import json
 from copy import copy, deepcopy
 
-from video_xblock.exceptions import VideoXBlockException, VideoXBlockMockException
-from video_xblock.tests.mocks.base import BaseMock, RequestsMock, ResponseStub
 from video_xblock.backends import brightcove
+from video_xblock.exceptions import VideoXBlockException, VideoXBlockMockException
+from video_xblock.tests.unit.mocks.base import BaseMock, RequestsMock, ResponseStub
 
 
 class BrightcoveAuthMock(BaseMock):
@@ -166,8 +166,8 @@ class BrightcoveDefaultTranscriptsMock(BaseMock):
         """
         if self.event == 'no_credentials':
             return {'client_id': '', 'client_secret': ''}
-        else:
-            return self.mock
+
+        return self.mock
 
     # @XBlock.register_temp_plugin(brightcove.BrightcovePlayer, 'wistia')
     def apply_mock(self, mocked_objects):

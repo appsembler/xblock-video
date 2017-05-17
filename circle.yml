@@ -11,6 +11,7 @@ test:
   override:
     - make quality-py
     - make quality-js
-    - make test
-  post:
-    - make coverage
+    - make test-py test-js
+    - make coverage-unit
+    - make test-acceptance
+    - make coverage-acceptance

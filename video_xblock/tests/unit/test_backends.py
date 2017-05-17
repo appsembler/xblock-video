@@ -5,12 +5,13 @@ Test cases for video_xblock backends.
 import babelfish
 from ddt import ddt, data, unpack
 from lxml import etree
+from mock import PropertyMock
 from django.test.utils import override_settings
 from xblock.core import XBlock
 from video_xblock.settings import ALL_LANGUAGES
 from video_xblock.utils import ugettext as _
 from video_xblock.exceptions import VideoXBlockException
-from video_xblock.tests.base import VideoXBlockTestBase
+from video_xblock.tests.unit.base import VideoXBlockTestBase
 from video_xblock.backends import (
     brightcove,
     html5,
@@ -18,7 +19,7 @@ from video_xblock.backends import (
     youtube,
     vimeo
 )
-from video_xblock.tests.mocks import (
+from video_xblock.tests.unit.mocks import (
     brightcove as brightcove_mock,
     vimeo as vimeo_mock,
     wistia as wistia_mock,
@@ -312,3 +313,25 @@ class TestCustomBackends(VideoXBlockTestBase):
             expected_message = mock.expected_value[-1]
             self.assertIn(expected_message, message)
             self.restore_mocked()
+
+    download_video_url_delegates = [
+        'download_video_url',
+        'download_video_url',
+        'download_video_url',
+        'download_video_url',
+        'href',
+    ]
+
+    @data(*zip(backends, download_video_url_delegates))
+    @unpack
+    def test_download_video_url_delegates_to_proper_xblock_attribute(self, backend, patch_target):
+        # Arrange
+        delegate_mock = PropertyMock()
+        setattr(self.xblock, patch_target, delegate_mock)
+        player = self.player[backend](self.xblock)
+
+        # Act
+        download_video_url = player.download_video_url
+
+        # Assert
+        self.assertEqual(download_video_url, delegate_mock)

@@ -13,9 +13,10 @@ import urllib
 import requests
 from lxml import etree
 
-from video_xblock import BaseVideoPlayer
 from video_xblock.utils import ugettext as _
 from video_xblock.exceptions import VideoXBlockException
+
+from .base import BaseVideoPlayer
 
 
 class YoutubePlayer(BaseVideoPlayer):

@@ -1,10 +1,12 @@
-PATH  := node_modules/.bin:$(PATH)
+PATH := node_modules/.bin:$(PATH)
 SHELL := /bin/bash
+SELENIUM_BROWSER ?= chrome
+
 .PHONY=all,quality,test
 
 bower_dir := bower_components
 vendor_dir := video_xblock/static/vendor
-vendor_js := video.js/dist/video.min.js\
+vendored_js := video.js/dist/video.min.js\
 			 videojs-contextmenu-ui/dist/videojs-contextmenu-ui.min.js\
 			 videojs-contextmenu/dist/videojs-contextmenu.min.js\
 			 videojs-offset/dist/videojs-offset.min.js\
@@ -13,33 +15,37 @@ vendor_js := video.js/dist/video.min.js\
 			 videojs-wistia/vjs.wistia.js\
 			 videojs-youtube/dist/Youtube.min.js
 
-vendor_css := video.js/dist/video-js.min.css
-vendor_fonts := video-js/dist/font/VideoJS.eot\
-				video-js/dist/font/VideoJS.svg\
-				video-js/dist/font/VideoJS.ttf\
-				video-js/dist/font/VideoJS.woff
+vendored_css := video.js/dist/video-js.min.css
+vendored_fonts := video-js/dist/font/VideoJS.eot
 
 all: quality test
 
 clean: # Clean working directory
 	-rm -rf node_modules/
 	-rm -rf bower_components/
+	-rm -rf dist/
 	-find . -name *.pyc -delete
+	-rm *acceptance*.png *acceptance*.log
 
-test: test-py test-js ## Run tests
+test: test-py test-js test-acceptance ## Run unit and acceptance tests
 
 test-py: ## Run Python tests
-	nosetests video_xblock --with-coverage --cover-package=video_xblock
+	nosetests video_xblock.tests.unit --with-coverage --cover-package=video_xblock
 
 test-js: ## Run JavaScript tests
-	karma start video_xblock/static/video_xblock_karma.conf.js
+	karma start video_xblock/static/video-xblock-karma.conf.js
+
+test-acceptance:
+	SELENIUM_BROWSER=$(SELENIUM_BROWSER) \
+	python run_tests.py video_xblock/tests/acceptance \
+	--with-coverage --cover-package=video_xblock
 
 quality: quality-py quality-js ## Run code quality checks
 
 quality-py:
 	pep8 . --format=pylint --max-line-length=120
+	pydocstyle
 	pylint -f colorized video_xblock
-	pydocstyle -e
 
 quality-js:
 	eslint video_xblock/static/js/
@@ -49,7 +55,8 @@ dev-install:
 	pip install --process-dependency-links -e .
 
 deps-test: ## Install dependencies required to run tests
-	pip install -r test_requirements.txt
+	pip install -Ur test_requirements.txt
+	pip install -r $(VIRTUAL_ENV)/src/xblock-sdk/requirements/base.txt
 
 deps-js: tools
 	bower install
@@ -57,24 +64,27 @@ deps-js: tools
 tools: ## Install development tools
 	npm install
 
-coverage: ## Send coverage reports to coverage sevice
-	bash <(curl -s https://codecov.io/bash)
+coverage-unit: ## Send unit tests coverage reports to coverage sevice
+	bash <(curl -s https://codecov.io/bash) -cF unit
+
+coverage-acceptance: ## Send acceptance tests coverage reports to coverage sevice
+	bash <(curl -s https://codecov.io/bash) -cF acceptance
 
 clear-vendored:
 	rm -rf $(vendor_dir)/js/*
 	rm -rf $(vendor_dir)/css/*
-	mkdir $(vendor_dir)/css/fonts
+	mkdir $(vendor_dir)/css/font
 
-$(vendor_js): clear-vendored deps-js
+$(vendored_js): clear-vendored deps-js
 	cp $(bower_dir)/$@ $(vendor_dir)/js/$(@F)
 
-$(vendor_css): clear-vendored deps-js
+$(vendored_css): clear-vendored deps-js
 	cp $(bower_dir)/$@ $(vendor_dir)/css/$(@F)
 
-$(vendor_fonts): clear-vendored deps-js
-	cp $(bower_dir)/$@ $(vendor_dir)/css/fonts/$(@F)
+$(vendored_fonts): clear-vendored deps-js
+	cp $(bower_dir)/$@ $(vendor_dir)/css/font/$(@F)
 
-vendored: $(vendor_js) $(vendor_css) $(vendor_fonts)  ## Update vendored JS/CSS assets
+vendored: $(vendored_js) $(vendored_css) $(vendored_fonts)  ## Update vendored JS/CSS assets
 	@echo "Packaging vendor files..."
 
 help:
