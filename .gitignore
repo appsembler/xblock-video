@@ -47,6 +47,9 @@ coverage*.json
 *,cover
 .hypothesis/
 
+# Nose test ids
+.noseids
+
 # Translations
 *.mo
 *.pot

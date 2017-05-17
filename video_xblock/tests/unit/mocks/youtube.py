@@ -4,8 +4,8 @@ Youtube backend mocks.
 """
 from xblock.core import XBlock
 
-from video_xblock.tests.mocks.base import BaseMock, RequestsMock, ResponseStub
 from video_xblock.backends import youtube
+from video_xblock.tests.unit.mocks.base import BaseMock, RequestsMock, ResponseStub
 
 
 class YoutubeAuthMock(BaseMock):

@@ -1,0 +1,6 @@
+<video_xblock
+    href="https://www.youtube.com/watch?v=3_yD_cEKoCk"
+    player_name="youtube-player"
+    transcripts_enabled="true"
+    transcripts='[{"lang": "en", "label": "english", "url": "/resource/video_xblock/public/sample-transcripts.vtt"}]'
+/>

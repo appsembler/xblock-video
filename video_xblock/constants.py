@@ -3,6 +3,9 @@ Lists of constants that can be used in the video xblock.
 """
 
 
+DEFAULT_LANG = 'en'
+
+
 class PlayerName(object):
     """
     Contains Player names for each backends.

@@ -54,3 +54,18 @@ class VideoXBlockTestBase(unittest.TestCase):
         """
         self.restore_mocked()
         super(VideoXBlockTestBase, self).tearDown()
+
+    def mark_unfinished(self):
+        """
+        Utility method to mark unfinished tests during development.
+
+        So you won't forget to actually finish them.
+        """
+        self.fail('The test is incomplete!')
+
+    def test_mark_untinished_raises_assertion_error(self):
+        """
+        Self-check to be sure self.mark_unfinished() is actually fails.
+        """
+        with self.assertRaises(AssertionError):
+            self.mark_unfinished()

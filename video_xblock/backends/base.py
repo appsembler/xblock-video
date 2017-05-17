@@ -146,6 +146,15 @@ class BaseVideoPlayer(Plugin):
         """
         return {}
 
+    @property
+    def download_video_url(self):
+        """
+        Return `download_video_url` set in xblock settings.
+
+        Should work for most backends.
+        """
+        return self.xblock.download_video_url
+
     def get_frag(self, **context):
         """
         Return a Fragment required to render video player on the client side.

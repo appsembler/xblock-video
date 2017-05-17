@@ -7,8 +7,8 @@ import requests
 
 from xblock.core import XBlock
 
-from video_xblock.tests.mocks.base import BaseMock, RequestsMock, ResponseStub
 from video_xblock.backends import wistia
+from video_xblock.tests.unit.mocks.base import BaseMock, RequestsMock, ResponseStub
 
 
 class WistiaAuthMock(RequestsMock):

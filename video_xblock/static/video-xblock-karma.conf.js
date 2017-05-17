@@ -17,12 +17,13 @@ module.exports = function (config) {
         files: [
             'https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js',
             'vendor/js/video.min.js',
-            'js/spec/test_context.js',
+            'js/spec/test-context.js',
             'js/base.js',
+            'js/runtime-handlers.js',
             'js/studio-edit/utils.js',
             'js/studio-edit/transcripts-manual-upload.js',
-            'js/spec/*_spec.js',
-            'js/spec/studio-edit/*_spec.js'
+            'js/spec/*spec.js',
+            'js/spec/studio-edit/*spec.js'
         ],
         plugins: [
             'karma-chrome-launcher',
@@ -52,7 +53,6 @@ module.exports = function (config) {
         coverageReporter: {
             type: 'cobertura',
             dir: 'coverage/',
-            repoToken: 'St0myP2WKubt2SrFuyQDZI7Y1gsxDIiiX'
         },
 
         // web server port
