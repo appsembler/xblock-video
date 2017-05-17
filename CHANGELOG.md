@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - XBlock SDK Workbench scenarios to simplify development.
+- Acceptance tests on top of XBlock SDK Workbench.
+
+### Removed
+
+- Removed TravisCI integration.
 
 ## [0.6.6] - 2017-05-03
 

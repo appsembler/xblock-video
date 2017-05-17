@@ -134,7 +134,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
             player_url='/player/url',
             transcript_download_link='/transcript/download/url'+'/transcript/link.vtt',
             transcripts='transcripts.vtt',
-            usage_id='deprecated_string'
+            usage_id='usage_id'
         )
         resource_string_mock.assert_called_with('static/css/student-view.css')
         handler_url.assert_called_with(self.xblock, 'download_transcript')

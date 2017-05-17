@@ -1,5 +1,7 @@
-PATH  := node_modules/.bin:$(PATH)
+PATH := node_modules/.bin:$(PATH)
 SHELL := /bin/bash
+SELENIUM_BROWSER ?= chrome
+
 .PHONY=all,quality,test
 
 bower_dir := bower_components
@@ -23,8 +25,9 @@ clean: # Clean working directory
 	-rm -rf bower_components/
 	-rm -rf dist/
 	-find . -name *.pyc -delete
+	-rm *acceptance*.png *acceptance*.log
 
-test: test-py test-js ## Run tests
+test: test-py test-js test-acceptance ## Run unit and acceptance tests
 
 test-py: ## Run Python tests
 	nosetests video_xblock.tests.unit --with-coverage --cover-package=video_xblock
@@ -32,12 +35,17 @@ test-py: ## Run Python tests
 test-js: ## Run JavaScript tests
 	karma start video_xblock/static/video-xblock-karma.conf.js
 
+test-acceptance:
+	SELENIUM_BROWSER=$(SELENIUM_BROWSER) \
+	python run_tests.py video_xblock/tests/acceptance \
+	--with-coverage --cover-package=video_xblock
+
 quality: quality-py quality-js ## Run code quality checks
 
 quality-py:
 	pep8 . --format=pylint --max-line-length=120
+	pydocstyle
 	pylint -f colorized video_xblock
-	pydocstyle -e
 
 quality-js:
 	eslint video_xblock/static/js/
@@ -48,6 +56,7 @@ dev-install:
 
 deps-test: ## Install dependencies required to run tests
 	pip install -Ur test_requirements.txt
+	pip install -r $(VIRTUAL_ENV)/src/xblock-sdk/requirements/base.txt
 
 deps-js: tools
 	bower install
@@ -55,8 +64,11 @@ deps-js: tools
 tools: ## Install development tools
 	npm install
 
-coverage: ## Send coverage reports to coverage sevice
-	bash <(curl -s https://codecov.io/bash)
+coverage-unit: ## Send unit tests coverage reports to coverage sevice
+	bash <(curl -s https://codecov.io/bash) -cF unit
+
+coverage-acceptance: ## Send acceptance tests coverage reports to coverage sevice
+	bash <(curl -s https://codecov.io/bash) -cF acceptance
 
 clear-vendored:
 	rm -rf $(vendor_dir)/js/*

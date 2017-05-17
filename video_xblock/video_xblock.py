@@ -311,7 +311,7 @@ class VideoXBlock(
                 'static/html/student_view.html',
                 player_url=player_url,
                 display_name=self.display_name,
-                usage_id=self.deprecated_string,
+                usage_id=self.usage_id,
                 handout=self.handout,
                 transcripts=self.route_transcripts(self.transcripts),
                 download_transcript_allowed=self.download_transcript_allowed,

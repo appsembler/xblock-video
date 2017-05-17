@@ -1,6 +1,6 @@
 # xblock-video
 
-[![Build Status](https://img.shields.io/travis/raccoongang/xblock-video/dev.svg)](https://travis-ci.org/raccoongang/xblock-video)
+[![Build Status](https://img.shields.io/circleci/project/raccoongang/xblock-video/dev.svg)](https://circleci.com/gh/raccoongang/xblock-video/tree/dev)
 [![Coverage Status](https://img.shields.io/codecov/c/github/raccoongang/xblock-video/dev.svg)](https://codecov.io/gh/raccoongang/xblock-video)
 [![GitHub release](https://img.shields.io/github/release/raccoongang/xblock-video.svg)](https://github.com/raccoongang/xblock-video/releases)
 

@@ -69,8 +69,8 @@ class LocationMixinTests(VideoXBlockTestBase):
     def test_fallback_course_key(self):
         self.assertEqual(self.xblock.course_key, 'course_key')
 
-    def test_fallback_deprecated_string(self):
-        self.assertEqual(self.xblock.deprecated_string, 'deprecated_string')
+    def test_fallback_usage_id(self):
+        self.assertEqual(self.xblock.usage_id, 'usage_id')
 
     def test_block_id(self):
         self.xblock.location = Mock()
@@ -91,13 +91,13 @@ class LocationMixinTests(VideoXBlockTestBase):
         self.assertEqual(self.xblock.course_key, 'test_course_key')
         course_key_mock.assert_called_once()
 
-    def test_deprecated_string(self):
+    def test_usage_id(self):
         self.xblock.location = Mock()
         self.xblock.location.to_deprecated_string = str_mock = Mock(
             return_value='test_str'
         )
 
-        self.assertEqual(self.xblock.deprecated_string, 'test_str')
+        self.assertEqual(self.xblock.usage_id, 'test_str')
         str_mock.assert_called_once()
 
 

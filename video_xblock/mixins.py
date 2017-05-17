@@ -494,7 +494,7 @@ class LocationMixin(XBlock):
         return 'course_key'
 
     @property
-    def deprecated_string(self):
+    def usage_id(self):
         """
         Facade property for `XBlock.location.course_key`.
 
@@ -502,4 +502,4 @@ class LocationMixin(XBlock):
         """
         if hasattr(self, 'location'):
             return self.location.to_deprecated_string()
-        return 'deprecated_string'
+        return 'usage_id'
