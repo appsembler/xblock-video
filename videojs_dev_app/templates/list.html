@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VideoJS Player List</title>
+</head>
+<body>
+<ul>
+    {% for player in player_list %}
+    <li><a href="{% url 'detail' player %}">{{ player }}</a> </li>
+    {% endfor %}
+</ul>
+</body>
+</html>
