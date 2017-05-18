@@ -65,7 +65,7 @@ settings:
 
 ## Usage
 
-To embed a video simply copy & paste it's URL into a `Video URL` field.
+To embed a video simply copy & paste its URL into a `Video URL` field.
 
 Sample supported video URLs:
 
@@ -77,13 +77,17 @@ Sample supported video URLs:
 
 ### Brightcove
 
-To successfully use videos hosted on Brightcove Videocloud service one must provide valid Brightcove `account_id` associated with the video. One can find
+To successfully use videos hosted on Brightcove Videocloud service one must
+provide valid Brightcove `account_id` associated with the video. To find out
+your `account_id` go to [Videocloud studio] -> _Admin_ -> _Account Information_.
+
+[Videocloud studio]: https://studio.brightcove.com/products/videocloud/home
 
 #### Connect to Brightcove Platform
 
 1. Grab your [BC_TOKEN] from Brightcove Videocloud.
 1. Open Video XBlock settings, Advanced tab. Scroll down to `Video API Token` section.
-1. Put `BC_TOKENT` taken from Brightcvove into `Client Token` field.
+1. Put `BC_TOKEN` taken from Brightcvove into `Client Token` field.
 1. Click on `Connect to video platform` button.
 
 [BC_TOKEN]: https://docs.brightcove.com/en/video-cloud/media-management/guides/authentication.html
