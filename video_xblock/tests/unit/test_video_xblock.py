@@ -9,7 +9,7 @@ from django.conf import settings
 from web_fragments.fragment import FragmentResource
 from xblock.fragment import Fragment
 
-from video_xblock import VideoXBlock
+from video_xblock import VideoXBlock, __version__
 from video_xblock.constants import PlayerName
 from video_xblock.utils import ugettext as _
 from video_xblock.tests.unit.base import VideoXBlockTestBase
@@ -134,7 +134,8 @@ class VideoXBlockTests(VideoXBlockTestBase):
             player_url='/player/url',
             transcript_download_link='/transcript/download/url'+'/transcript/link.vtt',
             transcripts='transcripts.vtt',
-            usage_id='usage_id'
+            usage_id='usage_id',
+            version=__version__,
         )
         resource_string_mock.assert_called_with('static/css/student-view.css')
         handler_url.assert_called_with(self.xblock, 'download_transcript')
