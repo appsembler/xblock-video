@@ -28,7 +28,7 @@ Thanks to [InterSystems](http://www.intersystems.com) and [Open University](http
 sudo -sHu edxapp
 source ~/edxapp_env
 # Install VideoXBlock using pip
-pip install --process-dependency-links -e "git+https://github.com/raccoongang/xblock-video.git@dev#egg=video_xblock"
+pip install --process-dependency-links -e "git+https://github.com/appsembler/xblock-video.git@dev#egg=video_xblock"
 ```
 
 ## Enabling in Studio
