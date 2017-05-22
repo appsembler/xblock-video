@@ -642,7 +642,7 @@ class VideoXBlock(
         response = Response(json.dumps(resp), content_type='application/json')
         return response
 
-    def authenticate_video_api(self, token=''):
+    def authenticate_video_api(self, token):
         """
         Authenticate to a video platform's API.
 
@@ -654,10 +654,7 @@ class VideoXBlock(
         """
         # TODO move auth fields validation and kwargs population to specific backends
         # Handles a case where no token was provided by a user
-        if token:
-            kwargs = {'token': token}
-        else:
-            kwargs = {'token': self.token}
+        kwargs = {'token': token}
 
         # Handles a case where no account_id was provided by a user
         if str(self.player_name) == PlayerName.BRIGHTCOVE:
@@ -667,9 +664,7 @@ class VideoXBlock(
             kwargs['account_id'] = self.account_id
 
         player = self.get_player()
-        if str(self.player_name) == PlayerName.BRIGHTCOVE and not self.metadata.get('client_id'):
-            auth_data, error_message = player.authenticate_api(**kwargs)
-        elif str(self.player_name) == PlayerName.BRIGHTCOVE and self.metadata.get('client_id'):
+        if str(self.player_name) == PlayerName.BRIGHTCOVE and self.metadata.get('client_id'):
             auth_data = {
                 'client_secret': self.metadata.get('client_secret'),
                 'client_id': self.metadata.get('client_id'),
@@ -694,10 +689,7 @@ class VideoXBlock(
             response (dict): Status messages key-value pairs.
         """
         # Fetch a token provided by a user before the save button was clicked.
-        if str(data) != self.token:
-            token = str(data)
-        else:
-            token = ''
+        token = str(data)
 
         is_default_token = token == self.fields['token'].default  # pylint: disable=unsubscriptable-object
         is_youtube_player = str(self.player_name) != PlayerName.YOUTUBE  # pylint: disable=unsubscriptable-object
