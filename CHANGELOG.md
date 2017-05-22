@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Bug preventing setting Video Platform API key. E.g. `BC_TOKEN` for Brightcove.
+
 ## [0.7.1] - 2017-05-18
 
 ### Added
