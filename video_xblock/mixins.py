@@ -3,17 +3,20 @@ Video XBlock mixins geared toward specific subsets of functionality.
 """
 
 import json
-import requests
+import logging
 
+import requests
 from pycaption import detect_format, WebVTTWriter
 from webob import Response
 
+from xblock.core import XBlock
 from xblock.exceptions import NoSuchServiceError
 from xblock.fields import Scope, Boolean, Float, String
-from xblock.core import XBlock
 
-from .constants import DEFAULT_LANG
+from .constants import DEFAULT_LANG, TPMApiTranscriptFormatID, TPMApiLanguage
 from .utils import import_from, ugettext as _, underscore_to_mixedcase
+
+log = logging.getLogger(__name__)
 
 
 @XBlock.wants('contentstore')
@@ -164,7 +167,7 @@ class TranscriptsMixin(XBlock):
 
     def get_translations_from_3playmedia(self, file_id, apikey):
         """
-        Method to fetched from 3playmedia translations for file_id.
+        Method to fetch from 3playmedia translations for file_id.
 
         Arguments:
             file_id (str) : File id on 3playmedia.
@@ -177,10 +180,11 @@ class TranscriptsMixin(XBlock):
         """
         domain = 'https://static.3playmedia.com/'
         transcripts_3playmedia = requests.get(
-            '{domain}files/{file_id}/translations?apikey={api_key}'.format(
+            '{domain}files/{file_id}/transcripts?apikey={api_key}'.format(
                 domain=domain, file_id=file_id, api_key=apikey
             )
         ).json()
+        log.debug(transcripts_3playmedia)
         errors = isinstance(transcripts_3playmedia, dict) and transcripts_3playmedia.get('errors')
         if errors:
             return 'error', {'error_message': u'\n'.join(errors.values())}
@@ -188,19 +192,29 @@ class TranscriptsMixin(XBlock):
         translations = []
         for transcript in transcripts_3playmedia:
             tid = transcript.get('id', '')
-            sub_unicode = requests.get(
-                '{domain}files/{file_id}/translations/{tid}/captions.vtt?apikey={api_key}'.format(
-                    domain=domain, file_id=file_id, api_key=apikey, tid=tid
+            lang_id = transcript.get('language_id')
+            formatted_content = requests.get(
+                '{domain}files/{file_id}/transcripts/{tid}?apikey={api_key}&format_id={format_id}'.format(
+                    domain=domain, file_id=file_id, api_key=apikey, tid=tid,
+                    format_id=TPMApiTranscriptFormatID.WEBVTT
                 )
             ).text
-            translations.append(
-                self.convert_3playmedia_caps_to_vtt(
-                    caps=sub_unicode,
-                    video_id=self.get_player().media_id(self.href),
-                    lang=transcript.get('target_language_iso_639_1_code', ''),
-                    lang_label=transcript.get('target_language_name', '')
-                )
+            lang_data = TPMApiLanguage(lang_id)
+            lang_label = lang_data.name
+            video_id = self.get_player().media_id(self.href)
+            reference_name = "{lang_label}_captions_video_{video_id}".format(
+                lang_label=lang_label, video_id=video_id
+            ).encode('utf8')
+
+            _file_name, external_url = self.create_transcript_file(
+                trans_str=formatted_content,
+                reference_name=reference_name
             )
+            translations.append({
+                "lang": lang_data.iso_639_1_code,
+                "label": lang_label,
+                "url": external_url,
+            })
         return 'success', translations
 
     @XBlock.json_handler
@@ -216,25 +230,14 @@ class TranscriptsMixin(XBlock):
         """
         apikey = data.get('api_key', self.threeplaymedia_apikey) or ''
         file_id = data.get('file_id', '')
-        status, _transcripts = self.get_translations_from_3playmedia(
+        status, transcripts = self.get_translations_from_3playmedia(
             apikey=apikey, file_id=file_id
         )
         if status == 'error':
-            return _transcripts
+            return transcripts
 
-        transcript_original = requests.get(
-            'https://static.3playmedia.com/files/{file_id}/transcript.vtt?apikey={api_key}'.format(
-                file_id=file_id, api_key=apikey
-            )
-        ).text
-        _transcripts.append(
-            self.convert_3playmedia_caps_to_vtt(
-                caps=transcript_original,
-                video_id=self.get_player().media_id(self.href)
-            )
-        )
         return {
-            'transcripts': _transcripts,
+            'transcripts': transcripts,
             'success_message': _(
                 'Successfully fetched transcripts from 3playMedia. Please check transcripts list above.'
             )

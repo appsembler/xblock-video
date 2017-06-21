@@ -39,7 +39,7 @@ class VideoXBlock(
     """
     Main VideoXBlock class, responsible for saving video settings and rendering it for students.
 
-    VideoXBlock only provide a storage falicities for fields data, but not
+    VideoXBlock only provide a storage facilities for fields data, but not
     decide what fields to show to user. `BaseVideoPlayer` and it's subclassess
     declare what fields are required for proper configuration of a video.
     See `BaseVideoPlayer.basic_fields` and `BaseVideoPlayer.advanced_fields`.

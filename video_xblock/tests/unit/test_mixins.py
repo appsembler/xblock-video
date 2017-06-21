@@ -5,7 +5,7 @@ VideoXBlock mixins test cases.
 from collections import Iterable
 import json
 
-from mock import patch, Mock, MagicMock, PropertyMock
+from mock import patch, Mock, MagicMock, PropertyMock, call
 
 from django.test import RequestFactory
 from webob import Response
@@ -13,6 +13,7 @@ from xblock.exceptions import NoSuchServiceError
 
 from video_xblock.constants import DEFAULT_LANG
 from video_xblock.tests.unit.base import VideoXBlockTestBase
+from video_xblock.tests.unit.mocks.base import ResponseStub
 from video_xblock.utils import loader
 from video_xblock.video_xblock import VideoXBlock
 
@@ -186,6 +187,7 @@ class SettingsMixinTests(VideoXBlockTestBase):
     """
     Test SettingsMixin
     """
+
     def test_block_settings_key_is_correct(self):
         self.assertEqual(self.xblock.block_settings_key, 'video_xblock')
 
@@ -238,7 +240,7 @@ class SettingsMixinTests(VideoXBlockTestBase):
         self.assertEqual(populated_xblock_fields, {'foo': 'bar', 'spam': 'eggs'})
 
 
-class TranscriptsMixinTests(VideoXBlockTestBase):
+class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inherits-tests
     """Test TranscriptsMixin"""
 
     @patch('video_xblock.mixins.WebVTTWriter.write')
@@ -354,6 +356,63 @@ class TranscriptsMixinTests(VideoXBlockTestBase):
         self.assertIsInstance(vtt_response, Response)
         self.assertEqual(vtt_response.text, 'vtt transcripts')
         convert_caps_to_vtt_mock.assert_called_once_with(text_mock)
+
+    @patch.object(VideoXBlock, 'create_transcript_file')
+    @patch.object(VideoXBlock, 'get_player')
+    @patch('video_xblock.constants.TPMApiLanguage')
+    @patch('video_xblock.constants.TPMApiTranscriptFormatID')
+    @patch('video_xblock.mixins.requests.get')
+    def test_get_translations_from_3playmedia(
+            self, request_get_mock, format_id_mock, lang_data_mock, player_mock, create_transcript_file_mock
+    ):
+        # Arrange
+        vtt_file_mock = Mock(return_value='vtt_file_text')
+        domain = "https://static.3playmedia.com/"
+        all_transcripts_url = domain + 'files/123456/transcripts?apikey=test_api_key'
+        vtt_translation_url = domain + 'files/123456/transcripts/9876543?apikey=test_api_key&format_id=51'
+
+        transcripts_response_stub = ResponseStub(body=[{
+            "id": 9876543,
+            "media_file_id": 123456,
+            "language_id": 1,
+            "language_name": "English",
+            "type": "TranscribedTranscript"
+        }])
+        vtt_file_response_stub = ResponseStub(body=vtt_file_mock.return_value)
+        request_get_mock.side_effect = [transcripts_response_stub, vtt_file_response_stub]
+
+        format_id_mock.WEBVTT.return_value = 51
+        lang_data_mock.configure_mock(
+            language_id=1,
+            ietf_code="en",
+            iso_639_1_code="en",
+            name="English",
+            full_name="English",
+            description="All English variants"
+        )
+        media_id_mock = player_mock.return_value.media_id
+        media_id_mock.return_value = 'test_video_id'
+        create_transcript_file_mock.return_value = ('test_file_name', 'test_ext_url')
+        file_id_mock, apikey_mock = 123456, 'test_api_key'
+
+        # Act
+        status, transcripts = self.xblock.get_translations_from_3playmedia(file_id_mock, apikey_mock)
+
+        # Assert
+        self.assertEqual(request_get_mock.call_count, 2)
+        request_get_mock.has_calls([call(vtt_translation_url), call(all_transcripts_url)])
+
+        create_transcript_file_mock.assert_called_once_with(
+            reference_name="English_captions_video_" + media_id_mock.return_value,
+            trans_str=vtt_file_mock.return_value
+        )
+        self.assertEquals(status, 'success')
+        self.assertIsInstance(transcripts, list)
+        self.assertIsInstance(transcripts[0], dict)
+        first_transript = transcripts[0]
+        self.assertEqual(first_transript["lang"], lang_data_mock.iso_639_1_code)
+        self.assertEqual(first_transript["label"], lang_data_mock.name)
+        self.assertEqual(first_transript["url"], create_transcript_file_mock.return_value[1])
 
 
 class WorkbenchMixinTest(VideoXBlockTestBase):
