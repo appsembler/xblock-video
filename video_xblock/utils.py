@@ -4,12 +4,12 @@ Video xblock helpers.
 
 from HTMLParser import HTMLParser
 from importlib import import_module
+from xml.sax.saxutils import unescape
+
 import os.path
 import pkg_resources
-
 from django.template import Engine, Context, Template
 from xblockutils.resources import ResourceLoader
-
 
 html_parser = HTMLParser()  # pylint: disable=invalid-name
 loader = ResourceLoader(__name__)  # pylint: disable=invalid-name
@@ -76,3 +76,20 @@ def underscore_to_mixedcase(value):
 
     mix = mixedcase()
     return "".join(mix.next()(x) if x else '_' for x in value.split("_"))
+
+
+def remove_escaping(text):
+    """
+    Clean text from special `escape` symbols.
+
+    Reference: https://wiki.python.org/moin/EscapingHtml.
+    """
+    html_unescape_table = {
+        "&amp;": "&",
+        "&quot;": '"',
+        "&amp;#39;": "'",
+        "&apos;": "'",
+        "&gt;": ">",
+        "&lt;": "<"
+    }
+    return unescape(text, html_unescape_table)

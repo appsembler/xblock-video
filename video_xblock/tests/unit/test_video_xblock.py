@@ -188,6 +188,8 @@ class VideoXBlockTests(VideoXBlockTestBase):
             'download_transcript_handler_url': handler_url_mock.return_value,
             'initial_default_transcripts': ['stub1', 'stub2'],
             'languages': [{'code': 'en', 'label': 'English'}],
+            'player_name': self.xblock.player_name,
+            'players': PlayerName,
             'transcripts': [],
             'transcripts_autoupload_message': 'Stub autoupload messate',
         }
