@@ -5,29 +5,31 @@ All you need to provide is video url, this XBlock does the rest for you.
 """
 
 import datetime
-import json
 import httplib
+import json
 import logging
 import os.path
-import requests
 
+import requests
+from webob import Response
 from xblock.core import XBlock
 from xblock.fields import Scope, Boolean, String, Dict
 from xblock.fragment import Fragment
 from xblock.validation import ValidationMessage
 from xblockutils.studio_editable import StudioEditableXBlockMixin
 
-from webob import Response
-
-from .backends.base import BaseVideoPlayer
-from .constants import PlayerName
-from .exceptions import ApiClientError
-from .mixins import ContentStoreMixin, LocationMixin, PlaybackStateMixin, SettingsMixin, TranscriptsMixin
-from .workbench.mixin import WorkbenchMixin
-from .settings import ALL_LANGUAGES
-from .fields import RelativeTime
-from .utils import render_template, render_resource, resource_string, ugettext as _
 from . import __version__
+from .backends.base import BaseVideoPlayer
+from .constants import PlayerName, TranscriptSource
+from .exceptions import ApiClientError
+from .fields import RelativeTime
+from .mixins import ContentStoreMixin, LocationMixin, PlaybackStateMixin, SettingsMixin, TranscriptsMixin
+from .settings import ALL_LANGUAGES
+from .utils import (
+    create_reference_name, filter_transcripts_by_source, normalize_transcripts,
+    render_resource, render_template, resource_string, ugettext as _,
+)
+from .workbench.mixin import WorkbenchMixin
 
 log = logging.getLogger(__name__)
 
@@ -332,8 +334,8 @@ class VideoXBlock(
         """
         Private method to fetch/update default transcripts.
         """
+        log.debug("Default transcripts updating...")
         # Prepare parameters necessary to make requests to API.
-        log.debug("Updating default transcripts...")
         video_id = player.media_id(self.href)
         kwargs = {'video_id': video_id}
         for k in self.metadata:
@@ -343,6 +345,7 @@ class VideoXBlock(
             self.account_id is not self.fields['account_id'].default  # pylint: disable=unsubscriptable-object
         if is_not_default_account_id:
             kwargs['account_id'] = self.account_id
+
         # Fetch captions list (available/default transcripts list) from video platform API
         try:
             default_transcripts, transcripts_autoupload_message = player.get_default_transcripts(**kwargs)
@@ -368,7 +371,7 @@ class VideoXBlock(
         player = self.get_player()
         languages = [{'label': label, 'code': lang} for lang, label in ALL_LANGUAGES]
         languages.sort(key=lambda l: l['label'])
-        transcripts = json.loads(self.transcripts) if self.transcripts else []
+        transcripts = normalize_transcripts(json.loads(self.transcripts)) if self.transcripts else []
         download_transcript_handler_url = self.runtime.handler_url(self, 'download_transcript')
         auth_error_message = ''
 
@@ -388,18 +391,21 @@ class VideoXBlock(
         advanced_fields = self.prepare_studio_editor_fields(player.advanced_fields)
         log.debug("Fetched default transcripts: {}".format(self.default_transcripts))
         context = {
+            'advanced_fields': advanced_fields,
+            'auth_error_message': auth_error_message,
+            'basic_fields': basic_fields,
             'courseKey': self.course_key,
             'languages': languages,
-            'transcripts': transcripts,
-            'download_transcript_handler_url': download_transcript_handler_url,
-            'default_transcripts': self.default_transcripts,
-            'initial_default_transcripts': initial_default_transcripts,
-            'auth_error_message': auth_error_message,
-            'transcripts_autoupload_message': transcripts_autoupload_message,
-            'basic_fields': basic_fields,
-            'advanced_fields': advanced_fields,
             'player_name': self.player_name,  # for players identification
             'players': PlayerName,
+            'sources': TranscriptSource.to_dict().items(),
+            # transcripts context:
+            'transcripts': transcripts,
+            'default_transcripts': self.default_transcripts,
+            'enabled_default_transcripts': filter_transcripts_by_source(transcripts),
+            'initial_default_transcripts': initial_default_transcripts,
+            'transcripts_autoupload_message': transcripts_autoupload_message,
+            'download_transcript_handler_url': download_transcript_handler_url,
         }
 
         fragment.content = render_template('studio-edit.html', **context)
@@ -742,14 +748,15 @@ class VideoXBlock(
             response (dict): Data on a default transcript, fetched from a video platform.
 
         """
+        log.debug("Uploading default transcript with data: {}".format(data))
         player = self.get_player()
         video_id = player.media_id(self.href)
         lang_code = str(data.get(u'lang'))
         lang_label = str(data.get(u'label'))
+        source = str(data.get(u'source', ''))
         sub_url = str(data.get(u'url'))
-        log.debug("Current media ID: " + video_id)
-        # File name format is <language label>_captions_video_<video_id>, e.g. "English_captions_video_456g68"
-        reference_name = "{}_captions_video_{}".format(lang_label, video_id).encode('utf8')
+
+        reference_name = create_reference_name(lang_label, video_id, source)
 
         # Fetch default transcript
         unicode_subs_text = player.download_default_transcript(
@@ -770,6 +777,8 @@ class VideoXBlock(
             'success_message': success_message,
             'lang': lang_code,
             'url': external_url,
-            'label': lang_label
+            'label': lang_label,
+            'source': source,
         }
+        log.debug("Uploaded default transcript: {}".format(response))
         return response

@@ -186,10 +186,12 @@ class VideoXBlockTests(VideoXBlockTestBase):
             'courseKey': 'course_key',
             'default_transcripts': self.xblock.default_transcripts,
             'download_transcript_handler_url': handler_url_mock.return_value,
+            'enabled_default_transcripts': [],
             'initial_default_transcripts': ['stub1', 'stub2'],
             'languages': [{'code': 'en', 'label': 'English'}],
             'player_name': self.xblock.player_name,
             'players': PlayerName,
+            'sources': [('DEFAULT', 'default'), ('THREE_PLAY_MEDIA', '3play-media'), ('MANUAL', 'manual')],
             'transcripts': [],
             'transcripts_autoupload_message': 'Stub autoupload messate',
         }

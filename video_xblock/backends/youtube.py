@@ -13,8 +13,9 @@ import urllib
 import requests
 from lxml import etree
 
-from video_xblock.utils import ugettext as _
+from video_xblock.constants import TranscriptSource
 from video_xblock.exceptions import VideoXBlockException
+from video_xblock.utils import ugettext as _
 
 from .base import BaseVideoPlayer
 
@@ -158,6 +159,7 @@ class YoutubePlayer(BaseVideoPlayer):
                 'lang': lang_code,
                 'label': lang_label,
                 'url': transcript_url,
+                'source': TranscriptSource.DEFAULT,
             })
         return self.default_transcripts, message
 

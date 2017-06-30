@@ -13,8 +13,8 @@ from xblock.core import XBlock
 from xblock.exceptions import NoSuchServiceError
 from xblock.fields import Scope, Boolean, Float, String
 
-from .constants import DEFAULT_LANG, TPMApiTranscriptFormatID, TPMApiLanguage
-from .utils import import_from, ugettext as _, underscore_to_mixedcase
+from .constants import DEFAULT_LANG, TPMApiTranscriptFormatID, TPMApiLanguage, TranscriptSource
+from .utils import create_reference_name, import_from, ugettext as _, underscore_to_mixedcase
 
 log = logging.getLogger(__name__)
 
@@ -178,13 +178,14 @@ class TranscriptsMixin(XBlock):
             translations (list) : List of translations (dict) .
             error_message (dict): Description of error.
         """
+        log.debug("Getting 3PlayMedia transcripts...")
         domain = 'https://static.3playmedia.com/'
         transcripts_3playmedia = requests.get(
             '{domain}files/{file_id}/transcripts?apikey={api_key}'.format(
                 domain=domain, file_id=file_id, api_key=apikey
             )
         ).json()
-        log.debug(transcripts_3playmedia)
+
         errors = isinstance(transcripts_3playmedia, dict) and transcripts_3playmedia.get('errors')
         if errors:
             return 'error', {'error_message': u'\n'.join(errors.values())}
@@ -202,9 +203,9 @@ class TranscriptsMixin(XBlock):
             lang_data = TPMApiLanguage(lang_id)
             lang_label = lang_data.name
             video_id = self.get_player().media_id(self.href)
-            reference_name = "{lang_label}_captions_video_{video_id}".format(
-                lang_label=lang_label, video_id=video_id
-            ).encode('utf8')
+            source = TranscriptSource.THREE_PLAY_MEDIA
+
+            reference_name = create_reference_name(lang_label, video_id, source)
 
             _file_name, external_url = self.create_transcript_file(
                 trans_str=formatted_content,
@@ -214,7 +215,9 @@ class TranscriptsMixin(XBlock):
                 "lang": lang_data.iso_639_1_code,
                 "label": lang_label,
                 "url": external_url,
+                "source": source,
             })
+        log.debug("Got 3PlayMedia transcripts: {}".format(translations))
         return 'success', translations
 
     @XBlock.json_handler

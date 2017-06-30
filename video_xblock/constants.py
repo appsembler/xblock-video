@@ -18,6 +18,25 @@ class PlayerName(object):
     YOUTUBE = 'youtube-player'
 
 
+class TranscriptSource(object):
+    """
+    Define transcript source, e.g. where transcript was fetched from.
+    """
+
+    DEFAULT = 'default'
+    MANUAL = 'manual'
+    THREE_PLAY_MEDIA = '3play-media'
+
+    ALL = ['DEFAULT', 'MANUAL', 'THREE_PLAY_MEDIA']
+
+    @classmethod
+    def to_dict(cls):
+        """
+        Make dict of available sources.
+        """
+        return {k: getattr(cls, k) for k in cls.ALL}
+
+
 class TPMApiTranscriptFormatID(object):
     """
     3PlayMedia service's transcripts API format_name - format_ID mapping.

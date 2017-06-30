@@ -403,7 +403,7 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
         request_get_mock.has_calls([call(vtt_translation_url), call(all_transcripts_url)])
 
         create_transcript_file_mock.assert_called_once_with(
-            reference_name="English_captions_video_" + media_id_mock.return_value,
+            reference_name="English_3play-media_captions_video_" + media_id_mock.return_value,
             trans_str=vtt_file_mock.return_value
         )
         self.assertEquals(status, 'success')
