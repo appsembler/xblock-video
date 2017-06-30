@@ -48,6 +48,12 @@ class ResponseStub(object):
             except KeyError:
                 pass
 
+    def json(self):
+        """
+        Make response compatible with requests.Response.
+        """
+        return getattr(self, 'body', '')
+
 
 class BaseMock(Mock):
     """

@@ -41,6 +41,8 @@
     </a>
 </div>
 
-<form method="POST" action="/assets/{{ courseKey }}/" class="file-uploader-form is-hidden" enctype="multipart/form-data">
-  <input class="input-file-uploader" name="file" type="file" accept="" data-change-field-name="" data-lang-code="" data-lang-label="">
+<form method="POST" action="/assets/{{ courseKey }}/" class="file-uploader-form is-hidden"
+      enctype="multipart/form-data">
+  <input class="input-file-uploader" name="file" type="file" accept="" data-change-field-name="" data-lang-code=""
+         data-lang-label="" {% for source in sources %}data-source-{{ source.0 }}="{{ source.1 }}" {% endfor %}>
 </form>

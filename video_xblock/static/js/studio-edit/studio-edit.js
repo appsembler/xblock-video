@@ -215,15 +215,17 @@ function StudioEditableXBlock(runtime, element) {
             var newLang = response.lang;
             var newLabel = response.label;
             var newUrl = response.url;
+            var source = response.source;
             // Add a default transcript to the list of enabled ones
             var downloadUrl = runtimeHandlers.downloadTranscript + '?' + newUrl;
             var defaultTranscript = {
                 lang: newLang,
                 label: newLabel,
-                url: downloadUrl
+                url: downloadUrl,
+                source: source
             };
             // Create a standard transcript
-            pushTranscript(newLang, newLabel, newUrl, '', transcriptsValue);
+            pushTranscript(newLang, newLabel, newUrl, source, '', transcriptsValue);
             pushTranscriptsValue(transcriptsValue);
             createEnabledTranscriptBlock(defaultTranscript, downloadUrl);
             bindRemovalListenerEnabledTranscript(newLang, newLabel, newUrl);
@@ -258,7 +260,8 @@ function StudioEditableXBlock(runtime, element) {
             var defaultTranscript = {
                 lang: langCode,
                 label: langLabel,
-                url: downloadUrlApi
+                url: downloadUrlApi,
+                source: $fileUploader.data('source-default')
             };
             uploadDefaultTranscriptsToServer(defaultTranscript);
             // Affect standard transcripts
@@ -405,7 +408,7 @@ function StudioEditableXBlock(runtime, element) {
      * Get transcripts from 3playmedia's API and show result message.
      */
     function getTranscripts3playmediaApi(data) {
-        var message, status, includeLang;
+        var message, status;
         var options = {
             type: 'POST',
             url: runtimeHandlers.getTranscripts3playmediaApi,
@@ -419,15 +422,9 @@ function StudioEditableXBlock(runtime, element) {
             var successMessage = response.success_message;
             if (successMessage && response.transcripts) {
                 response.transcripts.forEach(function(item) {
-                    includeLang = transcriptsValue.find(function(element) { // eslint-disable-line no-shadow
-                        return element.lang === item.lang;
-                    });
-                    // Add a transcript from the 3playmedia only for non exists language
-                    if (!includeLang) {
-                        createTranscriptBlock(item.lang, item.label, transcriptsValue, item.url);
-                        pushTranscript(item.lang, item.label, item.url, '', transcriptsValue);
-                        pushTranscriptsValue(transcriptsValue);
-                    }
+                    createTranscriptBlock(item.lang, item.label, transcriptsValue, item.url);
+                    pushTranscript(item.lang, item.label, item.url, item.source, '', transcriptsValue);
+                    pushTranscriptsValue(transcriptsValue);
                 });
             }
 
@@ -520,6 +517,7 @@ function StudioEditableXBlock(runtime, element) {
         var downloadUrlServer;
         var defaultTranscript;
         var isValidated = validateTranscriptFile(event, fieldName, filename, $fileUploader);
+        var source = $fileUploader.data('source-manual');
         if (fieldName === 'handout' && isValidated) {
             $parentDiv = $('.file-uploader');
             $('.download-setting', $parentDiv).attr('href', downloadUrl).removeClass('is-hidden');
@@ -527,7 +525,7 @@ function StudioEditableXBlock(runtime, element) {
             showStatus($('.status', $parentDiv), SUCCESS, successMessage);
             $('input[data-field-name=' + fieldName + ']').val(url).change();
         } else if (fieldName === 'transcripts' && isValidated) {
-            pushTranscript(lang, label, url, '', transcriptsValue);
+            pushTranscript(lang, label, url, source, '', transcriptsValue);
             $('.add-transcript').removeClass('is-disabled');
             $('input[data-field-name=' + fieldName + ']').val(JSON.stringify(transcriptsValue)).change();
             $(currentLiTag).find('.upload-transcript').text('Replace');
@@ -665,10 +663,12 @@ function StudioEditableXBlock(runtime, element) {
         var langCode = $currentTarget.attr('data-lang-code');
         var label = $currentTarget.attr('data-lang-label');
         var url = $currentTarget.attr('data-download-url');
+        var source = $currentTarget.attr('data-source');
         var defaultTranscript = {
             lang: langCode,
             label: label,
-            url: url
+            url: url,
+            source: source
         };
         event.preventDefault();
         event.stopPropagation();

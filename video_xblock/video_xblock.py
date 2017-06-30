@@ -5,29 +5,31 @@ All you need to provide is video url, this XBlock does the rest for you.
 """
 
 import datetime
-import json
 import httplib
+import json
 import logging
 import os.path
-import requests
 
+import requests
+from webob import Response
 from xblock.core import XBlock
 from xblock.fields import Scope, Boolean, String, Dict
 from xblock.fragment import Fragment
 from xblock.validation import ValidationMessage
 from xblockutils.studio_editable import StudioEditableXBlockMixin
 
-from webob import Response
-
-from .backends.base import BaseVideoPlayer
-from .constants import PlayerName
-from .exceptions import ApiClientError
-from .mixins import ContentStoreMixin, LocationMixin, PlaybackStateMixin, SettingsMixin, TranscriptsMixin
-from .workbench.mixin import WorkbenchMixin
-from .settings import ALL_LANGUAGES
-from .fields import RelativeTime
-from .utils import render_template, render_resource, resource_string, ugettext as _
 from . import __version__
+from .backends.base import BaseVideoPlayer
+from .constants import PlayerName, TranscriptSource
+from .exceptions import ApiClientError
+from .fields import RelativeTime
+from .mixins import ContentStoreMixin, LocationMixin, PlaybackStateMixin, SettingsMixin, TranscriptsMixin
+from .settings import ALL_LANGUAGES
+from .utils import (
+    create_reference_name, filter_transcripts_by_source, normalize_transcripts,
+    render_resource, render_template, resource_string, ugettext as _,
+)
+from .workbench.mixin import WorkbenchMixin
 
 log = logging.getLogger(__name__)
 
@@ -39,7 +41,7 @@ class VideoXBlock(
     """
     Main VideoXBlock class, responsible for saving video settings and rendering it for students.
 
-    VideoXBlock only provide a storage falicities for fields data, but not
+    VideoXBlock only provide a storage facilities for fields data, but not
     decide what fields to show to user. `BaseVideoPlayer` and it's subclassess
     declare what fields are required for proper configuration of a video.
     See `BaseVideoPlayer.basic_fields` and `BaseVideoPlayer.advanced_fields`.
@@ -148,7 +150,8 @@ class VideoXBlock(
         display_name=_('Default Timed Transcript'),
         help=_(
             'Default transcripts are uploaded automatically from a video platform '
-            'to the list of available transcripts.'
+            'to the list of available transcripts.<br/>'
+            '<b>Note: "Video API Token" should be given in order to make auto fetching possible.</b>'
         ),
         resettable_editor=False
     )
@@ -170,7 +173,7 @@ class VideoXBlock(
     )
 
     token = String(
-        default='default',
+        default='',
         display_name=_('Video API Token'),
         help=_('You can generate a client token following official documentation of your video platform\'s API.'),
         scope=Scope.content,
@@ -281,7 +284,7 @@ class VideoXBlock(
             validation (xblock.validation.Validation): Object containing validation information for an xblock instance.
             data (xblock.internal.VideoXBlockWithMixins): Object containing data on xblock.
         """
-        is_brightcove = str(self.player_name) == 'brightcove-player'
+        is_brightcove = str(self.player_name) == PlayerName.BRIGHTCOVE
 
         if is_brightcove:
             self.validate_account_id_data(validation, data)
@@ -331,6 +334,7 @@ class VideoXBlock(
         """
         Private method to fetch/update default transcripts.
         """
+        log.debug("Default transcripts updating...")
         # Prepare parameters necessary to make requests to API.
         video_id = player.media_id(self.href)
         kwargs = {'video_id': video_id}
@@ -367,14 +371,16 @@ class VideoXBlock(
         player = self.get_player()
         languages = [{'label': label, 'code': lang} for lang, label in ALL_LANGUAGES]
         languages.sort(key=lambda l: l['label'])
-        transcripts = json.loads(self.transcripts) if self.transcripts else []
+        transcripts = normalize_transcripts(json.loads(self.transcripts)) if self.transcripts else []
         download_transcript_handler_url = self.runtime.handler_url(self, 'download_transcript')
+        auth_error_message = ''
 
         # Authenticate to API of the player video platform and update metadata with auth information.
         # Note that there is no need to authenticate to Youtube API,
         # whilst for Wistia, a sample authorised request is to be made to ensure authentication succeeded,
         # since it is needed for the auth status message generation and the player's state update with auth status.
-        _auth_data, auth_error_message = self.authenticate_video_api()
+        if self.token:
+            _auth_data, auth_error_message = self.authenticate_video_api(self.token)
 
         initial_default_transcripts, transcripts_autoupload_message = self._update_default_transcripts(
             player, transcripts
@@ -383,17 +389,23 @@ class VideoXBlock(
         # Prepare basic_fields and advanced_fields for them to be rendered
         basic_fields = self.prepare_studio_editor_fields(player.basic_fields)
         advanced_fields = self.prepare_studio_editor_fields(player.advanced_fields)
+        log.debug("Fetched default transcripts: {}".format(self.default_transcripts))
         context = {
+            'advanced_fields': advanced_fields,
+            'auth_error_message': auth_error_message,
+            'basic_fields': basic_fields,
             'courseKey': self.course_key,
             'languages': languages,
+            'player_name': self.player_name,  # for players identification
+            'players': PlayerName,
+            'sources': TranscriptSource.to_dict().items(),
+            # transcripts context:
             'transcripts': transcripts,
-            'download_transcript_handler_url': download_transcript_handler_url,
             'default_transcripts': self.default_transcripts,
+            'enabled_default_transcripts': filter_transcripts_by_source(transcripts),
             'initial_default_transcripts': initial_default_transcripts,
-            'auth_error_message': auth_error_message,
             'transcripts_autoupload_message': transcripts_autoupload_message,
-            'basic_fields': basic_fields,
-            'advanced_fields': advanced_fields,
+            'download_transcript_handler_url': download_transcript_handler_url,
         }
 
         fragment.content = render_template('studio-edit.html', **context)
@@ -640,7 +652,7 @@ class VideoXBlock(
         response = Response(json.dumps(resp), content_type='application/json')
         return response
 
-    def authenticate_video_api(self, token=''):
+    def authenticate_video_api(self, token):
         """
         Authenticate to a video platform's API.
 
@@ -652,15 +664,7 @@ class VideoXBlock(
         """
         # TODO move auth fields validation and kwargs population to specific backends
         # Handles a case where no token was provided by a user
-        is_default_token = self.token == self.fields['token'].default  # pylint: disable=unsubscriptable-object
-        is_youtube_player = str(self.player_name) != PlayerName.YOUTUBE  # pylint: disable=unsubscriptable-object
-        if is_default_token and is_youtube_player:
-            error_message = 'In order to authenticate to a video platform\'s API, please provide a Video API Token.'
-            return {}, error_message
-        if token:
-            kwargs = {'token': token}
-        else:
-            kwargs = {'token': self.token}
+        kwargs = {'token': token}
 
         # Handles a case where no account_id was provided by a user
         if str(self.player_name) == PlayerName.BRIGHTCOVE:
@@ -670,9 +674,7 @@ class VideoXBlock(
             kwargs['account_id'] = self.account_id
 
         player = self.get_player()
-        if str(self.player_name) == PlayerName.BRIGHTCOVE and not self.metadata.get('client_id'):
-            auth_data, error_message = player.authenticate_api(**kwargs)
-        elif str(self.player_name) == PlayerName.BRIGHTCOVE and self.metadata.get('client_id'):
+        if str(self.player_name) == PlayerName.BRIGHTCOVE and self.metadata.get('client_id'):
             auth_data = {
                 'client_secret': self.metadata.get('client_secret'),
                 'client_id': self.metadata.get('client_id'),
@@ -697,17 +699,20 @@ class VideoXBlock(
             response (dict): Status messages key-value pairs.
         """
         # Fetch a token provided by a user before the save button was clicked.
-        if str(data) != self.token:
-            token = str(data)
-        else:
-            token = ''
-        auth_data, error_message = self.authenticate_video_api(token)  # pylint: disable=unused-variable
+        token = str(data)
+
+        is_default_token = token == self.fields['token'].default  # pylint: disable=unsubscriptable-object
+        is_youtube_player = str(self.player_name) != PlayerName.YOUTUBE  # pylint: disable=unsubscriptable-object
+        if not token or (is_default_token and is_youtube_player):
+            return {
+                'error_message': "In order to authenticate to a video platform's API, "
+                                 "please provide a Video API Token."
+                }
+
+        _auth_data, error_message = self.authenticate_video_api(token)
         if error_message:
-            response = {'error_message': error_message}
-        else:
-            success_message = 'Successfully authenticated to the video platform.'
-            response = {'success_message': success_message}
-        return response
+            return {'error_message': error_message}
+        return {'success_message': 'Successfully authenticated to the video platform.'}
 
     def update_metadata_authentication(self, auth_data, player):
         """
@@ -743,22 +748,27 @@ class VideoXBlock(
             response (dict): Data on a default transcript, fetched from a video platform.
 
         """
+        log.debug("Uploading default transcript with data: {}".format(data))
         player = self.get_player()
         video_id = player.media_id(self.href)
         lang_code = str(data.get(u'lang'))
         lang_label = str(data.get(u'label'))
+        source = str(data.get(u'source', ''))
         sub_url = str(data.get(u'url'))
-        # File name format is <language label>_captions_video_<video_id>, e.g. "English_captions_video_456g68"
-        reference_name = "{}_captions_video_{}".format(lang_label, video_id).encode('utf8')
+
+        reference_name = create_reference_name(lang_label, video_id, source)
 
         # Fetch default transcript
-        sub_unicode = player.download_default_transcript(
+        unicode_subs_text = player.download_default_transcript(
             url=sub_url, language_code=lang_code
         )
-        sub = self.convert_caps_to_vtt(caps=sub_unicode)
+        if not player.default_transcripts_in_vtt:
+            prepared_subs = self.convert_caps_to_vtt(caps=unicode_subs_text)
+        else:
+            prepared_subs = unicode_subs_text
 
         file_name, external_url = self.create_transcript_file(
-            trans_str=sub, reference_name=reference_name
+            trans_str=prepared_subs, reference_name=reference_name
         )
 
         # Exceptions are handled on the frontend
@@ -767,6 +777,8 @@ class VideoXBlock(
             'success_message': success_message,
             'lang': lang_code,
             'url': external_url,
-            'label': lang_label
+            'label': lang_label,
+            'source': source,
         }
+        log.debug("Uploaded default transcript: {}".format(response))
         return response

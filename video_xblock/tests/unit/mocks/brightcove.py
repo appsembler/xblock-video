@@ -74,8 +74,8 @@ class BrightcoveDefaultTranscriptsMock(BaseMock):
     """
 
     _default_transcripts = [
-        {'label': u'English', 'lang': u'en', 'url': None},
-        {'label': u'Ukrainian', 'lang': u'uk', 'url': None}
+        {'label': u'English', 'lang': u'en', 'url': None, 'source': u'default'},
+        {'label': u'Ukrainian', 'lang': u'uk', 'url': None, 'source': u'default'}
     ]
 
     _response = {

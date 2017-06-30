@@ -1,4 +1,4 @@
-bok-choy==0.7.0
+bok-choy==0.7.1
 coverage>=4.3.4,<5.0.0
 Django>=1.8.12,<1.9
 ddt>=1.1.1,<2.0.0
