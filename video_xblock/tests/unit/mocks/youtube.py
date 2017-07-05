@@ -27,9 +27,9 @@ class YoutubeDefaultTranscriptsMock(BaseMock):
     ]
 
     _default_transcripts = [
-        {'label': u'English', 'lang': u'en',
+        {'label': u'English', 'lang': u'en', 'source': u'default',
          'url': 'http://video.google.com/timedtext?lang=en&name=&v=set_video_id_here'},
-        {'label': u'Ukrainian', 'lang': u'uk',
+        {'label': u'Ukrainian', 'lang': u'uk', 'source': u'default',
          'url': 'http://video.google.com/timedtext?lang=uk&name=&v=set_video_id_here'}
     ]
 

@@ -155,6 +155,13 @@ class BaseVideoPlayer(Plugin):
         """
         return self.xblock.download_video_url
 
+    @property
+    def default_transcripts_in_vtt(self):
+        """
+        Return: (bool) if default transcripts fetched already in VTT format.
+        """
+        return False
+
     def get_frag(self, **context):
         """
         Return a Fragment required to render video player on the client side.

@@ -2,4 +2,7 @@
 Video xblock module.
 """
 
-from .video_xblock import *  # pylint: disable=wildcard-import
+__version__ = '0.8.0'
+
+# pylint: disable=wildcard-import
+from .video_xblock import *  # nopep8

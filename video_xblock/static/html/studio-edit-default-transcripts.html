@@ -12,7 +12,7 @@
       <div class="custom-field-section-label enabled-transcripts">{% trans "Enabled transcripts" %}</div>
       {% if transcripts  %}
       <!-- Display a list of transcripts fetched from a video xblock -->
-        {% for transcript in transcripts %}
+        {% for transcript in enabled_default_transcripts %}
           <div class="enabled-default-transcripts-section">
             <div class="default-transcripts-label" value="{{ transcript.lang }}">
               {{ transcript.label }}
@@ -63,6 +63,7 @@
                  data-change-field-name="{{ field.name }}"
                  data-lang-code="{{ default_transcript.lang }}"
                  data-lang-label="{{ default_transcript.label }}"
+                 data-source="{{ default_transcript.source }}"
                  data-download-url="{{ default_transcript.url }}" >
                 {% trans "Upload" %}
               </a>
@@ -70,7 +71,7 @@
           </div>
           <div class="api-response upload-default-transcript {{ default_transcript.lang }} status"></div>
         {% endfor %}
-        {% for transcript in transcripts %}
+        {% for transcript in enabled_default_transcripts %}
           <!-- Success message of enabled transcript removal is to be displayed. -->
           <div class="api-response remove-default-transcript {{ transcripts.lang }} status"></div>
         {% endfor %}

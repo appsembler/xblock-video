@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.8.0] - 2017-06-30
+
+### Added
+
+- Vimeo: default transcripts fetching.
+
+## Changed
+
+- Use new 3PlayMedia API to fetch transcripts translations.
+- Increase test coverage. Which means better stability.
+
+### Fixed
+
+- Bug preventing setting Video Platform API key. E.g. `BC_TOKEN` for Brightcove.
+- Transcripts collision bug, which prevented teachers to replace
+  transcript for a given language.
+
+## [0.7.1] - 2017-05-18
+
+### Added
+
+- Pass some debugging information to the front end.
+
 ## [0.7.0] - 2017-05-17
 
 ### Added
@@ -186,4 +209,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 [0.6.5]: https://github.com/raccoongang/xblock-video/compare/v0.6.4...v0.6.5
 [0.6.6]: https://github.com/raccoongang/xblock-video/compare/v0.6.5...v0.6.6
 [0.7.0]: https://github.com/raccoongang/xblock-video/compare/v0.6.6...v0.7.0
-[Unreleased]: https://github.com/raccoongang/xblock-video/compare/v0.7.0...HEAD
+[0.7.1]: https://github.com/raccoongang/xblock-video/compare/v0.7.0...v0.7.1
+[0.8.0]: https://github.com/raccoongang/xblock-video/compare/v0.7.1...v0.8.0
+[Unreleased]: https://github.com/raccoongang/xblock-video/compare/v0.8.0...HEAD

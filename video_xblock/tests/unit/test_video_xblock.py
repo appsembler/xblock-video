@@ -9,7 +9,7 @@ from django.conf import settings
 from web_fragments.fragment import FragmentResource
 from xblock.fragment import Fragment
 
-from video_xblock import VideoXBlock
+from video_xblock import VideoXBlock, __version__
 from video_xblock.constants import PlayerName
 from video_xblock.utils import ugettext as _
 from video_xblock.tests.unit.base import VideoXBlockTestBase
@@ -23,30 +23,34 @@ class VideoXBlockTests(VideoXBlockTestBase):
     Test cases for video_xblock.
     """
 
-    def test_fields_xblock(self):
+    def test_xblock_fields_default_values(self):
         """
         Test xblock fields consistency with their default values.
         """
 
-        self.assertEqual(self.xblock.display_name, _('Video'))
-        self.assertEqual(self.xblock.href, '')
         self.assertEqual(self.xblock.account_id, 'account_id')
-        self.assertEqual(self.xblock.player_id, 'default')
-        self.assertEqual(self.xblock.player_name, PlayerName.DUMMY)
-        self.assertEqual(self.xblock.start_time, datetime.timedelta(seconds=0))
-        self.assertEqual(self.xblock.end_time, datetime.timedelta(seconds=0))
-        self.assertEqual(self.xblock.current_time, 0)
-        self.assertEqual(self.xblock.playback_rate, 1)
-        self.assertEqual(self.xblock.volume, 1)
-        self.assertEqual(self.xblock.muted, False)
-        self.assertEqual(self.xblock.captions_language, '')
-        self.assertEqual(self.xblock.transcripts_enabled, False)
         self.assertEqual(self.xblock.captions_enabled, False)
-        self.assertEqual(self.xblock.handout, '')
-        self.assertEqual(self.xblock.transcripts, '')
+        self.assertEqual(self.xblock.captions_language, '')
+        self.assertEqual(self.xblock.current_time, 0)
+        self.assertEqual(self.xblock.default_transcripts, '')
+        self.assertEqual(self.xblock.display_name, _('Video'))
         self.assertEqual(self.xblock.download_transcript_allowed, False)
         self.assertEqual(self.xblock.download_video_allowed, False)
         self.assertEqual(self.xblock.download_video_url, '')
+        self.assertEqual(self.xblock.end_time, datetime.timedelta(seconds=0))
+        self.assertEqual(self.xblock.handout, '')
+        self.assertEqual(self.xblock.href, '')
+        self.assertEqual(self.xblock.muted, False)
+        self.assertEqual(self.xblock.playback_rate, 1)
+        self.assertEqual(self.xblock.player_id, 'default')
+        self.assertEqual(self.xblock.player_name, PlayerName.DUMMY)
+        self.assertEqual(self.xblock.start_time, datetime.timedelta(seconds=0))
+        self.assertEqual(self.xblock.threeplaymedia_apikey, 'default')
+        self.assertEqual(self.xblock.threeplaymedia_file_id, 'default')
+        self.assertEqual(self.xblock.token, '')
+        self.assertEqual(self.xblock.transcripts, '')
+        self.assertEqual(self.xblock.transcripts_enabled, False)
+        self.assertEqual(self.xblock.volume, 1)
 
     def test_get_brightcove_js_url(self):
         """
@@ -134,7 +138,8 @@ class VideoXBlockTests(VideoXBlockTestBase):
             player_url='/player/url',
             transcript_download_link='/transcript/download/url'+'/transcript/link.vtt',
             transcripts='transcripts.vtt',
-            usage_id='usage_id'
+            usage_id='usage_id',
+            version=__version__,
         )
         resource_string_mock.assert_called_with('static/css/student-view.css')
         handler_url.assert_called_with(self.xblock, 'download_transcript')
@@ -156,7 +161,6 @@ class VideoXBlockTests(VideoXBlockTestBase):
         unused_context_stub = object()
         all_languages_mock.__iter__.return_value = [['en', 'English']]
         self.xblock.runtime.handler_url = handler_url_mock = Mock()
-        authenticate_video_api_mock.return_value = (object(), 'Stub auth error message')
         update_default_transcripts_mock.return_value = (
             ['stub1', 'stub2'], 'Stub autoupload messate'
         )
@@ -177,13 +181,17 @@ class VideoXBlockTests(VideoXBlockTestBase):
 
         expected_context = {
             'advanced_fields': advanced_fields_stub,
-            'auth_error_message': 'Stub auth error message',
+            'auth_error_message': '',
             'basic_fields': basic_fields_stub,
             'courseKey': 'course_key',
             'default_transcripts': self.xblock.default_transcripts,
             'download_transcript_handler_url': handler_url_mock.return_value,
+            'enabled_default_transcripts': [],
             'initial_default_transcripts': ['stub1', 'stub2'],
             'languages': [{'code': 'en', 'label': 'English'}],
+            'player_name': self.xblock.player_name,
+            'players': PlayerName,
+            'sources': [('DEFAULT', 'default'), ('THREE_PLAY_MEDIA', '3play-media'), ('MANUAL', 'manual')],
             'transcripts': [],
             'transcripts_autoupload_message': 'Stub autoupload messate',
         }
@@ -195,6 +203,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
         render_template_mock.assert_called_once_with('studio-edit.html', **expected_context)
         handler_url_mock.assert_called_with(self.xblock, 'download_transcript')
         update_default_transcripts_mock.assert_called_once()
+        authenticate_video_api_mock.assert_not_called()
 
     @staticmethod
     def _make_fragment_resource(file_name):

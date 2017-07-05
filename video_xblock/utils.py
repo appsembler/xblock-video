@@ -4,12 +4,14 @@ Video xblock helpers.
 
 from HTMLParser import HTMLParser
 from importlib import import_module
+from xml.sax.saxutils import unescape
 import os.path
 import pkg_resources
 
 from django.template import Engine, Context, Template
 from xblockutils.resources import ResourceLoader
 
+from .constants import TranscriptSource
 
 html_parser = HTMLParser()  # pylint: disable=invalid-name
 loader = ResourceLoader(__name__)  # pylint: disable=invalid-name
@@ -76,3 +78,52 @@ def underscore_to_mixedcase(value):
 
     mix = mixedcase()
     return "".join(mix.next()(x) if x else '_' for x in value.split("_"))
+
+
+def remove_escaping(text):
+    """
+    Clean text from special `escape` symbols.
+
+    Reference: https://wiki.python.org/moin/EscapingHtml.
+    """
+    html_unescape_table = {
+        "&amp;": "&",
+        "&quot;": '"',
+        "&amp;#39;": "'",
+        "&apos;": "'",
+        "&gt;": ">",
+        "&lt;": "<"
+    }
+    return unescape(text, html_unescape_table)
+
+
+def create_reference_name(lang_label, video_id, source="default"):
+    """
+    Build transcript file reference based on input information.
+
+    Format is <language label>_<source>_captions_video_<video_id>, e.g. "English_default_captions_video_456g68"
+    """
+    reference = "{lang_label}_{source}_captions_video_{video_id}".format(
+        lang_label=lang_label,
+        video_id=video_id,
+        source=source,
+    ).encode('utf8')
+    return reference
+
+
+def filter_transcripts_by_source(transcripts, source=TranscriptSource.DEFAULT):
+    """
+    Filter given transcripts by source attribute.
+    """
+    if not transcripts:
+        return transcripts
+    return (tr for tr in transcripts if tr['source'] == source)
+
+
+def normalize_transcripts(transcripts):
+    """
+    Add to manually uploaded transcripts "source" attribute.
+    """
+    for tr_dict in transcripts:
+        tr_dict.setdefault('source', TranscriptSource.MANUAL)
+    return transcripts
