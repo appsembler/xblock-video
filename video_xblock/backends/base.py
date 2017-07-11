@@ -112,7 +112,10 @@ class BaseVideoPlayer(Plugin):
 
         Defaults to concatenation of `basic_fields` and `advanced_fields`.
         """
-        return tuple(itertools.chain(self.basic_fields, self.advanced_fields))
+        return tuple(itertools.chain(
+            self.basic_fields, self.advanced_fields, self.trans_fields,
+            self.three_pm_fields
+        ))
 
     @property
     def basic_fields(self):
@@ -131,10 +134,25 @@ class BaseVideoPlayer(Plugin):
         Subclasses can extend or redefine list if needed. Defaults to a tuple defined by VideoXBlock.
         """
         return [
-            'start_time', 'end_time', 'handout', 'transcripts',
-            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming',
-            'download_transcript_allowed', 'default_transcripts', 'download_video_allowed', 'download_video_url'
+            'start_time', 'end_time', 'handout', 'download_transcript_allowed',
+            'download_video_allowed', 'download_video_url',
         ]
+
+    @property
+    def three_pm_fields(self):
+        """
+        Tuple of VideoXBlock fields to display on `3PlayMedia transcripts` panel.
+        """
+        return [
+            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming'
+        ]
+
+    @property
+    def trans_fields(self):
+        """
+        Tuple of VideoXBlock fields to display on `Manual & default transcripts` panel.
+        """
+        return ['transcripts', 'default_transcripts']
 
     @property
     def fields_help(self):

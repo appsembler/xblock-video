@@ -164,14 +164,18 @@ class VideoXBlockTests(VideoXBlockTestBase):
         update_default_transcripts_mock.return_value = (
             ['stub1', 'stub2'], 'Stub autoupload messate'
         )
-        prepare_fields_mock.side_effect = basic_fields_stub, advanced_fields_stub = [
-            [{'name': 'display_name'}],
-            [{'name': 'href'}]
-        ]
+        prepare_fields_mock.side_effect = \
+            basic_fields_stub, advanced_fields_stub, transcripts_fields_stub, three_pm_fields_stub = [
+                [{'name': 'display_name'}],
+                [{'name': 'href'}],
+                [{'transcripts': 'foo'}],
+                [{'threeplaymedia_file_id': '12345'}]
+            ]
         resource_string_mock.side_effect = [
             'static/css/student-view.css',
             'static/css/transcripts-upload.css',
             'static/css/studio-edit.css',
+            'static/css/studio-edit-accordion.css',
             'static/js/runtime-handlers.js',
             'static/js/studio-edit/utils.js',
             'static/js/studio-edit/studio-edit.js',
@@ -192,8 +196,11 @@ class VideoXBlockTests(VideoXBlockTestBase):
             'player_name': self.xblock.player_name,
             'players': PlayerName,
             'sources': [('DEFAULT', 'default'), ('THREE_PLAY_MEDIA', '3play-media'), ('MANUAL', 'manual')],
+            'three_pm_fields': three_pm_fields_stub,
             'transcripts': [],
+            'transcripts_fields': transcripts_fields_stub,
             'transcripts_autoupload_message': 'Stub autoupload messate',
+            'transcripts_type': 'manual',
         }
 
         # Act
@@ -228,6 +235,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
             'static/css/student-view.css',
             'static/css/transcripts-upload.css',
             'static/css/studio-edit.css',
+            'static/css/studio-edit-accordion.css',
             'static/js/runtime-handlers.js',
             'static/js/studio-edit/utils.js',
             'static/js/studio-edit/studio-edit.js',

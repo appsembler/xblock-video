@@ -387,6 +387,9 @@ class VideoXBlock(
             'sources': TranscriptSource.to_dict().items(),
             # transcripts context:
             'transcripts': transcripts,
+            'transcripts_fields': self.prepare_studio_editor_fields(player.trans_fields),
+            'three_pm_fields': self.prepare_studio_editor_fields(player.three_pm_fields),
+            'transcripts_type': '3PM' if self.threeplaymedia_streaming else 'manual',
             'default_transcripts': self.default_transcripts,
             'enabled_default_transcripts': filter_transcripts_by_source(transcripts),
             'initial_default_transcripts': initial_default_transcripts,
@@ -398,6 +401,7 @@ class VideoXBlock(
         fragment.add_css(resource_string("static/css/student-view.css"))
         fragment.add_css(resource_string("static/css/transcripts-upload.css"))
         fragment.add_css(resource_string("static/css/studio-edit.css"))
+        fragment.add_css(resource_string("static/css/studio-edit-accordion.css"))
         fragment.add_javascript(resource_string("static/js/runtime-handlers.js"))
         fragment.add_javascript(resource_string("static/js/studio-edit/utils.js"))
         fragment.add_javascript(resource_string("static/js/studio-edit/studio-edit.js"))
@@ -545,7 +549,7 @@ class VideoXBlock(
                 'has_list_values': False,
                 'type': 'string',
             }
-        elif field_name in ('handout', 'transcripts', 'default_transcripts', 'token', 'threeplaymedia_apikey'):
+        elif field_name in ('handout', 'transcripts', 'default_transcripts', 'token'):
             info = self.initialize_studio_field_info(field_name, field, field_type=field_name)
         else:
             info = self.initialize_studio_field_info(field_name, field)

@@ -67,7 +67,7 @@ class TranscriptsMixin(XBlock):
 
     threeplaymedia_apikey = String(
         default='',
-        display_name=_('API Key'),
+        display_name=_('3PlayMedia API Key'),
         help=_('You can generate a client token following official documentation of your video platform\'s API.'),
         scope=Scope.content,
         resettable_editor=False

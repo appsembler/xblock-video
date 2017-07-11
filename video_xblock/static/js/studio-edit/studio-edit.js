@@ -421,7 +421,7 @@ function StudioEditableXBlock(runtime, element) {
      * @returns (object) 3PlayMedia's: apiKey + fileId
      */
     function getThreePlayMediaConfig() {
-        var apiKey = $('.threeplaymedia-api-key', element).val();
+        var apiKey = $('#xb-field-edit-threeplaymedia_apikey', element).val();
         var fileId = $('#xb-field-edit-threeplaymedia_file_id', element).val();
         var streamingEnabled = $('#xb-field-edit-threeplaymedia_streaming', element).prop('selectedIndex');
 
