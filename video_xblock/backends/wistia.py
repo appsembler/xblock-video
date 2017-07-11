@@ -65,7 +65,14 @@ class WistiaPlayer(BaseVideoPlayer):
 
         Brightcove videos require Brightcove Account id.
         """
-        fields_list = super(WistiaPlayer, self).advanced_fields
+        return super(WistiaPlayer, self).advanced_fields
+
+    @property
+    def three_pm_fields(self):
+        """
+        Tuple of VideoXBlock fields to display on `3PlayMedia transcripts` panel.
+        """
+        fields_list = super(WistiaPlayer, self).three_pm_fields
         # Add `token` field before `threeplaymedia_file_id`
         fields_list.insert(fields_list.index('threeplaymedia_file_id'), 'token')
         return fields_list

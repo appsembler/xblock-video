@@ -120,29 +120,24 @@ class TestCustomBackends(VideoXBlockTestBase):
 
     expected_advanced_fields = [
         [  # Youtube
-            'start_time', 'end_time', 'handout', 'transcripts',
-            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
-            'default_transcripts', 'download_video_allowed', 'download_video_url'
+            'start_time', 'end_time', 'handout', 'download_transcript_allowed',
+            'download_video_allowed', 'download_video_url'
         ],
         [  # Brightcove
-            'player_id', 'start_time', 'end_time', 'handout', 'transcripts', 'token',
-            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
-            'default_transcripts', 'download_video_allowed', 'download_video_url'
+            'player_id', 'start_time', 'end_time', 'handout',
+            'download_transcript_allowed', 'download_video_allowed', 'download_video_url'
         ],
         [  # Wistia
-            'start_time', 'end_time', 'handout', 'transcripts', 'token',
-            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
-            'default_transcripts', 'download_video_allowed', 'download_video_url'
+            'start_time', 'end_time', 'handout',
+            'download_transcript_allowed', 'download_video_allowed', 'download_video_url'
         ],
         [  # Vimeo
-            'start_time', 'end_time', 'handout', 'transcripts', 'token',
-            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
-            'default_transcripts', 'download_video_allowed', 'download_video_url'
+            'start_time', 'end_time', 'handout',
+            'download_transcript_allowed', 'download_video_allowed', 'download_video_url'
         ],
         [  # Html5
-            'start_time', 'end_time', 'handout', 'transcripts',
-            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
-            'download_video_allowed',
+            'start_time', 'end_time', 'handout',
+            'download_transcript_allowed', 'download_video_allowed',
         ],
     ]
 
@@ -155,6 +150,29 @@ class TestCustomBackends(VideoXBlockTestBase):
         player = self.player[backend](self.xblock)
         self.assertListEqual(player.basic_fields, expected_basic_fields)
         self.assertListEqual(player.advanced_fields, expected_advanced_fields)
+
+    expected_3pm_fields = [
+        ['threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming'],
+        ['token', 'threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming'],
+        ['token', 'threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming'],
+        ['token', 'threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming'],
+        ['threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming'],
+    ]
+
+    expected_trans_fields = [
+        ['transcripts', 'default_transcripts'],
+        ['transcripts', 'default_transcripts'],
+        ['transcripts', 'default_transcripts'],
+        ['transcripts', 'default_transcripts'],
+        ['transcripts', 'default_transcripts'],
+    ]
+
+    @data(*zip(backends, expected_trans_fields, expected_3pm_fields))
+    @unpack
+    def test_transcripts_fields(self, backend, expected_trans_fields, expected_3pm_fields):
+        player = self.player[backend](self.xblock)
+        self.assertListEqual(player.trans_fields, expected_trans_fields)
+        self.assertListEqual(player.three_pm_fields, expected_3pm_fields)
 
     @data(
         ([{'lang': 'ru'}], [{'lang': 'en'}, {'lang': 'uk'}]),
@@ -494,7 +512,7 @@ class VimeoApiClientTest(VideoXBlockTestBase):
         """
 
         # Arrange
-        failure_message = _('No timed transcript may be fetched from a video platform.')
+        failure_message = _('No timed transcript may be fetched from a video platform.<br>')
 
         with patch.object(self.vimeo_player, 'api_client') as api_client_mock:
             type(api_client_mock).access_token = PropertyMock(return_value="test_token")

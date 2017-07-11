@@ -53,12 +53,11 @@ function getTranscriptUrl(transcriptsArray, langCode) {
 /**
  * Validate transcript data before save it to video xblock.
  */
-function validateTranscripts(e, $langChoiceItem) {
+function validateTranscripts($langChoiceItem) {
     'use strict';
     var isValid = [];
     var $visibleLangChoiceItems = $langChoiceItem.find('li:visible');
     var urls;
-    e.preventDefault();
     $visibleLangChoiceItems.each(function(idx, el) {
         urls = $('.download-setting', $(el)).filter('.is-hidden');
         if (urls.length) {

@@ -1,48 +1,59 @@
 {% load i18n %}
 
+<label class="label setting-label" for="xb-field-edit-{{field.name}}">
+    {{field.display_name}}
+</label>
+
 <div class="wrapper-uploader-actions xblock-edit-settings wrapper-translations-settings">
-      <ol class="list-settings language-transcript-selector">
-        {% for transcript in transcripts %}
-        <li class="list-settings-item">
-          <select name="language" class="lang-select">
-            <option></option>
-            {% for language in languages %}
-            <option value="{{ language.code }}" {% if language.code == transcript.lang %}selected{% endif %} data-lang-label="{{ language.label }}">{{ language.label }}</option>
-            {% endfor %}
-          </select>
-          <a href="#" class="remove-action remove-setting" data-value=""><span class="icon fa fa-times-circle" aria-hidden="true"></span><span class="sr">Remove</span></a>
-          <div class="list-settings-buttons">
-            <a href="#" class="upload-setting upload-transcript {% if not transcript.lang %}is-hidden{% endif %}" data-change-field-name="{{field.name}}" data-lang-code="{{ transcript.lang }}" data-lang-label="{{ transcript.label }}">{% trans "Replace" %}</a>
-            <a href="{{ download_transcript_handler_url }}?{{ transcript.url }}" class="download-transcript download-setting">{% trans "Download" %}</a>
-          </div>
-          <div class="status"></div>
-        </li>
+  <ol class="list-settings language-transcript-selector">
+    {% for transcript in transcripts %}
+    <li class="list-settings-item">
+      <select name="language" class="lang-select">
+        <option></option>
+        {% for language in languages %}
+        <option value="{{ language.code }}" {% if language.code == transcript.lang %}selected{% endif %} data-lang-label="{{ language.label }}">{{ language.label }}</option>
         {% endfor %}
-        <li class="list-settings-item is-hidden">
-          <select name="language" class="lang-select">
-            <option></option>
-            {% for language in languages %}
-            <option value="{{ language.code }}" data-lang-label="{{ language.label }}">{{ language.label }}</option>
-            {% endfor %}
-          </select>
-          <a href="#" class="remove-action remove-setting" data-value=""><span class="icon fa fa-times-circle" aria-hidden="true"></span><span class="sr">Remove</span></a>
-          <div class="list-settings-buttons">
-            <a href="#" class="upload-setting upload-transcript is-hidden" data-change-field-name="{{field.name}}" data-lang-code="" data-lang-label="">{% trans "Upload" %}</a>
-            <a href="#" class="download-transcript download-setting is-hidden">Download</a>
-          </div>
-          <div class="status"></div>
-        </li>
+      </select>
+      <a href="#" class="remove-action remove-setting" data-value=""><span class="icon fa fa-times-circle" aria-hidden="true"></span><span class="sr">Remove</span></a>
+      <div class="list-settings-buttons">
+        <a href="#" class="upload-setting upload-transcript {% if not transcript.lang %}is-hidden{% endif %}" data-change-field-name="{{field.name}}" data-lang-code="{{ transcript.lang }}" data-lang-label="{{ transcript.label }}">{% trans "Replace" %}</a>
+        <a href="{{ download_transcript_handler_url }}?{{ transcript.url }}" class="download-transcript download-setting">{% trans "Download" %}</a>
+      </div>
+      <div class="status"></div>
+    </li>
+    {% endfor %}
+    <li class="list-settings-item is-hidden">
+      <select name="language" class="lang-select">
+        <option></option>
+        {% for language in languages %}
+        <option value="{{ language.code }}" data-lang-label="{{ language.label }}">{{ language.label }}</option>
+        {% endfor %}
+      </select>
+      <a href="#" class="remove-action remove-setting" data-value=""><span class="icon fa fa-times-circle" aria-hidden="true"></span><span class="sr">Remove</span></a>
+      <div class="list-settings-buttons">
+        <a href="#" class="upload-setting upload-transcript is-hidden" data-change-field-name="{{field.name}}" data-lang-code="" data-lang-label="">{% trans "Upload" %}</a>
+        <a href="#" class="download-transcript download-setting is-hidden">Download</a>
+      </div>
+      <div class="status"></div>
+    </li>
 
-      </ol>
-      <input type="hidden" class="field-data-control" data-field-name="{{field.name}}" id="metadata-transcript-uploader-{{ field.name }}" value='{{ field.value }}'>
+  </ol>
+  <input type="hidden" class="field-data-control" data-field-name="{{field.name}}" id="metadata-transcript-uploader-{{ field.name }}" value='{{ field.value }}'>
 
-    <a href="#" class="add-transcript create-setting">
-      <span class="icon fa fa-plus" aria-hidden="true"></span>{% trans 'Add' %}<span class="sr"></span>
-    </a>
+  <a href="#" class="add-transcript create-setting">
+    <span class="icon fa fa-plus" aria-hidden="true"></span>{% trans 'Add' %}<span class="sr"></span>
+  </a>
 </div>
 
-<form method="POST" action="/assets/{{ courseKey }}/" class="file-uploader-form is-hidden"
+{% if field.help %}
+    <span class="tip setting-help"> {{ field.help|safe }} </span>
+{% endif %}
+
+<form method="POST" action="/assets/{{ courseKey }}/"
+      class="file-uploader-form is-hidden"
       enctype="multipart/form-data">
-  <input class="input-file-uploader" name="file" type="file" accept="" data-change-field-name="" data-lang-code=""
+  <input class="input-file-uploader" name="file" type="file" accept=""
+         data-change-field-name="" data-lang-code=""
          data-lang-label="" {% for source in sources %}data-source-{{ source.0 }}="{{ source.1 }}" {% endfor %}>
 </form>
+

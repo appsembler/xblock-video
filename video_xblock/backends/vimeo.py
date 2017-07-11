@@ -51,7 +51,7 @@ class VimeoApiClient(BaseApiClient):
             Response in python native data format.
         """
         headers_ = {
-            'Authorization': 'Bearer {}'.format(self.access_token),
+            'Authorization': 'Bearer {}'.format(self.access_token.encode(encoding='utf-8')),
             'Accept': 'application/json'
         }
         if headers is not None:
@@ -126,7 +126,14 @@ class VimeoPlayer(BaseVideoPlayer):
 
         Vimeo videos require Access token to be set.
         """
-        fields_list = super(VimeoPlayer, self).advanced_fields
+        return super(VimeoPlayer, self).advanced_fields
+
+    @property
+    def three_pm_fields(self):
+        """
+        Tuple of VideoXBlock fields to display on `3PlayMedia transcripts` panel.
+        """
+        fields_list = super(VimeoPlayer, self).three_pm_fields
         # Add `token` field before `threeplaymedia_file_id`
         fields_list.insert(fields_list.index('threeplaymedia_file_id'), 'token')
         return fields_list
@@ -218,7 +225,7 @@ class VimeoPlayer(BaseVideoPlayer):
         try:
             json_data = self.api_client.get(url)
         except VimeoApiClientError:
-            message = _('No timed transcript may be fetched from a video platform.')
+            message = _('No timed transcript may be fetched from a video platform.<br>')
             return default_transcripts, message
 
         if not json_data:
