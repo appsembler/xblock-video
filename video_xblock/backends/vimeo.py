@@ -51,7 +51,7 @@ class VimeoApiClient(BaseApiClient):
             Response in python native data format.
         """
         headers_ = {
-            'Authorization': 'Bearer {}'.format(self.access_token),
+            'Authorization': 'Bearer {}'.format(self.access_token.encode(encoding='utf-8')),
             'Accept': 'application/json'
         }
         if headers is not None:
@@ -218,7 +218,7 @@ class VimeoPlayer(BaseVideoPlayer):
         try:
             json_data = self.api_client.get(url)
         except VimeoApiClientError:
-            message = _('No timed transcript may be fetched from a video platform.')
+            message = _('No timed transcript may be fetched from a video platform.<br>')
             return default_transcripts, message
 
         if not json_data:

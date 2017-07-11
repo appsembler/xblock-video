@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Direct transcripts streaming from 3PlayMedia service.
+  Now Video Xblock will always use up-to-date transcripts from 3PM.
+
 ## [0.8.0] - 2017-06-30
 
 ### Added

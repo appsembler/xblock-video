@@ -497,13 +497,15 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
             error_status_message (str): Error messages for the sake of verbosity.
         """
         token, account_id = kwargs.get('token'), kwargs.get('account_id')
-        client_secret, client_id, error_message = BrightcoveApiClient.create_credentials(token, account_id)
+        try:
+            client_secret, client_id, error_message = BrightcoveApiClient.create_credentials(token, account_id)
+        except BrightcoveApiClientError as bc_exception:
+            return {}, bc_exception.message
+
         self.api_client.api_key = client_id
         self.api_client.api_secret = client_secret
         self.xblock.metadata['client_id'] = client_id
         self.xblock.metadata['client_secret'] = client_secret
-        if error_message:
-            return {}, error_message
         auth_data = {
             'client_secret': client_secret,
             'client_id': client_id,

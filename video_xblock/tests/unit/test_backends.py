@@ -121,28 +121,28 @@ class TestCustomBackends(VideoXBlockTestBase):
     expected_advanced_fields = [
         [  # Youtube
             'start_time', 'end_time', 'handout', 'transcripts',
-            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
-            'default_transcripts', 'download_video_allowed', 'download_video_url'
+            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming',
+            'download_transcript_allowed', 'default_transcripts', 'download_video_allowed', 'download_video_url'
         ],
         [  # Brightcove
             'player_id', 'start_time', 'end_time', 'handout', 'transcripts', 'token',
-            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
-            'default_transcripts', 'download_video_allowed', 'download_video_url'
+            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming',
+            'download_transcript_allowed', 'default_transcripts', 'download_video_allowed', 'download_video_url'
         ],
         [  # Wistia
             'start_time', 'end_time', 'handout', 'transcripts', 'token',
-            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
-            'default_transcripts', 'download_video_allowed', 'download_video_url'
+            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming',
+            'download_transcript_allowed', 'default_transcripts', 'download_video_allowed', 'download_video_url'
         ],
         [  # Vimeo
             'start_time', 'end_time', 'handout', 'transcripts', 'token',
-            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
-            'default_transcripts', 'download_video_allowed', 'download_video_url'
+            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming',
+            'download_transcript_allowed', 'default_transcripts', 'download_video_allowed', 'download_video_url'
         ],
         [  # Html5
             'start_time', 'end_time', 'handout', 'transcripts',
-            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
-            'download_video_allowed',
+            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming',
+            'download_transcript_allowed', 'download_video_allowed',
         ],
     ]
 
@@ -494,7 +494,7 @@ class VimeoApiClientTest(VideoXBlockTestBase):
         """
 
         # Arrange
-        failure_message = _('No timed transcript may be fetched from a video platform.')
+        failure_message = _('No timed transcript may be fetched from a video platform.<br>')
 
         with patch.object(self.vimeo_player, 'api_client') as api_client_mock:
             type(api_client_mock).access_token = PropertyMock(return_value="test_token")

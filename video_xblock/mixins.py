@@ -1,8 +1,6 @@
 """
 Video XBlock mixins geared toward specific subsets of functionality.
 """
-
-import json
 import logging
 
 import requests
@@ -13,8 +11,8 @@ from xblock.core import XBlock
 from xblock.exceptions import NoSuchServiceError
 from xblock.fields import Scope, Boolean, Float, String
 
-from .constants import DEFAULT_LANG, TPMApiTranscriptFormatID, TPMApiLanguage, TranscriptSource
-from .utils import create_reference_name, import_from, ugettext as _, underscore_to_mixedcase
+from .constants import DEFAULT_LANG, TPMApiTranscriptFormatID, TPMApiLanguage, TranscriptSource, Status
+from .utils import import_from, ugettext as _, underscore_to_mixedcase, Transcript
 
 log = logging.getLogger(__name__)
 
@@ -58,6 +56,31 @@ class TranscriptsMixin(XBlock):
     TranscriptsMixin class to encapsulate transcripts-related logic.
     """
 
+    THREE_PLAY_MEDIA_API_DOMAIN = 'https://static.3playmedia.com/'
+
+    threeplaymedia_streaming = Boolean(
+        default=False,
+        display_name=_('Direct 3PlayMedia'),
+        scope=Scope.content,
+        help=_("Direct <a href='http://www.3playmedia.com/'>3PlayMedia</a> transcripts usage enabled.")
+    )
+
+    threeplaymedia_apikey = String(
+        default='',
+        display_name=_('API Key'),
+        help=_('You can generate a client token following official documentation of your video platform\'s API.'),
+        scope=Scope.content,
+        resettable_editor=False
+    )
+
+    threeplaymedia_file_id = String(
+        default='',
+        display_name=_('File Id'),
+        help=_('3playmedia file id for download bind transcripts.'),
+        scope=Scope.content,
+        resettable_editor=False
+    )
+
     @staticmethod
     def convert_caps_to_vtt(caps):
         """
@@ -75,16 +98,23 @@ class TranscriptsMixin(XBlock):
             return WebVTTWriter().write(reader().read(caps))
         return u''
 
-    def route_transcripts(self, transcripts):
+    def route_transcripts(self):
         """
-        Re-route non .vtt transcripts to `str_to_vtt` handler.
+        Re-route transcripts to appropriate handler.
+
+        While direct 3PlayMedia transcripts enabled: to transcript fetcher
+        and to `str_to_vtt` handler for non .vtt transcripts if opposite.
 
         Arguments:
             transcripts (unicode): Raw transcripts.
         """
-        transcripts = json.loads(transcripts) if transcripts else []
+        transcripts = self.get_enabled_transcripts()
         for tran in transcripts:
-            if not tran['url'].endswith('.vtt'):
+            if self.threeplaymedia_streaming:
+                tran['url'] = self.runtime.handler_url(
+                    self, 'fetch_from_three_play_media', query="{}={}".format(tran['lang_id'], tran['id'])
+                )
+            elif not tran['url'].endswith('.vtt'):
                 tran['url'] = self.runtime.handler_url(
                     self, 'srt_to_vtt', query=tran['url']
                 )
@@ -94,7 +124,7 @@ class TranscriptsMixin(XBlock):
         """
         Return link for downloading of a transcript of the current captions' language (if a transcript exists).
         """
-        transcripts = json.loads(self.transcripts) if self.transcripts else []
+        transcripts = self.get_enabled_transcripts()
         for transcript in transcripts:
             if transcript.get('lang') == self.captions_language:
                 return transcript.get('url')
@@ -165,86 +195,98 @@ class TranscriptsMixin(XBlock):
             response = {"lang": lang, "url": external_url, "label": lang_label}
         return response
 
-    def get_translations_from_3playmedia(self, file_id, apikey):
+    def fetch_available_3pm_transcripts(self):
         """
-        Method to fetch from 3playmedia translations for file_id.
+        Fetch all available transcripts from 3PlayMedia API for current file ID.
 
-        Arguments:
-            file_id (str) : File id on 3playmedia.
-            apikey (str)  : Authentication key on 3playmedia.
-        Returns:
-            response (tuple)    : status, translations or status, error_message
-            status (str)        : Status response error or success.
-            translations (list) : List of translations (dict) .
-            error_message (dict): Description of error.
+        :return: (generator of OrderedDicts) all transcript's data
         """
-        log.debug("Getting 3PlayMedia transcripts...")
-        domain = 'https://static.3playmedia.com/'
-        transcripts_3playmedia = requests.get(
-            '{domain}files/{file_id}/transcripts?apikey={api_key}'.format(
-                domain=domain, file_id=file_id, api_key=apikey
-            )
-        ).json()
-
-        errors = isinstance(transcripts_3playmedia, dict) and transcripts_3playmedia.get('errors')
-        if errors:
-            return 'error', {'error_message': u'\n'.join(errors.values())}
-
-        translations = []
-        for transcript in transcripts_3playmedia:
-            tid = transcript.get('id', '')
-            lang_id = transcript.get('language_id')
-            formatted_content = requests.get(
-                '{domain}files/{file_id}/transcripts/{tid}?apikey={api_key}&format_id={format_id}'.format(
-                    domain=domain, file_id=file_id, api_key=apikey, tid=tid,
-                    format_id=TPMApiTranscriptFormatID.WEBVTT
-                )
-            ).text
-            lang_data = TPMApiLanguage(lang_id)
-            lang_label = lang_data.name
-            video_id = self.get_player().media_id(self.href)
-            source = TranscriptSource.THREE_PLAY_MEDIA
-
-            reference_name = create_reference_name(lang_label, video_id, source)
-
-            _file_name, external_url = self.create_transcript_file(
-                trans_str=formatted_content,
-                reference_name=reference_name
-            )
-            translations.append({
-                "lang": lang_data.iso_639_1_code,
-                "label": lang_label,
-                "url": external_url,
-                "source": source,
-            })
-        log.debug("Got 3PlayMedia transcripts: {}".format(translations))
-        return 'success', translations
-
-    @XBlock.json_handler
-    def get_transcripts_3playmedia_api_handler(self, data, _suffix=''):
-        """
-        Xblock handler to authenticate to a video platform's API. Called by JavaScript of `studio_view`.
-
-        Arguments:
-            data (dict): Data from frontend, necessary for authentication (tokens, account id, etc).
-            suffix (str): Slug used for routing.
-        Returns:
-            response (dict): Status messages key-value pairs.
-        """
-        apikey = data.get('api_key', self.threeplaymedia_apikey) or ''
-        file_id = data.get('file_id', '')
-        status, transcripts = self.get_translations_from_3playmedia(
-            apikey=apikey, file_id=file_id
+        feedback, transcripts_list = self.get_3pm_transcripts_list(
+            self.threeplaymedia_file_id, self.threeplaymedia_apikey
         )
-        if status == 'error':
-            return transcripts
+        log.debug("Fetched 3PM transcripts list results:\n{}".format(feedback))
 
-        return {
-            'transcripts': transcripts,
-            'success_message': _(
-                'Successfully fetched transcripts from 3playMedia. Please check transcripts list above.'
+        if feedback['status'] is Status.error:
+            log.error("3PlayMedia transcripts fetching API request has failed!\n{}".format(feedback['message']))
+            raise StopIteration
+
+        for transcript_data in transcripts_list:
+            transcript = self.fetch_single_3pm_translation(transcript_data)
+            if transcript is None:
+                raise StopIteration
+            transcript_ordered_dict = transcript._asdict()
+            transcript_ordered_dict['content'] = ''  # we don't want to parse it to JSON
+            yield transcript_ordered_dict
+
+    def get_3pm_transcripts_list(self, file_id, apikey):
+        """
+        Make API request to fetch list of available transcripts for given file ID.
+
+        :return: (list of dicts OR dict) all available transcripts attached to file with ID OR error dict
+        """
+        domain = self.THREE_PLAY_MEDIA_API_DOMAIN
+
+        transcripts_list = []
+        failure_message = _("3PlayMedia transcripts fetching API request has failed!")
+        success_message = _("3PlayMedia transcripts fetched successfully.")
+        feedback = {'status': Status.error, 'message': failure_message}
+
+        try:
+            response = requests.get(
+                '{domain}files/{file_id}/transcripts?apikey={api_key}'.format(
+                    domain=domain, file_id=file_id, api_key=apikey
+                )
             )
-        }
+        except IOError:
+            log.exception(failure_message)
+            return feedback, transcripts_list
+
+        if response.ok and isinstance(response.json(), list):
+            transcripts_list = response.json()
+            feedback['status'] = Status.success
+            feedback['message'] = success_message
+        else:
+            feedback['status'] = Status.error
+        return feedback, transcripts_list
+
+    def fetch_single_3pm_translation(self, transcript_data, format_id=TPMApiTranscriptFormatID.WEBVTT):
+        """
+        Fetch single transcript for given file ID in given format.
+
+        :param transcript_data:
+        :param format_id: defauts to VTT
+        :return: (namedtuple instance) transcript data
+        """
+        transcript_id = transcript_data.get('id', '')
+        lang_id = transcript_data.get('language_id')
+        external_api_url = '{domain}files/{file_id}/transcripts/{tid}?apikey={api_key}&format_id={format_id}'.format(
+            domain=self.THREE_PLAY_MEDIA_API_DOMAIN,
+            file_id=self.threeplaymedia_file_id,
+            tid=transcript_id,
+            api_key=self.threeplaymedia_apikey,
+            format_id=format_id
+        )
+        try:
+            content = requests.get(external_api_url).text
+        except Exception:  # pylint: disable=broad-except
+            log.exception(_("Transcript fetching failure: language [{}]").format(TPMApiLanguage(lang_id)))
+            return
+
+        lang_code = TPMApiLanguage(lang_id)
+        lang_label = lang_code.name
+        video_id = self.get_player().media_id(self.href)
+        source = TranscriptSource.THREE_PLAY_MEDIA
+        return Transcript(
+            id=transcript_id,
+            content=content,
+            lang=lang_code.iso_639_1_code,
+            lang_id=lang_id,
+            label=lang_label,
+            video_id=video_id,
+            format=format_id,
+            source=source,
+            url=external_api_url,
+        )
 
     @XBlock.handler
     def download_transcript(self, request, _suffix=''):
@@ -284,6 +326,67 @@ class TranscriptsMixin(XBlock):
         caps_path = request.query_string
         caps = requests.get(request.host_url + caps_path).text
         return Response(self.convert_caps_to_vtt(caps))
+
+    @XBlock.handler
+    def fetch_from_three_play_media(self, request, _suffix=''):
+        """
+        Proxy handler to hide real API url.
+
+        Arguments:
+            request (webob.Request): The request to handle
+            suffix (string): not used
+            query string: 'language_id=transcript_id'
+        Returns:
+            webob.Response: WebVTT transcripts wrapped in Response object.
+        """
+        lang_id, transcript_id = request.query_string.split('=')
+        transcript = self.fetch_single_3pm_translation(transcript_data={'id': transcript_id, 'language_id': lang_id})
+        if transcript is None:
+            return Response()
+        return Response(transcript.content)
+
+    @XBlock.handler
+    def validate_three_play_media_config(self, request, _suffix=''):
+        """
+        Handler to validate provided API credentials.
+
+        Arguments:
+            request (webob.Request):
+            suffix (string): not used
+        Returns:
+            webob.Response: (json) {'isValid': true/false}
+        """
+        api_key = request.json.get('api_key')
+        file_id = request.json.get('file_id')
+        streaming_enabled = bool(int(request.json.get('streaming_enabled')))  # streaming_enabled is expected to be "1"
+
+        is_valid = True
+        success_message = _('Success')
+        invalid_message = _('Check provided 3PlayMedia configuration')
+
+        # the very first request during xblock creating:
+        if api_key is None and file_id is None:
+            return Response(json={'isValid': is_valid, 'message': _("Initialization")})
+
+        # the case when no options provided, and streaming is disabled:
+        if not streaming_enabled:
+            return Response(json={'isValid': is_valid, 'message': success_message})
+
+        # options partially provided or both empty, but streaming is enabled:
+        if not (api_key and file_id):
+            is_valid = False
+            return Response(json={'isValid': is_valid, 'message': invalid_message})
+
+        feedback, transcripts_list = self.get_3pm_transcripts_list(file_id, api_key)
+
+        if transcripts_list and feedback['status'] is Status.success:
+            message = success_message
+            is_valid = True
+        else:
+            message = feedback['message']
+            is_valid = False
+
+        return Response(json={'isValid': is_valid, 'message': message})
 
 
 @XBlock.needs('modulestore')
@@ -369,7 +472,7 @@ class PlaybackStateMixin(XBlock):
         """
         Return video player state as a dictionary.
         """
-        transcripts = json.loads(self.transcripts) if self.transcripts else []
+        transcripts = self.get_enabled_transcripts()
         transcripts_object = {
             trans['lang']: {'url': trans['url'], 'label': trans['label']}
             for trans in transcripts

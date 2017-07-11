@@ -132,8 +132,8 @@ class BaseVideoPlayer(Plugin):
         """
         return [
             'start_time', 'end_time', 'handout', 'transcripts',
-            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'download_transcript_allowed',
-            'default_transcripts', 'download_video_allowed', 'download_video_url'
+            'threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming',
+            'download_transcript_allowed', 'default_transcripts', 'download_video_allowed', 'download_video_url'
         ]
 
     @property

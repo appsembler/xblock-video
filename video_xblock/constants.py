@@ -2,7 +2,19 @@
 Lists of constants that can be used in the video xblock.
 """
 
+from enum import Enum
+
 DEFAULT_LANG = 'en'
+
+
+class Status(Enum):
+    """
+    Status flags enumeration.
+    """
+
+    success = 'success'
+    error = 'error'
+    warning = 'warning'
 
 
 class PlayerName(object):
@@ -288,9 +300,11 @@ class TPMApiLanguage(object):
 
         :param language_id : int (from API response list of available transcript translations).
         """
-        if language_id not in self.TPM_LANGUAGES.keys():
+        try:
+            language_id = int(language_id)
+            language_info = self.TPM_LANGUAGES[language_id]
+        except (ValueError, KeyError):
             raise ValueError("Language ID: {} does not exist!".format(language_id))
-        language_info = self.TPM_LANGUAGES[language_id]
         self.language_id = language_id
         self.ietf_code = language_info.get("ietf_code")
         self.iso_639_1_code = language_info.get("iso_639_1_code")
