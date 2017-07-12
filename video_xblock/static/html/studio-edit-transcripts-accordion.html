@@ -1,0 +1,76 @@
+{% load i18n %}
+
+<div class="accordion">
+  <button class="accordion-btn {% if transcripts_type == 'manual' %}active{% endif %}">Manual & default transcripts</button>
+  <div class="accordion-panel {% if transcripts_type == 'manual' %}active{% endif %}" id="accordion-panel-transcripts">
+      <li class="field comp-setting-entry metadata_entry is-set" data-field-name="transcripts" data-default="" data-cast="transcripts">
+        <div class='wrapper-comp-setting metadata-video-translations'>
+          {% include 'studio-edit-transcripts.html' with field=transcripts_fields.0 %}
+        </div>
+      </li>
+
+      {% include 'studio-edit-default-transcripts.html' %}
+      {% if field.help %}
+        <span class="tip setting-help"> {{ field.help|safe }} </span>
+      {% endif %}
+  </div>
+
+  <button class="accordion-btn {% if transcripts_type == '3PM' %}active{% endif %}">3PlayMedia transcripts</button>
+  <div class="accordion-panel {% if transcripts_type == '3PM' %}active{% endif %}" id="accordion-panel-3pm">
+    {% for field in three_pm_fields %}
+      <li
+        class="field comp-setting-entry metadata_entry {% if field.is_set %}is-set{% endif %}"
+        data-field-name="{{field.name}}"
+        data-default="{% if field.type == 'boolean' %}{{ field.default|yesno:'1,0' }}{% else %}{{ field.default|default_if_none:"" }}{% endif %}"
+        data-cast="{{field.type}}"
+      >
+        <div class='wrapper-comp-setting'>
+          <label class="label setting-label" for="xb-field-edit-{{field.name}}">{{field.display_name}}</label>
+          {% if field.type == "boolean" %}
+            {% include "fields/boolean.html" with field=field %}
+          {% elif field.type == "string" or field.type == 'threeplaymedia_apikey' %}
+            {% include "fields/string.html" with field=field %}
+          {% endif %}
+        </div>
+        {% if field.help %}
+          <span class="tip setting-help"> {{ field.help|safe }} </span>
+        {% endif %}
+      </li>
+    {% endfor %}
+    {#% include 'studio-edit-3playmedia-apikey.html' %#}
+
+  </div>
+</div>
+
+<script type="text/javascript">
+  var accButtons = document.getElementsByClassName('accordion-btn');
+  var accPanels = document.getElementsByClassName('accordion-panel');
+
+  Array.prototype.forEach.call(accButtons, function(accButton) {
+    accButton.onclick = function() {
+      // Toggle all buttons and panels inactive
+      Array.prototype.forEach.call(accPanels, function(panel) {
+        panel.classList.remove('active');
+        // panel.style.maxHeight = null;
+      });
+
+      Array.prototype.forEach.call(accButtons, function(button) {
+        button.classList.remove('active');
+      });
+
+      // Toggle clicked button and panel to active
+      this.classList.add('active');
+
+      var panel = this.nextElementSibling;
+      panel.classList.add('active');
+      // panel.style.maxHeight = panel.scrollHeight + 'px';
+
+      // Toggle 3PM streaming
+      if (panel.id === 'accordion-panel-3pm') {
+        $("#xb-field-edit-threeplaymedia_streaming>option[value|=1]").prop('selected', true);
+      } else if (panel.id === 'accordion-panel-transcripts') {
+        $("#xb-field-edit-threeplaymedia_streaming>option[value|=0]").prop('selected', true)
+      }
+    }
+  });
+</script>

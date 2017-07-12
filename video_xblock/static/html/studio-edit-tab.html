@@ -1,7 +1,12 @@
 {% load i18n %}
 
 <ul class="list-input settings-list {% if name == 'advanced' %}advanced is-hidden{% elif name == 'basic' %}basic{% endif %}">
-{% for field in fields %}
+
+  {% if name == 'advanced' %}
+    {% include 'studio-edit-transcripts-accordion.html'%}
+  {% endif %}
+
+  {% for field in fields %}
     <li
       class="field comp-setting-entry metadata_entry {% if field.is_set %}is-set{% endif %}"
       data-field-name="{{field.name}}"
@@ -32,16 +37,6 @@
             {% elif field.type == 'handout' %}
                 {% include "fields/file-uploader.html" with field=field %}
 
-            {% elif name == 'advanced' %}
-                {% if field.type == 'transcripts' %}
-                    {% include 'studio-edit-transcripts.html' %}
-                {% elif field.type == 'default_transcripts' %}
-                    {% include 'studio-edit-default-transcripts.html' %}
-                {% elif field.type == 'token' %}
-                    {% include 'studio-edit-token.html' %}
-                {% elif field.type == 'threeplaymedia_apikey' %}
-                    {% include 'studio-edit-3playmedia-apikey.html' %}
-                {% endif %}
             {% else %}
               {% trans "Unsupported field type. This setting cannot be edited." %}
             {% endif %}

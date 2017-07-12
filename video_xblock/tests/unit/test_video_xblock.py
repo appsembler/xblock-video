@@ -45,8 +45,8 @@ class VideoXBlockTests(VideoXBlockTestBase):
         self.assertEqual(self.xblock.player_id, 'default')
         self.assertEqual(self.xblock.player_name, PlayerName.DUMMY)
         self.assertEqual(self.xblock.start_time, datetime.timedelta(seconds=0))
-        self.assertEqual(self.xblock.threeplaymedia_apikey, 'default')
-        self.assertEqual(self.xblock.threeplaymedia_file_id, 'default')
+        self.assertEqual(self.xblock.threeplaymedia_apikey, '')
+        self.assertEqual(self.xblock.threeplaymedia_file_id, '')
         self.assertEqual(self.xblock.token, '')
         self.assertEqual(self.xblock.transcripts, '')
         self.assertEqual(self.xblock.transcripts_enabled, False)
@@ -143,7 +143,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
         )
         resource_string_mock.assert_called_with('static/css/student-view.css')
         handler_url.assert_called_with(self.xblock, 'download_transcript')
-        route_transcripts.assert_called_once_with(self.xblock.transcripts)
+        route_transcripts.assert_called_once_with()
 
     @patch('video_xblock.video_xblock.ALL_LANGUAGES', new_callable=MagicMock)
     @patch('video_xblock.video_xblock.render_template')
@@ -164,14 +164,18 @@ class VideoXBlockTests(VideoXBlockTestBase):
         update_default_transcripts_mock.return_value = (
             ['stub1', 'stub2'], 'Stub autoupload messate'
         )
-        prepare_fields_mock.side_effect = basic_fields_stub, advanced_fields_stub = [
-            [{'name': 'display_name'}],
-            [{'name': 'href'}]
-        ]
+        prepare_fields_mock.side_effect = \
+            basic_fields_stub, advanced_fields_stub, transcripts_fields_stub, three_pm_fields_stub = [
+                [{'name': 'display_name'}],
+                [{'name': 'href'}],
+                [{'transcripts': 'foo'}],
+                [{'threeplaymedia_file_id': '12345'}]
+            ]
         resource_string_mock.side_effect = [
             'static/css/student-view.css',
             'static/css/transcripts-upload.css',
             'static/css/studio-edit.css',
+            'static/css/studio-edit-accordion.css',
             'static/js/runtime-handlers.js',
             'static/js/studio-edit/utils.js',
             'static/js/studio-edit/studio-edit.js',
@@ -192,8 +196,11 @@ class VideoXBlockTests(VideoXBlockTestBase):
             'player_name': self.xblock.player_name,
             'players': PlayerName,
             'sources': [('DEFAULT', 'default'), ('THREE_PLAY_MEDIA', '3play-media'), ('MANUAL', 'manual')],
+            'three_pm_fields': three_pm_fields_stub,
             'transcripts': [],
+            'transcripts_fields': transcripts_fields_stub,
             'transcripts_autoupload_message': 'Stub autoupload messate',
+            'transcripts_type': 'manual',
         }
 
         # Act
@@ -228,6 +235,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
             'static/css/student-view.css',
             'static/css/transcripts-upload.css',
             'static/css/studio-edit.css',
+            'static/css/studio-edit-accordion.css',
             'static/js/runtime-handlers.js',
             'static/js/studio-edit/utils.js',
             'static/js/studio-edit/studio-edit.js',

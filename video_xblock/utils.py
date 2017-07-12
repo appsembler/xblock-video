@@ -2,6 +2,7 @@
 Video xblock helpers.
 """
 
+from collections import namedtuple
 from HTMLParser import HTMLParser
 from importlib import import_module
 from xml.sax.saxutils import unescape
@@ -127,3 +128,8 @@ def normalize_transcripts(transcripts):
     for tr_dict in transcripts:
         tr_dict.setdefault('source', TranscriptSource.MANUAL)
     return transcripts
+
+
+Transcript = namedtuple('Transcript', [
+    'id', 'label', 'lang', 'lang_id', 'content', 'format', 'video_id', 'source', 'url'
+])

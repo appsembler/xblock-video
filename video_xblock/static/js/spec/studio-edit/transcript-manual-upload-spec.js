@@ -39,9 +39,6 @@ describe('Transcripts manual upload', function() {
 
     it('return validateTranscripts', function() {
         var $testTranscriptsBlock;
-        var e = {
-            preventDefault: function() {}
-        };
         $('body').append('<ol id="test-transcript-block" class="list-settings language-transcript-selector">' +
             '<li class="list-settings-item">' +
             '<div class="list-settings-buttons">' +
@@ -51,8 +48,8 @@ describe('Transcripts manual upload', function() {
             '</ol>');
 
         $testTranscriptsBlock = $('#test-transcript-block');
-        expect(validateTranscripts(e, $testTranscriptsBlock)).toBeFalsy();
+        expect(validateTranscripts($testTranscriptsBlock)).toBeFalsy();
         $testTranscriptsBlock.first('li').find('.download-setting').removeClass('is-hidden');
-        expect(validateTranscripts(e, $testTranscriptsBlock)).toBeTruthy();
+        expect(validateTranscripts($testTranscriptsBlock)).toBeTruthy();
     });
 });

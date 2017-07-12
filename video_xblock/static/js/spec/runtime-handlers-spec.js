@@ -10,7 +10,7 @@ describe('Runtime handlers', function() {
         downloadTranscript: 'download_transcript',
         authenticateVideoApi: 'authenticate_video_api_handler',
         uploadDefaultTranscript: 'upload_default_transcript_handler',
-        getTranscripts3playmediaApi: 'get_transcripts_3playmedia_api_handler',
+        validateThreePlayMediaConfig: 'validate_three_play_media_config',
         saveState: 'save_player_state',
         publishEvent: 'publish_event'
     };
