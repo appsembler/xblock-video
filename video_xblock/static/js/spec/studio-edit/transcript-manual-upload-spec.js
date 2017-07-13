@@ -1,4 +1,4 @@
-/* global parseRelativeTime validateTranscripts*/
+/* global parseRelativeTime validateTranscripts getAllowedFileExtensions*/
 /**
  * Tests for transcripts manual upload
  */
@@ -21,7 +21,8 @@ describe('Transcripts manual upload', function() {
             expect(parseRelativeTime(value)).toBe(tests[value]);
         });
     });
-    it('return getTranscriptUrl', function() {
+
+    it('returns getTranscriptUrl', function() {
         var transcriptsArray = [
             {
                 lang: 'en',
@@ -37,7 +38,7 @@ describe('Transcripts manual upload', function() {
         expect(getTranscriptUrl(transcriptsArray)).toBe('');
     });
 
-    it('return validateTranscripts', function() {
+    it('returns validateTranscripts', function() {
         var $testTranscriptsBlock;
         $('body').append('<ol id="test-transcript-block" class="list-settings language-transcript-selector">' +
             '<li class="list-settings-item">' +
@@ -51,5 +52,24 @@ describe('Transcripts manual upload', function() {
         expect(validateTranscripts($testTranscriptsBlock)).toBeFalsy();
         $testTranscriptsBlock.first('li').find('.download-setting').removeClass('is-hidden');
         expect(validateTranscripts($testTranscriptsBlock)).toBeTruthy();
+    });
+});
+
+describe('Correct file extensions are returned when', function() {
+    'use strict';
+    it('file is uploading in "transcripts" context', function() {
+        expect(getAllowedFileExtensions('transcripts')).toEqual('.srt, .vtt');
+    });
+
+    it('file is uploading in other then "transcripts" context', function() {
+        var handoutsAllowedFileTypes = (
+        '.gif, .ico, .jpg, .jpeg, .png, .tif, .tiff, .bmp, .svg, ' +  // images
+        '.pdf, .txt, .rtf, .csv, ' +                                  // documents
+        '.doc, .docx, .xls, .xlsx, .ppt, .pptx, .pub, ' +             // MSOffice
+        '.odt, .ods, .odp, ' +                                        // openOffice
+        '.zip, .7z, .gzip, .tar ' +                                   // archives
+        '.html, .xml, .js, .sjson'                                    // other
+    );
+        expect(getAllowedFileExtensions('somethings_else_or_null')).toEqual(handoutsAllowedFileTypes);
     });
 });
