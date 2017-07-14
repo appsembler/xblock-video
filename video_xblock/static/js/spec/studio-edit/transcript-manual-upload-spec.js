@@ -55,6 +55,71 @@ describe('Transcripts manual upload', function() {
     });
 });
 
+describe('Function "pushTranscript"', function() {
+    'use strict';
+    var newTranscriptAdded;
+    var transcriptsValue;
+    var testData = {
+        lang: 'en',
+        label: 'English',
+        url: 'testUrl',
+        source: 'manual',
+        oldLang: ''
+    };
+    var oldData = {
+        lang: 'en',
+        label: 'English',
+        url: 'otherTestUrl',
+        source: 'default'
+    };
+
+    afterEach(function() {
+        newTranscriptAdded = null;
+        transcriptsValue = null;
+    });
+
+
+    it('will push new transcript', function() {
+        transcriptsValue = [];
+        // eslint-disable-next-line no-undef
+        newTranscriptAdded = pushTranscript(
+            testData.lang,
+            testData.label,
+            testData.url,
+            testData.source,
+            testData.oldLang,
+            transcriptsValue
+        );
+        expect(newTranscriptAdded).toBeTruthy();
+        expect(transcriptsValue).toEqual([{
+            lang: testData.lang,
+            url: testData.url,
+            label: testData.label,
+            source: testData.source
+        }]);
+    });
+
+    it('dismiss pushing of new transcript because of already existing one', function() {
+        transcriptsValue = [oldData];
+        // eslint-disable-next-line no-undef
+        newTranscriptAdded = pushTranscript(
+            testData.lang,
+            testData.label,
+            testData.url,
+            testData.source,
+            testData.oldLang,
+            transcriptsValue
+        );
+        expect(newTranscriptAdded).toBeFalsy();
+        expect(transcriptsValue).toEqual([{
+            lang: testData.lang,
+            url: testData.url,
+            label: testData.label,
+            source: testData.source
+        }]);
+    });
+});
+
 describe('Correct file extensions are returned when', function() {
     'use strict';
     it('file is uploading in "transcripts" context', function() {
@@ -63,13 +128,13 @@ describe('Correct file extensions are returned when', function() {
 
     it('file is uploading in other then "transcripts" context', function() {
         var handoutsAllowedFileTypes = (
-        '.gif, .ico, .jpg, .jpeg, .png, .tif, .tiff, .bmp, .svg, ' +  // images
-        '.pdf, .txt, .rtf, .csv, ' +                                  // documents
-        '.doc, .docx, .xls, .xlsx, .ppt, .pptx, .pub, ' +             // MSOffice
-        '.odt, .ods, .odp, ' +                                        // openOffice
-        '.zip, .7z, .gzip, .tar ' +                                   // archives
-        '.html, .xml, .js, .sjson'                                    // other
-    );
+            '.gif, .ico, .jpg, .jpeg, .png, .tif, .tiff, .bmp, .svg, ' +  // images
+            '.pdf, .txt, .rtf, .csv, ' +                                  // documents
+            '.doc, .docx, .xls, .xlsx, .ppt, .pptx, .pub, ' +             // MSOffice
+            '.odt, .ods, .odp, ' +                                        // openOffice
+            '.zip, .7z, .gzip, .tar ' +                                   // archives
+            '.html, .xml, .js, .sjson'                                    // other
+        );
         expect(getAllowedFileExtensions('somethings_else_or_null')).toEqual(handoutsAllowedFileTypes);
     });
 });
