@@ -6,6 +6,7 @@ Wistia Video player plugin.
 import HTMLParser
 import json
 import httplib
+import logging
 import re
 
 import requests
@@ -14,7 +15,8 @@ import babelfish
 from video_xblock import BaseVideoPlayer
 from video_xblock.constants import TranscriptSource
 from video_xblock.utils import ugettext as _
-from video_xblock.exceptions import VideoXBlockException
+
+log = logging.getLogger(__name__)
 
 
 class WistiaPlayer(BaseVideoPlayer):
@@ -39,7 +41,8 @@ class WistiaPlayer(BaseVideoPlayer):
         # To check on authentication status; reference: https://wistia.com/doc/data-api#authentication
         'auth_sample_url': 'api.wistia.com/v1/medias.json?api_password={token}',
         # To fetch a specific transcript; reference: https://wistia.com/doc/data-api#captions_show
-        'download_url': 'api.wistia.com/v1/medias/{media_id}/captions.json?api_password={token}',
+        'download_url': 'http://api.wistia.com/v1/medias/{media_id}/captions/'
+                        '{lang_code}.json?api_password={token}',
         # To get list of captions; reference: https://wistia.com/doc/data-api#captions_index
         'url': 'api.wistia.com/v1/medias/{media_id}/captions.json?api_password={token}',
         'response': {
@@ -165,7 +168,8 @@ class WistiaPlayer(BaseVideoPlayer):
                 {
                     'lang': 'en',
                     'label': 'English',
-                    'url': 'default_url_to_be_replaced'
+                    'url': 'default_url_to_be_replaced',
+                    'source': 'default'
                 },
                 # ...
             ]
@@ -173,59 +177,72 @@ class WistiaPlayer(BaseVideoPlayer):
         video_id = kwargs.get('video_id')
         token = kwargs.get('token')
         url = self.captions_api['url'].format(token=token, media_id=video_id)
-        message = ''
+
+        message = _('Success.')
         self.default_transcripts = []
         # Fetch available transcripts' languages (codes and English labels), and assign its' urls.
         try:
-            data = requests.get('https://' + url)
-        except requests.exceptions.RequestException as exception:
+            # get all languages caps data:
+            response = requests.get('https://{}'.format(url))
+        except IOError as exc:
             # Probably, current API has changed
-            message = 'No timed transcript may be fetched from a video platform. ' \
-                      'Error: {}'.format(str(exception))
+            message = _('No timed transcript may be fetched from a video platform.\nError details: {}').format(
+                exc.message
+            )
+            log.exception("Transcripts INDEX request failure.")
             return self.default_transcripts, message
 
-        if data.status_code == httplib.OK:
-            try:
-                wistia_data = json.loads(data.text)
-            except ValueError:
-                wistia_data = False
-
-            if wistia_data:
-                transcripts_data = [
-                    [el.get('language'), el.get('english_name'), el.get('text')]
-                    for el in wistia_data
-                ]
-                # Populate default_transcripts
-                for lang_code, lang_label, text in transcripts_data:
-                    # lang_code, fetched from Wistia API, is a 3 character language code as specified by ISO-639-2.
-                    # Reference: https://wistia.com/doc/data-api#captions_show
-                    # Convert from ISO-639-2 to ISO-639-1; reference: https://pythonhosted.org/babelfish/
-                    try:
-                        lang_code = babelfish.Language(lang_code).alpha2
-                    except ValueError:
-                        # In case of B or T codes, e.g. 'fre'.
-                        # Reference: https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes
-                        lang_code = babelfish.Language.fromalpha3b(lang_code).alpha2   # pylint: disable=no-member
-                    lang_label = self.get_transcript_language_parameters(lang_code)[1]
-                    # We already have transcript’s text by now. Don't need another one call to API
-                    # The structure of default_transcripts requires to have `url`. Added it with an empty value
-                    self.default_transcripts.append({
-                        'lang': lang_code,
-                        'label': lang_label,
-                        'url': '',
-                        'text': text,
-                        'source': TranscriptSource.DEFAULT,
-                    })
-            # If captions do not exist for a video, the response will be an empty JSON array.
-            # Reference: https://wistia.com/doc/data-api#captions_index
-            else:
-                message = 'For now, video platform doesn\'t have any timed transcript for this video.'
         # If a video does not exist, the response will be an empty HTTP 404 Not Found.
         # Reference: https://wistia.com/doc/data-api#captions_index
-        elif data.status_code == httplib.NOT_FOUND:
-            message = "Wistia video {video_id} doesn't exist.".format(video_id=str(video_id))
-        else:
-            message = "Invalid request."
+        if response.status_code == httplib.NOT_FOUND:
+            message = _("Wistia video {} doesn't exist.").format(video_id)
+            return self.default_transcripts, message
+
+        # Fetch other failure cases:
+        if not response.ok:
+            message = _("Invalid request.")
+            return self.default_transcripts, message
+
+        try:
+            wistia_data = response.json()
+        except ValueError:
+            wistia_data = ''
+
+        # No transcripts case, see: wistia.com/doc/data-api#captions_index
+        if not wistia_data:
+            message = _("For now, video platform doesn't have any timed transcript for this video.")
+            return self.default_transcripts, message
+
+        transcripts_data = [
+            [el.get('language'), el.get('english_name')]
+            for el in wistia_data
+        ]
+        # Populate default_transcripts
+        for lang_code, lang_label in transcripts_data:
+            download_url = self.captions_api['download_url'].format(
+                media_id=video_id,
+                lang_code=lang_code,
+                token=token
+            )
+            # Wistia's API uses ISO-639-2, so "lang_code" is a 3-character code, e.g. "eng".
+            # Reference: https://wistia.com/doc/data-api#captions_show
+            # Convert from ISO-639-2 to ISO-639-1; reference: https://pythonhosted.org/babelfish/
+            try:
+                lang_code = babelfish.Language(lang_code).alpha2
+            except ValueError:
+                # In case of B or T codes, e.g. 'fre'.
+                # Reference: https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes
+                lang_code = babelfish.Language.fromalpha3b(lang_code).alpha2  # pylint: disable=no-member
+
+            lang_label = self.get_transcript_language_parameters(lang_code)[1]
+
+            self.default_transcripts.append({
+                'lang': lang_code,
+                'label': lang_label,
+                'url': download_url,
+                'source': TranscriptSource.DEFAULT,
+            })
+
         return self.default_transcripts, message
 
     @staticmethod
@@ -257,30 +274,30 @@ class WistiaPlayer(BaseVideoPlayer):
             text = unicode(unescaped_text)
         return text
 
-    def download_default_transcript(self, url=None, language_code=None):  # pylint: disable=unused-argument
+    def download_default_transcript(self, url, language_code):
         """
-        Get default transcript fetched from a video platform API and formats it to WebVTT-like unicode.
+        Get default transcript fetched from a video platform API and format it to WebVTT-like unicode.
 
-        Though Wistia provides a method for a transcript fetching, this is to avoid API call.
         References:
             https://wistia.com/doc/data-api#captions_index
             https://wistia.com/doc/data-api#captions_show
 
         Arguments:
             url (str): API url to fetch a default transcript from.
-            language_code (str): Language code of a default transcript to be downloaded.
+            language_code (str): Language ISO-639-2 code of a default transcript to be downloaded.
         Returns:
             text (unicode): Text of transcripts.
         """
-        if language_code is None:
-            raise VideoXBlockException(_('`language_code` parameter is required.'))
-        text = [
-            sub.get(u'text')
-            for sub in self.default_transcripts
-            if sub.get(u'lang') == unicode(language_code)
-        ]
-        text = self.format_transcript_text(text) if text else u""
-        return text
+        try:
+            response = requests.get(url)
+            json_data = response.json()
+            return json_data[u'text']
+        except IOError:
+            log.exception("Transcript fetching failure: language [{}]".format(language_code))
+            return u''
+        except (ValueError, KeyError, TypeError, AttributeError):
+            log.exception("Can't parse fetched transcript: language [{}]".format(language_code))
+            return u''
 
     def dispatch(self, request, suffix):
         """

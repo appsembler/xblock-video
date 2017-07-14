@@ -1,7 +1,6 @@
 """
 Lists of constants that can be used in the video xblock.
 """
-
 from enum import Enum
 
 DEFAULT_LANG = 'en'

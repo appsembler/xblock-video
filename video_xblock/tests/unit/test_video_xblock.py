@@ -5,7 +5,6 @@ Test cases for video_xblock.
 import datetime
 from mock import patch, Mock, MagicMock, PropertyMock
 
-from django.conf import settings
 from web_fragments.fragment import FragmentResource
 from xblock.fragment import Fragment
 
@@ -13,9 +12,6 @@ from video_xblock import VideoXBlock, __version__
 from video_xblock.constants import PlayerName
 from video_xblock.utils import ugettext as _
 from video_xblock.tests.unit.base import VideoXBlockTestBase
-
-
-settings.configure()
 
 
 class VideoXBlockTests(VideoXBlockTestBase):
