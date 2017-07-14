@@ -6,7 +6,9 @@ import unittest
 from ddt import ddt, data
 from mock import patch, Mock, PropertyMock
 
-from video_xblock.utils import import_from, underscore_to_mixedcase, create_reference_name, normalize_transcripts
+from video_xblock.utils import (
+    import_from, underscore_to_mixedcase, create_reference_name, normalize_transcripts
+)
 
 
 @ddt

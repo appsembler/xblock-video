@@ -360,7 +360,6 @@ class VideoXBlock(
         transcripts = normalize_transcripts(json.loads(self.transcripts)) if self.transcripts else []
         download_transcript_handler_url = self.runtime.handler_url(self, 'download_transcript')
         auth_error_message = ''
-
         # Authenticate to API of the player video platform and update metadata with auth information.
         # Note that there is no need to authenticate to Youtube API,
         # whilst for Wistia, a sample authorised request is to be made to ensure authentication succeeded,
@@ -475,6 +474,7 @@ class VideoXBlock(
             if player_class.match(data['href']):
                 data['player_name'] = player_name
                 data = self.populate_default_values(data)
+                log.debug("Submitted player[{}] with data: {}".format(player_name, data))
                 break
 
     def get_player(self):
