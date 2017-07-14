@@ -120,7 +120,7 @@ class BaseVideoPlayer(Plugin):
     @property
     def basic_fields(self):
         """
-        Tuple of VideoXBlock fields to display in Basic tab of edit modal window.
+        List of VideoXBlock fields to display in Basic tab of edit modal window.
 
         Subclasses can extend or redefine list if needed. Defaults to a tuple defined by VideoXBlock.
         """
@@ -129,7 +129,7 @@ class BaseVideoPlayer(Plugin):
     @property
     def advanced_fields(self):
         """
-        Tuple of VideoXBlock fields to display in Advanced tab of edit modal window.
+        List of VideoXBlock fields to display in Advanced tab of edit modal window.
 
         Subclasses can extend or redefine list if needed. Defaults to a tuple defined by VideoXBlock.
         """
@@ -141,7 +141,7 @@ class BaseVideoPlayer(Plugin):
     @property
     def three_pm_fields(self):
         """
-        Tuple of VideoXBlock fields to display on `3PlayMedia transcripts` panel.
+        List of VideoXBlock fields to display on `3PlayMedia transcripts` panel.
         """
         return [
             'threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming'
@@ -150,7 +150,7 @@ class BaseVideoPlayer(Plugin):
     @property
     def trans_fields(self):
         """
-        Tuple of VideoXBlock fields to display on `Manual & default transcripts` panel.
+        List of VideoXBlock fields to display on `Manual & default transcripts` panel.
         """
         return ['transcripts', 'default_transcripts']
 

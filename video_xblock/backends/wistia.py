@@ -71,13 +71,13 @@ class WistiaPlayer(BaseVideoPlayer):
         return super(WistiaPlayer, self).advanced_fields
 
     @property
-    def three_pm_fields(self):
+    def trans_fields(self):
         """
-        Tuple of VideoXBlock fields to display on `3PlayMedia transcripts` panel.
+        List of VideoXBlock fields to display on `Manual & default transcripts` panel.
         """
-        fields_list = super(WistiaPlayer, self).three_pm_fields
-        # Add `token` field before `threeplaymedia_file_id`
-        fields_list.insert(fields_list.index('threeplaymedia_file_id'), 'token')
+        fields_list = super(WistiaPlayer, self).trans_fields
+        # Add `token` after `default_transcripts`
+        fields_list.append('token')
         return fields_list
 
     def media_id(self, href):

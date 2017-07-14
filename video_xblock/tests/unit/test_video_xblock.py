@@ -3,6 +3,8 @@ Test cases for video_xblock.
 """
 
 import datetime
+import json
+
 from mock import patch, Mock, MagicMock, PropertyMock
 
 from web_fragments.fragment import FragmentResource
@@ -249,3 +251,27 @@ class VideoXBlockTests(VideoXBlockTestBase):
         # Assert
         self.assertIsInstance(studio_view, Fragment)
         self.assertEqual(studio_view.resources, expected_fragment_resources)
+
+    @patch('video_xblock.video_xblock.normalize_transcripts')
+    def test_get_enabled_transcripts_success(self, normalize_transcripts_mock):
+        # Arrange
+        normalize_transcripts_mock.side_effect = lambda x: x
+        self.xblock.transcripts = test_transcripts = '[{"transcript":"json"}]'
+        # Act
+        transcripts = self.xblock.get_enabled_transcripts()
+        # Assert
+        self.assertIsInstance(transcripts, list)
+        self.assertEqual(transcripts, json.loads(test_transcripts))
+        normalize_transcripts_mock.assert_called_once()
+
+    @patch('video_xblock.video_xblock.normalize_transcripts')
+    def test_get_enabled_transcripts_failure(self, normalize_transcripts_mock):
+        # Arrange
+        normalize_transcripts_mock.side_effect = lambda x: x
+        self.xblock.transcripts = '[{"transcript":bad_json}]'
+        # Act
+        transcripts = self.xblock.get_enabled_transcripts()
+        # Assert
+        self.assertIsInstance(transcripts, list)
+        self.assertEqual(transcripts, [])
+        self.assertFalse(normalize_transcripts_mock.called)
