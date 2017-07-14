@@ -530,22 +530,37 @@ class SettingsMixin(XBlock):
 
     Sample default settings in /edx/app/edxapp/cms.env.json:
     "XBLOCK_SETTINGS": {
-      "video_xblock": {
+      "example.com": {
         "3playmedia_api_key": "987654321",
         "account_id": "1234567890"
       }
     }
-    """
 
-    block_settings_key = 'video_xblock'
+    In case of enabled microsites (suppose configured "foo" and "bar" microsites) it can be extended to:
+    "XBLOCK_SETTINGS": {
+        "example.com": {
+            "3playmedia_api_key": "987654321",
+            "account_id": "1234567890",
+        },
+        "foo.example.com": {
+            "player_id": "real_player_id",
+        },
+        "bar.example.com": {
+            "3playmedia_api_key": "1234567890",
+            "account_id": "987654321",
+        }
+    }
+
+    Here above each provided key corresponds to SITE_NAME environment variable value.
+    """
 
     @property
     def settings(self):
         """
-        Return xblock settings set in .json config.
+        Return xblock settings for current domain set in .json config.
 
         Returned value depends on the context:
-        - `studio_view()` is being executed in CMS context and gets data from `lms.env.json`.
+        - `studio_view` is being executed in CMS context and gets data from `cms.env.json`.
         - `student_view` is being executed in LMS context and gets data from `lms.env.json`.
 
         Returns:
@@ -555,22 +570,37 @@ class SettingsMixin(XBlock):
                     "account_id": "1234567890"
                 }
         """
-        s_service = self.runtime.service(self, 'settings')
-        if s_service:
-            # At the moment SettingsService is not available in the context
-            # of Studio Edit modal. See https://github.com/edx/edx-platform/pull/14648
-            return s_service.get_settings_bucket(self)
+        site_name = self.get_current_site_name()
+        if not site_name:
+            return {}
 
         settings = import_from('django.conf', 'settings')
-        return settings.XBLOCK_SETTINGS.get(self.block_settings_key, {})
+        return settings.XBLOCK_SETTINGS.get(site_name, {})
 
-    def populate_default_values(self, fields_dict):
+    def populate_default_values(self, submit_data):
         """
         Populate unset default values from settings file.
         """
         for key, value in self.settings.items():
-            fields_dict.setdefault(key, value)
-        return fields_dict
+            submit_data.setdefault(key, value)
+            # if key is present in submit data but set to empty value:
+            if key in submit_data and not submit_data[key]:
+                submit_data[key] = value
+
+        return submit_data
+
+    def get_current_site_name(self):
+        """
+        Fetch current site domain.
+
+        :return: (unicode) or None
+        """
+        settings = import_from('django.conf', 'settings')
+
+        try:
+            return settings.SITE_NAME
+        except AttributeError:
+            return
 
 
 class LocationMixin(XBlock):
