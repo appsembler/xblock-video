@@ -153,17 +153,17 @@ class TestCustomBackends(VideoXBlockTestBase):
 
     expected_3pm_fields = [
         ['threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming'],
-        ['token', 'threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming'],
-        ['token', 'threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming'],
-        ['token', 'threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming'],
+        ['threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming'],
+        ['threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming'],
+        ['threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming'],
         ['threeplaymedia_file_id', 'threeplaymedia_apikey', 'threeplaymedia_streaming'],
     ]
 
     expected_trans_fields = [
         ['transcripts', 'default_transcripts'],
-        ['transcripts', 'default_transcripts'],
-        ['transcripts', 'default_transcripts'],
-        ['transcripts', 'default_transcripts'],
+        ['transcripts', 'default_transcripts', 'token'],
+        ['transcripts', 'default_transcripts', 'token'],
+        ['transcripts', 'default_transcripts', 'token'],
         ['transcripts', 'default_transcripts'],
     ]
 

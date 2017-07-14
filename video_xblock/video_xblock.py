@@ -357,7 +357,7 @@ class VideoXBlock(
         player = self.get_player()
         languages = [{'label': label, 'code': lang} for lang, label in ALL_LANGUAGES]
         languages.sort(key=lambda l: l['label'])
-        transcripts = normalize_transcripts(json.loads(self.transcripts)) if self.transcripts else []
+        transcripts = self.get_enabled_transcripts()
         download_transcript_handler_url = self.runtime.handler_url(self, 'download_transcript')
         auth_error_message = ''
         # Authenticate to API of the player video platform and update metadata with auth information.
@@ -781,6 +781,10 @@ class VideoXBlock(
         if self.threeplaymedia_streaming:
             transcripts = list(self.fetch_available_3pm_transcripts())
         else:
-            transcripts = json.loads(self.transcripts) if self.transcripts else []
-
-        return transcripts
+            try:
+                transcripts = json.loads(self.transcripts) if self.transcripts else []
+                assert isinstance(transcripts, list)
+            except (ValueError, AssertionError):
+                log.exception("JSON parser can't handle 'self.transcripts' field value: {}".format(self.transcripts))
+                return []
+        return normalize_transcripts(transcripts)
