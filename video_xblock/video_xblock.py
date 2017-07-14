@@ -748,10 +748,11 @@ class VideoXBlock(
 
         reference_name = create_reference_name(lang_label, video_id, source)
 
-        # Fetch default transcript
-        unicode_subs_text = player.download_default_transcript(
-            url=sub_url, language_code=lang_code
-        )
+        # Fetch text of single default transcript:
+        unicode_subs_text = player.download_default_transcript(sub_url, lang_code)
+        if not unicode_subs_text:
+            return {'failure_message': _("Couldn't upload transcript text.")}
+
         if not player.default_transcripts_in_vtt:
             prepared_subs = self.convert_caps_to_vtt(caps=unicode_subs_text)
         else:

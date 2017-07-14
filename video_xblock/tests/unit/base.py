@@ -1,13 +1,25 @@
 """
-Vide xblock base classes.
+Video xblock base classes and utilities.
 """
+import json
 import unittest
-import mock
 
+import mock
 from xblock.field_data import DictFieldData
 from xblock.test.tools import TestRuntime
 
-from video_xblock import VideoXBlock
+from video_xblock.video_xblock import VideoXBlock
+
+
+def arrange_request_mock(request_body):
+    """
+    Helper factory to create request mocks.
+    """
+    request_mock = mock.Mock()
+    request_mock.method = 'POST'
+    request_mock.body = request_body
+    request_mock.json = json.loads(request_body)
+    return request_mock
 
 
 class VideoXBlockTestBase(unittest.TestCase):

@@ -215,25 +215,32 @@ function StudioEditableXBlock(runtime, element) {
             dataType: 'json'
         })
         .done(function(response) {
+            var downloadUrl, defaultTranscript;
             var newLang = response.lang;
             var newLabel = response.label;
             var newUrl = response.url;
             var source = response.source;
-            // Add a default transcript to the list of enabled ones
-            var downloadUrl = runtimeHandlers.downloadTranscript + '?' + newUrl;
-            var defaultTranscript = {
-                lang: newLang,
-                label: newLabel,
-                url: downloadUrl,
-                source: source
-            };
-            // Create a standard transcript
-            pushTranscript(newLang, newLabel, newUrl, source, '', transcriptsValue);
-            pushTranscriptsValue(transcriptsValue);
-            createEnabledTranscriptBlock(defaultTranscript, downloadUrl);
-            bindRemovalListenerEnabledTranscript(newLang, newLabel, newUrl);
-            message = response.success_message;
-            status = SUCCESS;
+
+            if (response.failure_message === undefined) {
+                // Add a default transcript to the list of enabled ones
+                downloadUrl = runtimeHandlers.downloadTranscript + '?' + newUrl;
+                defaultTranscript = {
+                    lang: newLang,
+                    label: newLabel,
+                    url: downloadUrl,
+                    source: source
+                };
+                // Create a standard transcript
+                pushTranscript(newLang, newLabel, newUrl, source, '', transcriptsValue);
+                pushTranscriptsValue(transcriptsValue);
+                createEnabledTranscriptBlock(defaultTranscript, downloadUrl);
+                bindRemovalListenerEnabledTranscript(newLang, newLabel, newUrl);
+                message = response.success_message;
+                status = SUCCESS;
+            } else {
+                message = response.failure_message;
+                status = ERROR;
+            }
         })
         .fail(function(jqXHR) {
             message = tryRefreshPageMessage;

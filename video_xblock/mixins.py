@@ -93,9 +93,10 @@ class TranscriptsMixin(XBlock):
         Returns:
             unicode: Transcripts converted into WebVTT format.
         """
-        reader = detect_format(caps)
-        if reader:
-            return WebVTTWriter().write(reader().read(caps))
+        if caps:
+            reader = detect_format(caps)
+            if reader:
+                return WebVTTWriter().write(reader().read(caps))
         return u''
 
     def route_transcripts(self):
