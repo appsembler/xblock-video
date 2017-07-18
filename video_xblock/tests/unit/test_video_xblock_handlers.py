@@ -7,18 +7,7 @@ import json
 from mock import patch, Mock, PropertyMock
 
 from video_xblock import VideoXBlock
-from video_xblock.tests.unit.base import VideoXBlockTestBase
-
-
-def arrange_request_mock(request_body):
-    """
-    Helper factory to create request mocks
-    """
-    request_mock = Mock()
-    request_mock.method = 'POST'
-    request_mock.body = request_body
-    request_mock.json = json.loads(request_body)
-    return request_mock
+from video_xblock.tests.unit.base import VideoXBlockTestBase, arrange_request_mock
 
 
 class AuthenticateApiHandlerTests(VideoXBlockTestBase):
@@ -79,11 +68,11 @@ class UploadDefaultTranscriptHandlerTests(VideoXBlockTestBase):
             response = self.xblock.upload_default_transcript_handler(request_mock)
         # Assert
             player_mock.download_default_transcript.assert_called_with(
-                url=assert_data['url'], language_code=assert_data['lang']
+                assert_data['url'], assert_data['lang']
             )
             create_reference_name_mock.assert_called_with(assert_data['label'], test_media_id, assert_data['source'])
             player_mock.download_default_transcript.assert_called_with(
-                url=assert_data['url'], language_code=assert_data['lang']
+                assert_data['url'], assert_data['lang']
             )
             convert_caps_mock.assert_called_with(caps=test_subs_text)
             create_transcript_file_mock.assert_called_with(trans_str=prepared_subs_mock, reference_name=test_reference)

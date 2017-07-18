@@ -132,20 +132,20 @@ function validateTranscriptFile(event, fieldName, filename, $fileUploader) {
  */
 function pushTranscript(lang, label, url, source, oldLang, transcriptsValue) {
     'use strict';
-    var indexLanguage;
+    var languageIndex;
     var i;
     for (i = 0; i < transcriptsValue.length; i++) {
         if (oldLang === transcriptsValue[i].lang || lang === transcriptsValue[i].lang) {
-            indexLanguage = i;
+            languageIndex = i;
             break;
         }
     }
-    if (indexLanguage !== undefined) {
-        transcriptsValue[indexLanguage].lang = lang;  // eslint-disable-line no-param-reassign
-        transcriptsValue[indexLanguage].label = label;  // eslint-disable-line no-param-reassign
-        transcriptsValue[indexLanguage].source = source;  // eslint-disable-line no-param-reassign
+    if (languageIndex !== undefined) {
+        transcriptsValue[languageIndex].lang = lang;  // eslint-disable-line no-param-reassign
+        transcriptsValue[languageIndex].label = label;  // eslint-disable-line no-param-reassign
+        transcriptsValue[languageIndex].source = source;  // eslint-disable-line no-param-reassign
         if (url) {
-            transcriptsValue[indexLanguage].url = url;  // eslint-disable-line no-param-reassign
+            transcriptsValue[languageIndex].url = url;  // eslint-disable-line no-param-reassign
         }
         return false;
     } else {
@@ -235,15 +235,38 @@ function createTranscriptBlock(langCode, langLabel, transcriptsValue, downloadTr
 }
 
 /**
+ * Return string with allowed for uploading file extensions by given uploading context ('transcripts'/'handouts').
+ */
+function getAllowedFileExtensions(uploadingContext) {
+    'use strict';
+    var transcriptsAllowedFileExtensions = '.srt, .vtt';
+    var handoutsAllowedFileTypes = (
+        '.gif, .ico, .jpg, .jpeg, .png, .tif, .tiff, .bmp, .svg, ' +  // images
+        '.pdf, .txt, .rtf, .csv, ' +                                  // documents
+        '.doc, .docx, .xls, .xlsx, .ppt, .pptx, .pub, ' +             // MSOffice
+        '.odt, .ods, .odp, ' +                                        // openOffice
+        '.zip, .7z, .gzip, .tar ' +                                   // archives
+        '.html, .xml, .js, .sjson'                                    // other
+    );
+    switch (uploadingContext) {
+    case 'transcripts':
+        return transcriptsAllowedFileExtensions;
+    default:
+        return handoutsAllowedFileTypes;
+    }
+}
+
+/**
  * Assign transcript's data to file uploader's attributes.
  */
 function clickUploader(event, $fileUploader) {
     'use strict';
+
     var $buttonBlock = $(event.currentTarget);
     var indexOfParentLi = $('.language-transcript-selector').children().index($buttonBlock.closest('li'));
     var langCode = $buttonBlock.attr('data-lang-code');
     var langLabel = $buttonBlock.attr('data-lang-label');
-    var fieldNameDetails = $buttonBlock.attr('data-change-field-name') === 'transcripts' ? '.srt, .vtt' : '';
+    var fieldNameDetails = getAllowedFileExtensions($buttonBlock.attr('data-change-field-name'));
     var fieldName = $buttonBlock.attr('data-change-field-name');
     var dataLiIndex = $buttonBlock.attr('data-change-field-name') === 'transcripts' ? indexOfParentLi : '';
     event.preventDefault();

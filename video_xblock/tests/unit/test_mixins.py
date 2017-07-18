@@ -5,7 +5,9 @@ VideoXBlock mixins test cases.
 import json
 from collections import Iterable, OrderedDict
 
+import requests
 from django.test import RequestFactory
+from django.test.utils import override_settings
 from mock import patch, Mock, MagicMock, PropertyMock
 from webob import Response
 from xblock.exceptions import NoSuchServiceError
@@ -188,44 +190,47 @@ class SettingsMixinTests(VideoXBlockTestBase):
     Test SettingsMixin
     """
 
-    def test_block_settings_key_is_correct(self):
-        self.assertEqual(self.xblock.block_settings_key, 'video_xblock')
-
-    @patch('video_xblock.mixins.import_from')
-    def test_settings_property_with_runtime_service(self, import_from_mock):
-        with patch.object(self.xblock, 'runtime') as runtime_mock:
-            # Arrange
-            service_mock = runtime_mock.service
-            settings_bucket_mock = service_mock.return_value.get_settings_bucket
-            settings_bucket_mock.return_value = {'foo': 'bar'}
-
-            # Act
-            settings = self.xblock.settings
-
-            # Assert
-            self.assertEqual(settings, {'foo': 'bar'})
-            service_mock.assert_called_once_with(self.xblock, 'settings')
-            settings_bucket_mock.assert_called_once_with(self.xblock)
-            import_from_mock.assert_not_called()
-
-    @patch('video_xblock.mixins.import_from')
-    def test_settings_property_without_runtime_service(self, import_from_mock):
-        with patch.object(self.xblock, 'runtime') as runtime_mock:
-            # Arrange
-            service_mock = runtime_mock.service
-            service_mock.return_value = None
-            get_settings_mock = import_from_mock.return_value.XBLOCK_SETTINGS.get
-            get_settings_mock.return_value = {'foo': 'bar'}
+    @override_settings(
+        XBLOCK_SETTINGS={
+            'domain.com': {
+                'field1': 'value1',
+                'field2': 'value2'
+            },
+            'foo.domain.com': {
+                'field1': 'value1foo',
+                'field2': 'value2foo'
+            }
+        }
+    )
+    def test_settings_property_with_microsite_enabled(self):
+        # Arrange
+        with patch.object(self.xblock, 'get_current_site_name') as get_current_site_name_mock:
+            get_current_site_name_mock.return_value = 'foo.domain.com'
 
             # Act
             settings = self.xblock.settings
 
             # Assert
-            self.assertEqual(settings, {'foo': 'bar'})
-            import_from_mock.assert_called_once_with('django.conf', 'settings')
-            get_settings_mock.assert_called_once_with(
-                self.xblock.block_settings_key, {}
-            )
+            self.assertEqual(settings, {'field1': 'value1foo', 'field2': 'value2foo'})
+
+    @override_settings(
+        XBLOCK_SETTINGS={
+            'domain.com': {
+                'field1': 'value1',
+                'field2': 'value2'
+            },
+        }
+    )
+    def test_settings_property_with_microsite_disabled(self):
+        # Arrange
+        with patch.object(self.xblock, 'get_current_site_name') as get_current_site_name_mock:
+            get_current_site_name_mock.return_value = None  # SITE_NAME env variable isn't set
+
+            # Act
+            settings = self.xblock.settings
+
+            # Assert
+            self.assertEqual(settings, {})
 
     @patch.object(VideoXBlock, 'settings', new_callable=PropertyMock)
     def test_populate_default_values(self, settings_mock):
@@ -238,6 +243,26 @@ class SettingsMixinTests(VideoXBlockTestBase):
 
         # Assert
         self.assertEqual(populated_xblock_fields, {'foo': 'bar', 'spam': 'eggs'})
+
+    @override_settings(
+        # Arrange
+        SITE_NAME='foo.domain.name'
+    )
+    def test_get_current_site_name_success(self):
+        # Act
+        prefix = self.xblock.get_current_site_name()
+        # Assert
+        self.assertEqual(prefix, 'foo.domain.name')
+
+    @override_settings(
+        # Arrange
+        SITE_NAME=None
+    )
+    def test_get_current_site_name_failure(self):
+        # Act
+        prefix = self.xblock.get_current_site_name()
+        # Assert
+        self.assertIsNone(prefix)
 
 
 class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inherits-tests
@@ -367,7 +392,6 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
         with patch.object(self.xblock, 'get_3pm_transcripts_list') as threepm_transcripts_mock, \
                 patch.object(self.xblock, 'threeplaymedia_file_id') as file_id_mock, \
                 patch.object(self.xblock, 'threeplaymedia_apikey') as apikey_mock:
-
             threepm_transcripts_mock.return_value = test_feedback, test_transcripts_list
             # Act:
             transcripts_gen = self.xblock.fetch_available_3pm_transcripts()
@@ -387,7 +411,6 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
                 patch.object(self.xblock, 'fetch_single_3pm_translation') as fetch_3pm_translation_mock, \
                 patch.object(self.xblock, 'threeplaymedia_file_id') as file_id_mock, \
                 patch.object(self.xblock, 'threeplaymedia_apikey') as apikey_mock:
-
             threepm_transcripts_mock.return_value = test_feedback, test_transcripts_list
             fetch_3pm_translation_mock.return_value = Transcript(*test_args)
             # Act:
@@ -400,7 +423,7 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
             fetch_3pm_translation_mock.assert_called_once_with(test_transcripts_list[0])
 
     @patch('video_xblock.mixins.requests.get')
-    def test_get_available_3pm_transcripts(self, requests_get_mock):
+    def test_get_3pm_transcripts_list_success(self, requests_get_mock):
         # Arrange:
         test_json = [{"test": "json_string"}]
         test_message = _("3PlayMedia transcripts fetched successfully.")
@@ -418,6 +441,22 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
         self.assertTrue(requests_get_mock.ok)
         self.assertTrue(requests_get_mock.json.assert_called)
         self.assertEqual(transcripts_list, test_json)
+        self.assertEqual(feedback, test_feedback)
+        requests_get_mock.assert_called_once_with(test_api_url)
+
+    @patch('video_xblock.mixins.requests.get')
+    def test_get_3pm_transcripts_list_api_failure(self, requests_get_mock):
+        # Arrange:
+        test_message = _("3PlayMedia transcripts fetching API request has failed!")
+        test_feedback = {'status': Status.error, 'message': test_message}
+        requests_get_mock.side_effect = requests.RequestException()
+        file_id = 'test_file_id'
+        api_key = 'test_api_key'
+        test_api_url = 'https://static.3playmedia.com/files/test_file_id/transcripts?apikey=test_api_key'
+        # Act:
+        feedback, transcripts_list = self.xblock.get_3pm_transcripts_list(file_id, api_key)
+        # Assert:
+        self.assertEqual(transcripts_list, [])
         self.assertEqual(feedback, test_feedback)
         requests_get_mock.assert_called_once_with(test_api_url)
 
