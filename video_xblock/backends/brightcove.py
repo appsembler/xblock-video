@@ -400,7 +400,8 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         )
         js_files = [
             'static/js/base.js',
-            'static/js/videojs/toggle-button.js'
+            'static/js/videojs/toggle-button.js',
+            'static/js/student-view/player-state.js'
         ]
         js_files += [
             'static/js/videojs/videojs-tabindex.js',

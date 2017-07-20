@@ -100,6 +100,7 @@ var PlayerState = function(player, playerState) {
     };
 
     setInitialState(playerState);
+
     player
         .on('timeupdate', saveProgressToLocalStore)
         .on('volumechange', saveState)
