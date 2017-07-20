@@ -246,7 +246,8 @@ function getAllowedFileExtensions(uploadingContext) {
         '.doc, .docx, .xls, .xlsx, .ppt, .pptx, .pub, ' +             // MSOffice
         '.odt, .ods, .odp, ' +                                        // openOffice
         '.zip, .7z, .gzip, .tar ' +                                   // archives
-        '.html, .xml, .js, .sjson'                                    // other
+        '.html, .xml, .js, .sjson, ' +                                // other
+        transcriptsAllowedFileExtensions                              // transcripts
     );
     switch (uploadingContext) {
     case 'transcripts':

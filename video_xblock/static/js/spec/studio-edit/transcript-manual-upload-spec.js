@@ -133,7 +133,8 @@ describe('Correct file extensions are returned when', function() {
             '.doc, .docx, .xls, .xlsx, .ppt, .pptx, .pub, ' +             // MSOffice
             '.odt, .ods, .odp, ' +                                        // openOffice
             '.zip, .7z, .gzip, .tar ' +                                   // archives
-            '.html, .xml, .js, .sjson'                                    // other
+            '.html, .xml, .js, .sjson, ' +                                // other
+            '.srt, .vtt'                                                  // transcripts
         );
         expect(getAllowedFileExtensions('somethings_else_or_null')).toEqual(handoutsAllowedFileTypes);
     });
