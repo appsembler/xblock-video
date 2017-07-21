@@ -120,6 +120,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
         handler_url.side_effect = ['/player/url', '/transcript/download/url']
         route_transcripts.return_value = 'transcripts.vtt'
         self.xblock.get_transcript_download_link = Mock(return_value='/transcript/link.vtt')
+        self.xblock.threeplaymedia_streaming = True
 
         # Act
         student_view = self.xblock.student_view(unused_context_stub)
@@ -130,6 +131,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
             'static/html/student_view.html',
             display_name='Video',
             download_transcript_allowed=False,
+            transcripts_streaming_enabled=True,
             download_video_url=False,
             handout='',
             handout_file_name='',

@@ -304,6 +304,7 @@ class VideoXBlock(
                 handout=self.handout,
                 transcripts=self.route_transcripts(),
                 download_transcript_allowed=self.download_transcript_allowed,
+                transcripts_streaming_enabled=self.threeplaymedia_streaming,
                 download_video_url=self.get_download_video_url(),
                 handout_file_name=self.get_file_name_from_path(self.handout),
                 transcript_download_link=full_transcript_download_link,
