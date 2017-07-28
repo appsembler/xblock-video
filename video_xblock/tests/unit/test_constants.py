@@ -15,7 +15,9 @@ class ConstantsTest(unittest.TestCase):
     """
 
     def test_three_play_media_language_data_constant_creation(self):
-        """Test 3PlayMedia available transcript language_info object creation"""
+        """
+        Test 3PlayMedia available transcript language_info object creation.
+        """
         self.assertRaises(ValueError, TPMApiLanguage, 'a')
         self.assertRaises(ValueError, TPMApiLanguage, 999)
 
@@ -34,7 +36,9 @@ class ConstantsTest(unittest.TestCase):
         }
     })
     def test_three_play_media_language_data_constant_structure(self, test_data):
-        """Test 3PlayMedia available transcript language_info object creation"""
+        """
+        Test 3PlayMedia available transcript language_info object creation.
+        """
         for lang_id, lang_info in test_data.items():
             self.assertEqual(TPMApiLanguage(lang_id).ietf_code, lang_info["ietf_code"])
             self.assertEqual(TPMApiLanguage(lang_id).iso_639_1_code, lang_info["iso_639_1_code"])
