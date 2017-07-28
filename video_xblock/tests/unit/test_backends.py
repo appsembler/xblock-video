@@ -170,6 +170,9 @@ class TestCustomBackends(VideoXBlockTestBase):
     @data(*zip(backends, expected_trans_fields, expected_3pm_fields))
     @unpack
     def test_transcripts_fields(self, backend, expected_trans_fields, expected_3pm_fields):
+        """
+        Test xBlock's transcript fields list is correct.
+        """
         player = self.player[backend](self.xblock)
         self.assertListEqual(player.trans_fields, expected_trans_fields)
         self.assertListEqual(player.three_pm_fields, expected_3pm_fields)
@@ -359,6 +362,9 @@ class TestCustomBackends(VideoXBlockTestBase):
     @data(*zip(backends, download_video_url_delegates))
     @unpack
     def test_download_video_url_delegates_to_proper_xblock_attribute(self, backend, patch_target):
+        """
+        Test video downloading URL delegates to proper xBlock's attribute.
+        """
         # Arrange
         delegate_mock = PropertyMock()
         setattr(self.xblock, patch_target, delegate_mock)
@@ -462,7 +468,6 @@ class VimeoApiClientTest(VideoXBlockTestBase):
         """
         Test Vimeo's default transcripts fetching (positive scenario).
         """
-
         # Arrange
         test_json_data = {"data": [{"test_key": "test_value"}]}
         success_message = _('Default transcripts successfully fetched from a video platform.')
@@ -487,7 +492,6 @@ class VimeoApiClientTest(VideoXBlockTestBase):
         """
         Test Vimeo's default transcripts fetching without provided API token.
         """
-
         # Arrange
         failure_message = _('No API credentials provided.')
 
@@ -505,7 +509,6 @@ class VimeoApiClientTest(VideoXBlockTestBase):
         """
         Test Vimeo's default transcripts fetching with GET request failure.
         """
-
         # Arrange
         failure_message = _('No timed transcript may be fetched from a video platform.<br>')
 
@@ -524,7 +527,6 @@ class VimeoApiClientTest(VideoXBlockTestBase):
         """
         Test Vimeo's default transcripts fetching with no data returned.
         """
-
         # Arrange
         test_json_data = []
         success_message = _('There are no default transcripts for the video on the video platform.')
@@ -544,7 +546,6 @@ class VimeoApiClientTest(VideoXBlockTestBase):
         """
         Test Vimeo's default transcripts fetching with data parsing failure.
         """
-
         # Arrange
         test_json_data = {"data": [{"test_key": "test_value"}]}
         failure_message = "test_message"
@@ -568,7 +569,6 @@ class VimeoApiClientTest(VideoXBlockTestBase):
         """
         Test Vimeo's default transcripts downloading.
         """
-
         # Arrange
         test_file_data = u"test_file_data"
         requests_get_mock.return_value = Mock(content=test_file_data)
@@ -640,8 +640,10 @@ class WistiaPlayerTest(VideoXBlockTestBase):
         test_message = _('No timed transcript may be fetched from a video platform.\nError details: test_exc_message')
         test_url = 'https://api.wistia.com/v1/medias/test_video_id/captions.json?api_password=test_token'
         requests_get_mock.side_effect = requests.RequestException("test_exc_message")
+
         # Act
         transcripts, message = self.wistia_player.get_default_transcripts(**kwargs)
+
         # Assert
         requests_get_mock.assert_called_once_with(test_url)
         self.assertEqual(transcripts, [])
@@ -660,8 +662,10 @@ class WistiaPlayerTest(VideoXBlockTestBase):
         test_message = "Wistia video test_wrong_video_id doesn't exist."
         test_url = 'https://api.wistia.com/v1/medias/test_wrong_video_id/captions.json?api_password=test_token'
         requests_get_mock.return_value = ResponseStub(status_code=404, body=[])
+
         # Act
         transcripts, message = self.wistia_player.get_default_transcripts(**kwargs)
+
         # Assert
         requests_get_mock.assert_called_once_with(test_url)
         self.assertEqual(transcripts, [])
@@ -680,8 +684,10 @@ class WistiaPlayerTest(VideoXBlockTestBase):
         test_message = "Invalid request."
         test_url = 'https://api.wistia.com/v1/medias/test_video_id/captions.json?api_password=test_token'
         requests_get_mock.return_value = ResponseStub(status_code=400, ok=False, body=[])
+
         # Act
         transcripts, message = self.wistia_player.get_default_transcripts(**kwargs)
+
         # Assert
         requests_get_mock.assert_called_once_with(test_url)
         self.assertEqual(transcripts, [])
@@ -701,8 +707,10 @@ class WistiaPlayerTest(VideoXBlockTestBase):
         test_url = 'https://api.wistia.com/v1/medias/test_video_id/captions.json?api_password=test_token'
         requests_get_mock.return_value = response_mock = ResponseStub(status_code=200)
         response_mock.json = Mock(side_effect=ValueError())
+
         # Act
         transcripts, message = self.wistia_player.get_default_transcripts(**kwargs)
+
         # Assert
         requests_get_mock.assert_called_once_with(test_url)
         self.assertEqual(transcripts, [])
@@ -751,11 +759,10 @@ class WistiaPlayerTest(VideoXBlockTestBase):
         """
         Test Wistia's default transcripts downloading (positive scenario).
         """
-
         # Arrange
         test_api_data = {'text': 'test_content'}
-        test_url = u"test_url"
-        test_language_code = u"test_language_code"
+        test_url = "test_url"
+        test_language_code = "test_language_code"
 
         requests_get_mock.return_value = ResponseStub(status_code=200, body=test_api_data)
 
@@ -771,7 +778,6 @@ class WistiaPlayerTest(VideoXBlockTestBase):
         """
         Test Wistia's default transcripts downloading (request failure).
         """
-
         # Arrange
         test_url = u"test_url"
         test_language_code = u"test_language_code"
@@ -790,7 +796,6 @@ class WistiaPlayerTest(VideoXBlockTestBase):
         """
         Test Wistia's default transcripts downloading (request parsing failure).
         """
-
         # Arrange
         test_url = u"test_url"
         test_language_code = u"test_language_code"
