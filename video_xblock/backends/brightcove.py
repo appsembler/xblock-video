@@ -447,37 +447,32 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         if not self.api_key and self.api_secret:
             raise BrightcoveApiClientError(_('No API credentials provided'))
 
-        if suffix == 'get_video_renditions':
-            return self.get_video_renditions(
-                self.xblock.account_id, self.media_id(self.xblock.href)
-            )
-        elif suffix == 'get_video_tech_info':
-            return self.get_video_tech_info(
-                self.xblock.account_id, self.media_id(self.xblock.href)
-            )
-        elif suffix == 'create_credentials':
-            return self.create_credentials(
+        routes = {
+            'create_credentials': lambda: self.create_credentials(
                 self.xblock.token, self.xblock.account_id
-            )
-        elif suffix == 'get_ingest_profiles':
-            return self.get_ingest_profiles(self.xblock.account_id)
-        elif suffix == 'ensure_ingest_profiles':
-            return self.ensure_ingest_profiles(self.xblock.account_id)
-
-        elif suffix == 'submit_retranscode_default':
-            return self.submit_retranscode_job(
+            ),
+            'ensure_ingest_profiles': lambda: self.ensure_ingest_profiles(self.xblock.account_id),
+            'get_video_renditions': lambda: self.get_video_renditions(
+                self.xblock.account_id, self.media_id(self.xblock.href)
+            ),
+            'get_video_tech_info': lambda: self.get_video_tech_info(
+                self.xblock.account_id, self.media_id(self.xblock.href)
+            ),
+            'get_ingest_profiles': lambda: self.get_ingest_profiles(self.xblock.account_id),
+            'retranscode-status': lambda: self.xblock.metadata.get('retranscode-status'),
+            'submit_retranscode_default': lambda: self.submit_retranscode_job(
                 self.xblock.account_id, self.media_id(self.xblock.href), 'default'
-            )
-        elif suffix == 'submit_retranscode_autoquality':
-            return self.submit_retranscode_job(
+            ),
+            'submit_retranscode_autoquality': lambda: self.submit_retranscode_job(
                 self.xblock.account_id, self.media_id(self.xblock.href), 'autoquality'
-            )
-        elif suffix == 'submit_retranscode_encryption':
-            return self.submit_retranscode_job(
+            ),
+            'submit_retranscode_encryption': lambda: self.submit_retranscode_job(
                 self.xblock.account_id, self.media_id(self.xblock.href), 'encryption'
-            )
-        elif suffix == 'retranscode-status':
-            return self.xblock.metadata.get('retranscode-status')
+            ),
+        }
+
+        if suffix in routes:
+            return routes[suffix]()
         return {'success': False, 'message': 'Unknown method'}
 
     def can_show_settings(self):
