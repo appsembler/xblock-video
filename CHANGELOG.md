@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.9.1] - 2017-08-01
+
+### Changed
+
+- XBLOCK_SETTINGS: xBlock's default fields values now can be configured
+on per domain basis (SITE_NAME environment variable must be configured
+to make this settings work.
+- Handouts: wide list of file types now is allowed to upload (please,
+ refer to README file).
+- UI: minor changes to default transcripts accordion section (appearance, wordings)
+
+### Fixed
+
+- Brightcove player state handling
+- Token field regression bug (accordion refactoring)
+
 ## [0.9.0] - 2017-07-11
 
 ### Added
