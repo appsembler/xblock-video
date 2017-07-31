@@ -808,3 +808,58 @@ class WistiaPlayerTest(VideoXBlockTestBase):
         # Assert
         self.assertEqual(content, u'')
         requests_get_mock.assert_called_once_with(test_url)
+
+
+class BrightcovePlayerTest(VideoXBlockTestBase):
+    """
+    Test Brightcove backend.
+    """
+
+    def setUp(self):
+        super(BrightcovePlayerTest, self).setUp()
+        self.bc_player = brightcove.BrightcovePlayer(self.xblock)
+
+    @patch('video_xblock.backends.brightcove.requests.get')
+    def test_brightcove_get_default_transcripts_no_text(self, requests_get_mock):
+        """
+        Test Brightcove's default transcripts fetching (empty text fetched).
+        """
+        # Arrange
+        self.bc_player.api_key = 'test_api_key'
+        self.bc_player.api_secret = 'test_api_secret'
+        kwargs = {
+            'account_id': 'test_account_id',
+            'video_id': 'test_video_id'
+        }
+        test_message = "No timed transcript may be fetched from a video platform."
+        test_url = 'https://cms.api.brightcove.com/v1/accounts/test_account_id/videos/test_video_id'
+        test_headers = {'Authorization': 'Bearer None'}
+        requests_get_mock.return_value = ResponseStub(status_code=200, body='')
+
+        # Act
+        transcripts, message = self.bc_player.get_default_transcripts(**kwargs)
+
+        # Assert
+        requests_get_mock.assert_called_once_with(test_url, headers=test_headers)
+        self.assertEqual(transcripts, [])
+        self.assertEqual(message, test_message)
+
+    @patch('video_xblock.backends.brightcove.BrightcoveApiClient.create_credentials')
+    def test_brightcove_authenticate_api(self, api_client_create_creds_mock):
+        """
+        Test Brightcove's api authentication (not CREATED or no response data).
+        """
+        # Arrange
+        kwargs = {
+            'token': 'test_token',
+            'account_id': '1'
+        }
+        test_message = "test_message"
+        api_client_create_creds_mock.side_effect = brightcove.BrightcoveApiClientError("test_message")
+
+        # Act
+        auth_data, error_message = self.bc_player.authenticate_api(**kwargs)
+
+        # Assert
+        self.assertEqual(auth_data, {})
+        self.assertEqual(error_message, test_message)
