@@ -7,16 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [0.9.1] - 2017-08-01
+## [0.9.1] - 2017-08-04
 
 ### Changed
 
-- XBLOCK_SETTINGS: xBlock's default fields values now can be configured
-on per domain basis (SITE_NAME environment variable must be configured
-to make this settings work.
 - Handouts: wide list of file types now is allowed to upload (please,
  refer to README file).
 - UI: minor changes to default transcripts accordion section (appearance, wordings)
+- Increase test coverage to improve product stability.
+- Some code base refactoring to make xblock more robust.
 
 ### Fixed
 
@@ -243,4 +242,5 @@ to make this settings work.
 [0.7.1]: https://github.com/raccoongang/xblock-video/compare/v0.7.0...v0.7.1
 [0.8.0]: https://github.com/raccoongang/xblock-video/compare/v0.7.1...v0.8.0
 [0.9.0]: https://github.com/raccoongang/xblock-video/compare/v0.8.0...v0.9.0
-[Unreleased]: https://github.com/raccoongang/xblock-video/compare/v0.9.0...HEAD
+[0.9.1]: https://github.com/raccoongang/xblock-video/compare/v0.9.0...v0.9.1
+[Unreleased]: https://github.com/raccoongang/xblock-video/compare/v0.9.1...HEAD
