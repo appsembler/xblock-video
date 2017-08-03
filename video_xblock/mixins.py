@@ -477,7 +477,7 @@ class PlaybackStateMixin(XBlock):
         transcripts_object = {
             trans['lang']: {'url': trans['url'], 'label': trans['label']}
             for trans in transcripts
-        }
+            }
         state = {
             'captionsLanguage': self.captions_language or self.course_default_language,
             'transcriptsObject': transcripts_object,
@@ -531,28 +531,11 @@ class SettingsMixin(XBlock):
 
     Sample default settings in /edx/app/edxapp/cms.env.json:
     "XBLOCK_SETTINGS": {
-      "example.com": {
-        "3playmedia_api_key": "987654321",
-        "account_id": "1234567890"
-      }
-    }
-
-    In case of enabled microsites (suppose configured "foo" and "bar" microsites) it can be extended to:
-    "XBLOCK_SETTINGS": {
-        "example.com": {
+        "video_xblock": {
             "3playmedia_api_key": "987654321",
             "account_id": "1234567890",
-        },
-        "foo.example.com": {
-            "player_id": "real_player_id",
-        },
-        "bar.example.com": {
-            "3playmedia_api_key": "1234567890",
-            "account_id": "987654321",
         }
     }
-
-    Here above each provided key corresponds to SITE_NAME environment variable value.
     """
 
     @property
@@ -571,37 +554,11 @@ class SettingsMixin(XBlock):
                     "account_id": "1234567890"
                 }
         """
-        site_name = self.get_current_site_name()
-        if not site_name:
+        settings = import_from('django.conf', 'settings')
+        if not hasattr(settings, 'XBLOCK_SETTINGS'):
             return {}
 
-        settings = import_from('django.conf', 'settings')
-        return settings.XBLOCK_SETTINGS.get(site_name, {})
-
-    def populate_default_values(self, submit_data):
-        """
-        Populate unset default values from settings file.
-        """
-        for key, value in self.settings.items():
-            submit_data.setdefault(key, value)
-            # if key is present in submit data but set to empty value:
-            if key in submit_data and not submit_data[key]:
-                submit_data[key] = value
-
-        return submit_data
-
-    def get_current_site_name(self):
-        """
-        Fetch current site domain.
-
-        :return: (unicode) or None
-        """
-        settings = import_from('django.conf', 'settings')
-
-        try:
-            return settings.SITE_NAME
-        except AttributeError:
-            return
+        return settings.XBLOCK_SETTINGS.get('video_xblock', {})
 
 
 class LocationMixin(XBlock):
