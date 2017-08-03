@@ -532,7 +532,7 @@ class SettingsMixin(XBlock):
     Sample default settings in /edx/app/edxapp/cms.env.json:
     "XBLOCK_SETTINGS": {
         "video_xblock": {
-            "3playmedia_api_key": "987654321",
+            "threeplaymedia_apikey": "987654321",
             "account_id": "1234567890",
         }
     }
@@ -549,10 +549,10 @@ class SettingsMixin(XBlock):
 
         Returns:
             dict: Settings from config file. E.g.
-                {
-                    "threeplaymedia_apikey": "987654321",
-                    "account_id": "1234567890"
-                }
+            {
+                "threeplaymedia_apikey": "987654321",
+                "account_id": "1234567890"
+            }
         """
         settings = import_from('django.conf', 'settings')
         if not hasattr(settings, 'XBLOCK_SETTINGS'):

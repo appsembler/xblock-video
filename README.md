@@ -145,16 +145,10 @@ Sample default settings in `/edx/app/edxapp/cms.env.json`:
 
 ```json
     "XBLOCK_SETTINGS": {
-      "example.com": {
+      "video_xblock": {
         "threeplaymedia_apikey": "987654321",
         "account_id": "1234567890"
-      },
-      "foo.example.com": {
-        "player_id": "real_player_id"
-        },
-      "bar.example.com": {
-        "account_id": "987654321"
-        }
+      }
     }
 ```
 Note: here above each provided key corresponds to SITE_NAME environment variable value.
