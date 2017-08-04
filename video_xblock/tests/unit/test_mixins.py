@@ -5,7 +5,9 @@ VideoXBlock mixins test cases.
 import json
 from collections import Iterable, OrderedDict
 
+import requests
 from django.test import RequestFactory
+from django.test.utils import override_settings
 from mock import patch, Mock, MagicMock, PropertyMock
 from webob import Response
 from xblock.exceptions import NoSuchServiceError
@@ -23,6 +25,9 @@ class ContentStoreMixinTest(VideoXBlockTestBase):
 
     @patch('video_xblock.mixins.import_from')
     def test_contentstore_no_service(self, import_mock):
+        """
+        Test content store is imported.
+        """
         import_mock.return_value = 'contentstore_test'
 
         self.assertEqual(self.xblock.contentstore, 'contentstore_test')
@@ -30,12 +35,18 @@ class ContentStoreMixinTest(VideoXBlockTestBase):
 
     @patch('video_xblock.mixins.import_from')
     def test_static_content_no_service(self, import_mock):
+        """
+        Test proper content store is used.
+        """
         import_mock.return_value = 'StaticContent_test'
 
         self.assertEqual(self.xblock.static_content, 'StaticContent_test')
         import_mock.assert_called_once_with('xmodule.contentstore.content', 'StaticContent')
 
     def test_contentstore(self):
+        """
+        Test xBlock's contentstore property works properly.
+        """
         with patch.object(self.xblock, 'runtime') as runtime_mock:
             service_mock = runtime_mock.service
             type(service_mock.return_value).contentstore = cs_mock = PropertyMock(
@@ -47,6 +58,9 @@ class ContentStoreMixinTest(VideoXBlockTestBase):
             cs_mock.assert_called_once()
 
     def test_static_content(self):
+        """
+        Test xBlock's StaticContent property works properly.
+        """
         with patch.object(self.xblock, 'runtime') as runtime_mock:
             service_mock = runtime_mock.service
             type(service_mock.return_value).StaticContent = sc_mock = PropertyMock(
@@ -62,18 +76,33 @@ class LocationMixinTests(VideoXBlockTestBase):
     """Test LocationMixin"""
 
     def test_xblock_doesnt_have_location_by_default(self):
+        """
+        Test xBlock doesn't have location by default.
+        """
         self.assertFalse(hasattr(self.xblock, 'location'))
 
     def test_fallback_block_id(self):
+        """
+        Test xBlock's has default `block_id` value.
+        """
         self.assertEqual(self.xblock.block_id, 'block_id')
 
     def test_fallback_course_key(self):
+        """
+        Test xBlock's has default `course_key` value.
+        """
         self.assertEqual(self.xblock.course_key, 'course_key')
 
     def test_fallback_usage_id(self):
+        """
+        Test xBlock's has default `usage_id` value.
+        """
         self.assertEqual(self.xblock.usage_id, 'usage_id')
 
     def test_block_id(self):
+        """
+        Test xBlock's `block_id` property works properly.
+        """
         self.xblock.location = Mock()
         type(self.xblock.location).block_id = block_mock = PropertyMock(
             return_value='test_block_id'
@@ -83,6 +112,9 @@ class LocationMixinTests(VideoXBlockTestBase):
         block_mock.assert_called_once()
 
     def test_course_key(self):
+        """
+        Test xBlock's `course_key` property works properly.
+        """
         self.xblock.location = Mock()
 
         type(self.xblock.location).course_key = course_key_mock = PropertyMock(
@@ -93,6 +125,9 @@ class LocationMixinTests(VideoXBlockTestBase):
         course_key_mock.assert_called_once()
 
     def test_usage_id(self):
+        """
+        Test xBlock's `usage_id` property works properly.
+        """
         self.xblock.location = Mock()
         self.xblock.location.to_deprecated_string = str_mock = Mock(
             return_value='test_str'
@@ -103,9 +138,14 @@ class LocationMixinTests(VideoXBlockTestBase):
 
 
 class PlaybackStateMixinTests(VideoXBlockTestBase):
-    """Test PlaybackStateMixin"""
+    """
+    Test PlaybackStateMixin.
+    """
 
     def test_fallback_course_default_language(self):
+        """
+        Test xBlock's `course_default_language` property falls back to DEFAULT_LANG.
+        """
         with patch.object(self.xblock, 'runtime') as runtime_mock:
             runtime_mock.service = service_mock = Mock(side_effect=NoSuchServiceError)
 
@@ -113,6 +153,9 @@ class PlaybackStateMixinTests(VideoXBlockTestBase):
             service_mock.assert_called_once()
 
     def test_course_default_language(self):
+        """
+        Test xBlock's `course_default_language` property works properly.
+        """
         with patch.object(self.xblock, 'runtime') as runtime_mock:
             service_mock = runtime_mock.service
             lang_mock = type(service_mock.return_value.get_course.return_value).language = PropertyMock(
@@ -187,65 +230,109 @@ class SettingsMixinTests(VideoXBlockTestBase):
     """
     Test SettingsMixin
     """
-
-    def test_block_settings_key_is_correct(self):
-        self.assertEqual(self.xblock.block_settings_key, 'video_xblock')
-
-    @patch('video_xblock.mixins.import_from')
-    def test_settings_property_with_runtime_service(self, import_from_mock):
-        with patch.object(self.xblock, 'runtime') as runtime_mock:
-            # Arrange
-            service_mock = runtime_mock.service
-            settings_bucket_mock = service_mock.return_value.get_settings_bucket
-            settings_bucket_mock.return_value = {'foo': 'bar'}
-
-            # Act
-            settings = self.xblock.settings
-
-            # Assert
-            self.assertEqual(settings, {'foo': 'bar'})
-            service_mock.assert_called_once_with(self.xblock, 'settings')
-            settings_bucket_mock.assert_called_once_with(self.xblock)
-            import_from_mock.assert_not_called()
-
-    @patch('video_xblock.mixins.import_from')
-    def test_settings_property_without_runtime_service(self, import_from_mock):
-        with patch.object(self.xblock, 'runtime') as runtime_mock:
-            # Arrange
-            service_mock = runtime_mock.service
-            service_mock.return_value = None
-            get_settings_mock = import_from_mock.return_value.XBLOCK_SETTINGS.get
-            get_settings_mock.return_value = {'foo': 'bar'}
-
-            # Act
-            settings = self.xblock.settings
-
-            # Assert
-            self.assertEqual(settings, {'foo': 'bar'})
-            import_from_mock.assert_called_once_with('django.conf', 'settings')
-            get_settings_mock.assert_called_once_with(
-                self.xblock.block_settings_key, {}
-            )
-
-    @patch.object(VideoXBlock, 'settings', new_callable=PropertyMock)
-    def test_populate_default_values(self, settings_mock):
+    @override_settings(
         # Arrange
-        settings_mock.return_value = {'foo': 'another bar', 'spam': 'eggs'}
-        xblock_fields_dict = {'foo': 'bar'}
-
+        XBLOCK_SETTINGS={
+            'video_xblock': {
+                'field1': 'value1',
+                'field2': 'value2'
+            },
+            'other_xblock': {
+                'field1': 'value1foo',
+                'field2': 'value2foo'
+            }
+        }
+    )
+    def test_settings_property_with_microsite_enabled(self):
+        """
+        Test settings property works with enabled microsites.
+        """
         # Act
-        populated_xblock_fields = self.xblock.populate_default_values(xblock_fields_dict)
+        settings = self.xblock.settings
 
         # Assert
-        self.assertEqual(populated_xblock_fields, {'foo': 'bar', 'spam': 'eggs'})
+        self.assertEqual(settings, {'field1': 'value1', 'field2': 'value2'})
+
+    @override_settings(
+        # Arrange
+        XBLOCK_SETTINGS={}
+    )
+    def test_settings_property_no_conf(self):
+        """
+        Test settings property works with enabled microsites.
+        """
+        # Act
+        settings = self.xblock.settings
+
+        # Assert
+        self.assertEqual(settings, {})
+
+    @override_settings(
+        # Arrange
+        XBLOCK_SETTINGS={
+            'other_xblock': {
+                'field1': 'value1',
+                'field2': 'value2'
+            }
+        }
+    )
+    def test_settings_property_no_video_xblock_conf(self):
+        """
+        Test settings property works without proper configuration.
+        """
+        # Act
+        settings = self.xblock.settings
+
+        # Assert
+        self.assertEqual(settings, {})
+
+    @patch.object(VideoXBlock, 'settings', new_callable=PropertyMock)
+    def test_populate_default_value_for_empty_default(self, settings_mock):
+        """
+        Test xBlock fields' default value will be set from json settings.
+        """
+        # Arrange
+        settings_mock.return_value = {'foo': 'bar', 'spam': 'eggs'}
+        field_mock = Mock()
+        field_mock.name = 'foo'
+        field_mock.default = field_mock._default = ''
+
+        # Act
+        populated_field = self.xblock.populate_default_value(field_mock)
+
+        # Assert
+        self.assertEqual(populated_field._default, 'bar')  # pylint: disable=protected-access
+
+    @patch.object(VideoXBlock, 'settings', new_callable=PropertyMock)
+    def test_populate_default_value_for_falsy_value(self, settings_mock):
+        """
+        Test xBlock fields' default value will be set from json settings.
+        """
+        # Arrange
+        settings_mock.return_value = {'foo': 'bar', 'spam': 'eggs'}
+        field_mock = Mock()
+        field_mock.name = 'foo'
+        field_mock.default = False
+
+        # Act
+        populated_field = self.xblock.populate_default_value(field_mock)
+
+        # Assert
+        self.assertFalse(populated_field.default)
+        self.assertIsInstance(populated_field.default, bool)
 
 
 class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inherits-tests
-    """Test TranscriptsMixin"""
+    """
+    Test TranscriptsMixin
+    """
 
     @patch('video_xblock.mixins.WebVTTWriter.write')
     @patch('video_xblock.mixins.detect_format')
     def test_convert_caps_to_vtt(self, detect_format_mock, vtt_writer_mock):
+        """
+        Test caps to vtt convertation works properly.
+        """
         detect_format_mock.return_value.return_value.read = read_mock = Mock()
         read_mock.return_value = 'non vtt transcript'
         vtt_writer_mock.return_value = 'vtt transcript'
@@ -256,6 +343,9 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
     @patch('video_xblock.mixins.WebVTTWriter.write')
     @patch('video_xblock.mixins.detect_format')
     def test_convert_caps_to_vtt_fallback(self, detect_format_mock, vtt_writer_mock):
+        """
+        Test caps to vtt convertation falls back to empty unicode object.
+        """
         detect_format_mock.return_value = None
 
         self.assertEqual(self.xblock.convert_caps_to_vtt('test caps'), u'')
@@ -266,6 +356,9 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
     @patch.object(VideoXBlock, 'contentstore')
     @patch.object(VideoXBlock, 'course_key', new_callable=PropertyMock)
     def test_create_transcript_file(self, course_key, contentstore_mock, static_content_mock):
+        """
+        Test transcript file created properly.
+        """
         # Arrange
         trans_srt_stub = 'test srt transcript'
         reference_name_stub = 'test transcripts'
@@ -290,6 +383,9 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
     @patch.object(VideoXBlock, 'get_file_name_from_path')
     @patch('video_xblock.mixins.requests.get')
     def test_download_transcript_handler_response_object(self, get_mock, get_filename_mock):
+        """
+        Test transcripts downloading works properly.
+        """
         # Arrange
         get_filename_mock.return_value = 'transcript.vtt'
         get_mock.return_value.text = 'vtt transcripts'
@@ -312,6 +408,9 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
     @patch.object(VideoXBlock, 'captions_language', new_callable=PropertyMock)
     @patch.object(VideoXBlock, 'transcripts', new_callable=PropertyMock)
     def test_get_transcript_download_link(self, trans_mock, lang_mock):
+        """
+        Test transcript downloading link created properly.
+        """
         lang_mock.return_value = 'en'
         trans_mock.return_value = '[{"lang": "en", "url": "test_transcript.vtt"}]'
 
@@ -319,11 +418,17 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
 
     @patch.object(VideoXBlock, 'transcripts', new_callable=PropertyMock)
     def test_get_transcript_download_link_fallback(self, trans_mock):
+        """
+        Test transcript downloading link creation falls back to empty string.
+        """
         trans_mock.return_value = ''
 
         self.assertEqual(self.xblock.get_transcript_download_link(), '')
 
     def test_route_transcripts(self):
+        """
+        Test transcript rerouting works.
+        """
         # Arrange
         transcripts = [{"url": "test-trans.srt"}]
         with patch.object(self.xblock, 'runtime') as runtime_mock, \
@@ -346,6 +451,9 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
     @patch('video_xblock.mixins.requests', new_callable=MagicMock)
     @patch.object(VideoXBlock, 'convert_caps_to_vtt')
     def test_srt_to_vtt(self, convert_caps_to_vtt_mock, requests_mock):
+        """
+        Test xBlock's srt-to-vtt convertation works properly.
+        """
         # Arrange
         request_mock = MagicMock()
         convert_caps_to_vtt_mock.return_value = 'vtt transcripts'
@@ -361,23 +469,30 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
         convert_caps_to_vtt_mock.assert_called_once_with(text_mock)
 
     def test_fetch_available_3pm_transcripts_with_errors(self):
+        """
+        Test available 3PlayMedia transcripts fetching (failure case).
+        """
         # Arrange:
         test_feedback = {'status': Status.error, 'message': 'test_message'}
         test_transcripts_list = []
         with patch.object(self.xblock, 'get_3pm_transcripts_list') as threepm_transcripts_mock, \
                 patch.object(self.xblock, 'threeplaymedia_file_id') as file_id_mock, \
                 patch.object(self.xblock, 'threeplaymedia_apikey') as apikey_mock:
-
             threepm_transcripts_mock.return_value = test_feedback, test_transcripts_list
+
             # Act:
             transcripts_gen = self.xblock.fetch_available_3pm_transcripts()
             transcripts = list(transcripts_gen)
+
             # Assert:
             self.assertEqual(transcripts, [])
             self.assertRaises(StopIteration, transcripts_gen.next)
             threepm_transcripts_mock.assert_called_once_with(file_id_mock, apikey_mock)
 
     def test_fetch_available_3pm_transcripts_success(self):
+        """
+        Test available 3PlayMedia transcripts fetching (success case).
+        """
         # Arrange:
         test_feedback = {'status': Status.success, 'message': 'test_message'}
         test_transcripts_list = [{'id': 'test_id', 'language_id': '2'}]
@@ -387,12 +502,13 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
                 patch.object(self.xblock, 'fetch_single_3pm_translation') as fetch_3pm_translation_mock, \
                 patch.object(self.xblock, 'threeplaymedia_file_id') as file_id_mock, \
                 patch.object(self.xblock, 'threeplaymedia_apikey') as apikey_mock:
-
             threepm_transcripts_mock.return_value = test_feedback, test_transcripts_list
             fetch_3pm_translation_mock.return_value = Transcript(*test_args)
+
             # Act:
             transcripts_gen = self.xblock.fetch_available_3pm_transcripts()
             transcripts = list(transcripts_gen)
+
             # Assert:
             self.assertIsInstance(transcripts[0], OrderedDict)
             self.assertSequenceEqual(test_args, transcripts[0].keys())
@@ -400,7 +516,10 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
             fetch_3pm_translation_mock.assert_called_once_with(test_transcripts_list[0])
 
     @patch('video_xblock.mixins.requests.get')
-    def test_get_available_3pm_transcripts(self, requests_get_mock):
+    def test_get_3pm_transcripts_list_success(self, requests_get_mock):
+        """
+        Test fetching of the list of available 3PlayMedia transcripts (success case).
+        """
         # Arrange:
         test_json = [{"test": "json_string"}]
         test_message = _("3PlayMedia transcripts fetched successfully.")
@@ -412,8 +531,10 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
         file_id = 'test_file_id'
         api_key = 'test_api_key'
         test_api_url = 'https://static.3playmedia.com/files/test_file_id/transcripts?apikey=test_api_key'
+
         # Act:
         feedback, transcripts_list = self.xblock.get_3pm_transcripts_list(file_id, api_key)
+
         # Assert:
         self.assertTrue(requests_get_mock.ok)
         self.assertTrue(requests_get_mock.json.assert_called)
@@ -421,9 +542,33 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
         self.assertEqual(feedback, test_feedback)
         requests_get_mock.assert_called_once_with(test_api_url)
 
+    @patch('video_xblock.mixins.requests.get')
+    def test_get_3pm_transcripts_list_api_failure(self, requests_get_mock):
+        """
+        Test fetching of the list of available 3PlayMedia transcripts (api failure case).
+        """
+        # Arrange:
+        test_message = _("3PlayMedia transcripts fetching API request has failed!")
+        test_feedback = {'status': Status.error, 'message': test_message}
+        requests_get_mock.side_effect = requests.RequestException()
+        file_id = 'test_file_id'
+        api_key = 'test_api_key'
+        test_api_url = 'https://static.3playmedia.com/files/test_file_id/transcripts?apikey=test_api_key'
+
+        # Act:
+        feedback, transcripts_list = self.xblock.get_3pm_transcripts_list(file_id, api_key)
+
+        # Assert:
+        self.assertEqual(transcripts_list, [])
+        self.assertEqual(feedback, test_feedback)
+        requests_get_mock.assert_called_once_with(test_api_url)
+
     @patch.object(VideoXBlock, 'get_player')
     @patch('video_xblock.mixins.requests.get')
     def test_fetch_single_3pm_translation_success(self, requests_get_mock, player_mock):
+        """
+        Test single 3PlayMedia transcript fetching (success case).
+        """
         # Arrange:
         test_lang_id = '1'
         test_transcript_text = 'test_transcript_text'
@@ -462,7 +607,32 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
         # Assert:
         self.assertEqual(transcript, Transcript(*test_args))
 
+    @patch('video_xblock.mixins.requests.get')
+    def test_fetch_single_3pm_translation_failure(self, requests_get_mock):
+        """
+        Test single 3PlayMedia transcript fetching (failure case).
+        """
+        # Arrange:
+        test_lang_id = '1'
+        test_transcript_id = 'test_id'
+        file_id = 'test_file_id'
+        api_key = 'test_api_key'
+
+        test_transcript_data = {'id': test_transcript_id, 'language_id': test_lang_id}
+        requests_get_mock.side_effect = IOError()
+
+        self.xblock.threeplaymedia_file_id = file_id
+        self.xblock.threeplaymedia_apikey = api_key
+
+        # Act:
+        transcript = self.xblock.fetch_single_3pm_translation(test_transcript_data)
+        # Assert:
+        self.assertIsNone(transcript)
+
     def test_validate_three_play_media_config_initial_case(self):
+        """
+        Test 3PlayMedia configuration validation (initial case).
+        """
         # Arrange:
         success_message = _("Initialization")
         request_mock = arrange_request_mock(
@@ -479,6 +649,9 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
         )
 
     def test_validate_three_play_media_config_without_streaming(self):
+        """
+        Test 3PlayMedia configuration validation (streaming disabled case).
+        """
         # Arrange:
         success_message = _('Success')
         request_mock = arrange_request_mock(
@@ -495,6 +668,9 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
         )
 
     def test_validate_three_play_media_config_partially_configured(self):
+        """
+        Test 3PlayMedia configuration validation (improperly configured case).
+        """
         # Arrange:
         invalid_message = _('Check provided 3PlayMedia configuration')
         request_mock = arrange_request_mock(
@@ -512,6 +688,9 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
 
     @patch.object(VideoXBlock, 'get_3pm_transcripts_list')
     def test_validate_three_play_media_config_with_3pm_streaming(self, get_3pm_transcripts_list_mock):
+        """
+        Test 3PlayMedia configuration validation (streaming enabled case).
+        """
         # Arrange:
         success_message = _('Success')
         test_feedback = {'status': Status.success, 'message': success_message}
@@ -531,29 +710,11 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
         )
         get_3pm_transcripts_list_mock.assert_called_once_with("test_fileid", "test_apikey")  # Python string
 
-    @patch('video_xblock.mixins.requests.get')
-    def test_fetch_single_3pm_translation_failure(self, requests_get_mock):
-        # Arrange:
-        test_lang_id = '1'
-        test_transcript_id = 'test_id'
-        file_id = 'test_file_id'
-        api_key = 'test_api_key'
-
-        test_transcript_data = {'id': test_transcript_id, 'language_id': test_lang_id}
-        requests_get_mock.side_effect = IOError()
-
-        self.xblock.threeplaymedia_file_id = file_id
-        self.xblock.threeplaymedia_apikey = api_key
-
-        # Act:
-        transcript = self.xblock.fetch_single_3pm_translation(test_transcript_data)
-        # Assert:
-        self.assertIsNone(transcript)
-
 
 class WorkbenchMixinTest(VideoXBlockTestBase):
-    """Test WorkbenchMixin"""
-
+    """
+    Test WorkbenchMixin
+    """
     @patch.object(loader, 'load_scenarios_from_path')
     def test_workbench_scenarios(self, loader_mock):
         loader_mock.return_value = [('Scenario', '<xml/>')]

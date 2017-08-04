@@ -2,6 +2,14 @@
 Video XBlock provides a convenient way to embed videos hosted on supported platforms into your course.
 
 All you need to provide is video url, this XBlock does the rest for you.
+
+Some terms could be useful for subject understanding:
+- manual transcripts - which we upload to xBlock from our file system;
+- default transcripts - which are available with a video clip on a video content store service;
+- 3PlayMedia transcripts - those ones which can be fetched from 3-rd-party service (http://www.3playmedia.com/);
+- enabled transcripts - equals to "active", which are available to choose in the player;
+- managed transcripts - those ones we can manage (enable or disable by our choice selectively), for now it equals
+to "manual" + "default".
 """
 
 import datetime
@@ -304,6 +312,7 @@ class VideoXBlock(
                 handout=self.handout,
                 transcripts=self.route_transcripts(),
                 download_transcript_allowed=self.download_transcript_allowed,
+                transcripts_streaming_enabled=self.threeplaymedia_streaming,
                 download_video_url=self.get_download_video_url(),
                 handout_file_name=self.get_file_name_from_path(self.handout),
                 transcript_download_link=full_transcript_download_link,
@@ -357,10 +366,9 @@ class VideoXBlock(
         player = self.get_player()
         languages = [{'label': label, 'code': lang} for lang, label in ALL_LANGUAGES]
         languages.sort(key=lambda l: l['label'])
-        transcripts = normalize_transcripts(json.loads(self.transcripts)) if self.transcripts else []
+        transcripts = self.get_enabled_transcripts()
         download_transcript_handler_url = self.runtime.handler_url(self, 'download_transcript')
         auth_error_message = ''
-
         # Authenticate to API of the player video platform and update metadata with auth information.
         # Note that there is no need to authenticate to Youtube API,
         # whilst for Wistia, a sample authorised request is to be made to ensure authentication succeeded,
@@ -371,11 +379,11 @@ class VideoXBlock(
         initial_default_transcripts, transcripts_autoupload_message = self._update_default_transcripts(
             player, transcripts
         )
+        log.debug("Fetched default transcripts: {}".format(initial_default_transcripts))
 
         # Prepare basic_fields and advanced_fields for them to be rendered
         basic_fields = self.prepare_studio_editor_fields(player.basic_fields)
         advanced_fields = self.prepare_studio_editor_fields(player.advanced_fields)
-        log.debug("Fetched default transcripts: {}".format(initial_default_transcripts))
         context = {
             'advanced_fields': advanced_fields,
             'auth_error_message': auth_error_message,
@@ -386,12 +394,15 @@ class VideoXBlock(
             'players': PlayerName,
             'sources': TranscriptSource.to_dict().items(),
             # transcripts context:
-            'transcripts': transcripts,
+            'transcripts': filter_transcripts_by_source(
+                transcripts, sources=[TranscriptSource.THREE_PLAY_MEDIA], exclude=True
+            ),
             'transcripts_fields': self.prepare_studio_editor_fields(player.trans_fields),
             'three_pm_fields': self.prepare_studio_editor_fields(player.three_pm_fields),
             'transcripts_type': '3PM' if self.threeplaymedia_streaming else 'manual',
             'default_transcripts': self.default_transcripts,
             'enabled_default_transcripts': filter_transcripts_by_source(transcripts),
+            'enabled_managed_transcripts': self.get_enabled_managed_transcripts(),
             'initial_default_transcripts': initial_default_transcripts,
             'transcripts_autoupload_message': transcripts_autoupload_message,
             'download_transcript_handler_url': download_transcript_handler_url,
@@ -474,7 +485,7 @@ class VideoXBlock(
                 continue
             if player_class.match(data['href']):
                 data['player_name'] = player_name
-                data = self.populate_default_values(data)
+                log.debug("Submitted player[{}] with data: {}".format(player_name, data))
                 break
 
     def get_player(self):
@@ -521,6 +532,17 @@ class VideoXBlock(
             info['value'] = self.get_path_for(self.handout)
         return info
 
+    def populate_default_value(self, field):
+        """
+        Populate unset default values from settings file.
+        """
+        for key, value in self.settings.items():
+            # if field value is empty and there is json-settings default:
+            if field.name == key and getattr(field, 'default', None) in ['', u'', 'default']:
+                setattr(field, '_default', value)  # pylint: disable=literal-used-as-attribute
+
+        return field
+
     def _make_field_info(self, field_name, field):
         """
         Override and extend data of built-in method.
@@ -555,19 +577,26 @@ class VideoXBlock(
             info = self.initialize_studio_field_info(field_name, field)
         return info
 
-    def prepare_studio_editor_fields(self, fields):
+    def prepare_studio_editor_fields(self, field_names):
         """
         Order xblock fields in studio editor modal.
 
         Arguments:
-            fields (tuple): Names of Xblock fields.
+            field_names (tuple): Names of Xblock fields.
         Returns:
-            made_fields (list): XBlock fields prepared to be rendered in a studio edit modal.
+            prepared_fields (list): XBlock fields prepared to be rendered in a studio edit modal.
         """
-        made_fields = [
-            self._make_field_info(key, self.fields[key]) for key in fields  # pylint: disable=unsubscriptable-object
-        ]
-        return made_fields
+        prepared_fields = []
+        for field_name in field_names:
+            # set default from json XBLOCK_SETTINGS config:
+            populated_field = self.populate_default_value(
+                self.fields[field_name]  # pylint:disable=unsubscriptable-object
+            )
+            # make extra field configuration for frontend rendering:
+            field_info = self._make_field_info(field_name, populated_field)
+            prepared_fields.append(field_info)
+
+        return prepared_fields
 
     def get_file_name_from_path(self, field):
         """
@@ -748,10 +777,11 @@ class VideoXBlock(
 
         reference_name = create_reference_name(lang_label, video_id, source)
 
-        # Fetch default transcript
-        unicode_subs_text = player.download_default_transcript(
-            url=sub_url, language_code=lang_code
-        )
+        # Fetch text of single default transcript:
+        unicode_subs_text = player.download_default_transcript(sub_url, lang_code)
+        if not unicode_subs_text:
+            return {'failure_message': _("Couldn't upload transcript text.")}
+
         if not player.default_transcripts_in_vtt:
             prepared_subs = self.convert_caps_to_vtt(caps=unicode_subs_text)
         else:
@@ -778,8 +808,21 @@ class VideoXBlock(
         Get transcripts from different sources depending on current usage mode.
         """
         if self.threeplaymedia_streaming:
-            transcripts = list(self.fetch_available_3pm_transcripts())
+            transcripts = normalize_transcripts(list(self.fetch_available_3pm_transcripts()))
         else:
-            transcripts = json.loads(self.transcripts) if self.transcripts else []
-
+            transcripts = self.get_enabled_managed_transcripts()
         return transcripts
+
+    def get_enabled_managed_transcripts(self):
+        """
+        Get currently enabled in player `managed` ("manual" & "default") transcripts.
+
+        Please, for term definitions refer to the module docstring.
+        :return: (list) transcripts that enabled but not directly streamed.
+        """
+        try:
+            transcripts = json.loads(self.transcripts) if self.transcripts else []
+            return normalize_transcripts(transcripts)
+        except ValueError:
+            log.exception("JSON parser can't handle 'self.transcripts' field value: {}".format(self.transcripts))
+            return []

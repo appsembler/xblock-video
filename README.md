@@ -87,10 +87,10 @@ your `account_id` go to [Videocloud studio] -> _Admin_ -> _Account Information_.
 
 1. Grab your [BC_TOKEN] from Brightcove Videocloud:
    1. Login to [Videocloud Studio] as you normally do.
-   1. With any page in Studio open, open the developer tools for the browser,
+   2. With any page in Studio open, open the developer tools for the browser,
       go to the Console, and paste in the following code:
 
-       ```js
+   ```js
        var cookiesArray = document.cookie.split(";"), cookiesObj = {}, i, tmpArray = [];
        for (i = 0; i < cookiesArray.length; i++) {
            tmpArray = cookiesArray[i].split("=");
@@ -99,14 +99,14 @@ your `account_id` go to [Videocloud studio] -> _Admin_ -> _Account Information_.
            }
        }
        window.prompt("BC_TOKEN:", cookiesObj.BC_TOKEN);
-       ```
+   ```
+   and press `<return>`.
 
-      and press `<return>`.
-   1. You should see a prompt appear that contains your BC_TOKEN.
+   3. You should see a prompt appear that contains your BC_TOKEN.
     ![BC_TOKEN sample](https://learning-services-media.brightcove.com/doc-assets/video-cloud-apis/ingest-profiles-api/guides/prompt-with-token-safari.png "Sample BC_TOKEN")
-1. Open Video XBlock settings, Advanced tab. Scroll down to `Video API Token` section.
-1. Put `BC_TOKEN` taken from Brightcvove into `Client Token` field.
-1. Click on `Connect to video platform` button.
+2. Open Video XBlock settings, Advanced tab. Scroll down to `Video API Token` section.
+3. Put `BC_TOKEN` taken from Brightcvove into `Client Token` field.
+4. Click on `Connect to video platform` button.
 
 [Videocloud Studio]: https://studio.brightcove.com/products/videocloud/home
 [BC_TOKEN]: https://docs.brightcove.com/en/video-cloud/media-management/guides/authentication.html
@@ -123,7 +123,23 @@ To do so:
 
 Re-transcode is performed by Brightcove's Videocloud and takes few minutes. After it's done `Brightcove Video tech info` section will be updated.
 
+### Wistia
+
+#### How to disable captions auto uploading in Wistia plugin
+
+1. Open your Project in Wistia Platform.
+1. Open video which you want to use with Video XBlock.
+1. Click the `Video Actions` drop-down menu -> Select the `Customize` menu item.
+1. On the left side of the screen find the `Captions` menu item.
+1. Turn the trigger to `Off` to disable native captions display in the
+   Video XBlock.
+
+![disable captions in Wistia](doc/img/wistia_1.png)
+
 ### Set default values in config files
+
+Now it is possible to indicate prepopulated values for any xblock field
+per site installation (see note below). 
 
 Sample default settings in `/edx/app/edxapp/cms.env.json`:
 
@@ -135,6 +151,17 @@ Sample default settings in `/edx/app/edxapp/cms.env.json`:
       }
     }
 ```
+Note: here above each provided key corresponds to SITE_NAME environment variable value.
+
+### Allowed Handouts file types
+
++ __images:__ .gif, .ico, .jpg, .jpeg, .png, .tif, .tiff, .bmp, .svg,
++ __documents:__ .pdf, .txt, .rtf, .csv,
++ __MSOffice:__ .doc, .docx, .xls, .xlsx, .ppt, .pptx, .pub,
++ __openOffice:__ .odt, .ods, .odp,
++ __archives:__ .zip, .7z, .gzip, .tar,
++ __other:__ .html, .xml, .js, .sjson,
++ __transcripts:__ .srt, .vtt
 
 ## Development
 

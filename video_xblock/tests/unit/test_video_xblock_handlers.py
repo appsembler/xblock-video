@@ -7,27 +7,19 @@ import json
 from mock import patch, Mock, PropertyMock
 
 from video_xblock import VideoXBlock
-from video_xblock.tests.unit.base import VideoXBlockTestBase
-
-
-def arrange_request_mock(request_body):
-    """
-    Helper factory to create request mocks
-    """
-    request_mock = Mock()
-    request_mock.method = 'POST'
-    request_mock.body = request_body
-    request_mock.json = json.loads(request_body)
-    return request_mock
+from video_xblock.tests.unit.base import VideoXBlockTestBase, arrange_request_mock
 
 
 class AuthenticateApiHandlerTests(VideoXBlockTestBase):
     """
-    Test cases for `VideoXBlock.authenticate_video_api_handler`
+    Test cases for `VideoXBlock.authenticate_video_api_handler`.
     """
 
     @patch.object(VideoXBlock, 'authenticate_video_api')
     def test_auth_video_api_handler_delegates_call(self, auth_video_api_mock):
+        """
+        Test xBlock's video API authentication works properly.
+        """
         # Arrange
         request_mock = arrange_request_mock('"test-token-123"')  # JSON string
         auth_video_api_mock.return_value = {}, ''
@@ -46,11 +38,14 @@ class AuthenticateApiHandlerTests(VideoXBlockTestBase):
 
 class UploadDefaultTranscriptHandlerTests(VideoXBlockTestBase):
     """
-    Test cases for `VideoXBlock.upload_default_transcript_handler`
+    Test cases for `VideoXBlock.upload_default_transcript_handler`.
     """
 
     @patch('video_xblock.video_xblock.create_reference_name')
     def test_upload_handler_default_transcript_not_in_vtt_case(self, create_reference_name_mock):
+        """
+        Test xBlock's handler for default transcripts uploading.
+        """
         # Arrange
         request_body = """{"label": "test_label","lang": "test_lang","source": "test_source","url": "test_url"}"""
         assert_data = json.loads(request_body)
@@ -75,15 +70,16 @@ class UploadDefaultTranscriptHandlerTests(VideoXBlockTestBase):
             player_mock.download_default_transcript.return_value = test_subs_text
             type(player_mock).default_transcripts_in_vtt = PropertyMock(return_value=False)
 
-        # Act
+            # Act
             response = self.xblock.upload_default_transcript_handler(request_mock)
-        # Assert
+
+            # Assert
             player_mock.download_default_transcript.assert_called_with(
-                url=assert_data['url'], language_code=assert_data['lang']
+                assert_data['url'], assert_data['lang']
             )
             create_reference_name_mock.assert_called_with(assert_data['label'], test_media_id, assert_data['source'])
             player_mock.download_default_transcript.assert_called_with(
-                url=assert_data['url'], language_code=assert_data['lang']
+                assert_data['url'], assert_data['lang']
             )
             convert_caps_mock.assert_called_with(caps=test_subs_text)
             create_transcript_file_mock.assert_called_with(trans_str=prepared_subs_mock, reference_name=test_reference)

@@ -93,9 +93,10 @@ class TranscriptsMixin(XBlock):
         Returns:
             unicode: Transcripts converted into WebVTT format.
         """
-        reader = detect_format(caps)
-        if reader:
-            return WebVTTWriter().write(reader().read(caps))
+        if caps:
+            reader = detect_format(caps)
+            if reader:
+                return WebVTTWriter().write(reader().read(caps))
         return u''
 
     def route_transcripts(self):
@@ -430,7 +431,7 @@ class PlaybackStateMixin(XBlock):
     transcripts = String(
         default='',
         scope=Scope.content,
-        display_name=_('Upload transcript'),
+        display_name=_('Enabled transcripts'),
         help=_(
             'Add transcripts in different languages. Click below to specify a language and upload an .srt transcript'
             ' file for that language.'
@@ -476,7 +477,7 @@ class PlaybackStateMixin(XBlock):
         transcripts_object = {
             trans['lang']: {'url': trans['url'], 'label': trans['label']}
             for trans in transcripts
-        }
+            }
         state = {
             'captionsLanguage': self.captions_language or self.course_default_language,
             'transcriptsObject': transcripts_object,
@@ -530,47 +531,34 @@ class SettingsMixin(XBlock):
 
     Sample default settings in /edx/app/edxapp/cms.env.json:
     "XBLOCK_SETTINGS": {
-      "video_xblock": {
-        "3playmedia_api_key": "987654321",
-        "account_id": "1234567890"
-      }
+        "video_xblock": {
+            "threeplaymedia_apikey": "987654321",
+            "account_id": "1234567890",
+        }
     }
     """
-
-    block_settings_key = 'video_xblock'
 
     @property
     def settings(self):
         """
-        Return xblock settings set in .json config.
+        Return xblock settings for current domain set in .json config.
 
         Returned value depends on the context:
-        - `studio_view()` is being executed in CMS context and gets data from `lms.env.json`.
+        - `studio_view` is being executed in CMS context and gets data from `cms.env.json`.
         - `student_view` is being executed in LMS context and gets data from `lms.env.json`.
 
         Returns:
             dict: Settings from config file. E.g.
-                {
-                    "threeplaymedia_apikey": "987654321",
-                    "account_id": "1234567890"
-                }
+            {
+                "threeplaymedia_apikey": "987654321",
+                "account_id": "1234567890"
+            }
         """
-        s_service = self.runtime.service(self, 'settings')
-        if s_service:
-            # At the moment SettingsService is not available in the context
-            # of Studio Edit modal. See https://github.com/edx/edx-platform/pull/14648
-            return s_service.get_settings_bucket(self)
-
         settings = import_from('django.conf', 'settings')
-        return settings.XBLOCK_SETTINGS.get(self.block_settings_key, {})
+        if not hasattr(settings, 'XBLOCK_SETTINGS'):
+            return {}
 
-    def populate_default_values(self, fields_dict):
-        """
-        Populate unset default values from settings file.
-        """
-        for key, value in self.settings.items():
-            fields_dict.setdefault(key, value)
-        return fields_dict
+        return settings.XBLOCK_SETTINGS.get('video_xblock', {})
 
 
 class LocationMixin(XBlock):

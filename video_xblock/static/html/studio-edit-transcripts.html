@@ -1,12 +1,8 @@
 {% load i18n %}
 
-<label class="label setting-label" for="xb-field-edit-{{field.name}}">
-    {{field.display_name}}
-</label>
-
 <div class="wrapper-uploader-actions xblock-edit-settings wrapper-translations-settings">
   <ol class="list-settings language-transcript-selector">
-    {% for transcript in transcripts %}
+    {% for transcript in enabled_managed_transcripts %}
     <li class="list-settings-item">
       <select name="language" class="lang-select">
         <option></option>
@@ -44,10 +40,6 @@
     <span class="icon fa fa-plus" aria-hidden="true"></span>{% trans 'Add' %}<span class="sr"></span>
   </a>
 </div>
-
-{% if field.help %}
-    <span class="tip setting-help"> {{ field.help|safe }} </span>
-{% endif %}
 
 <form method="POST" action="/assets/{{ courseKey }}/"
       class="file-uploader-form is-hidden"
