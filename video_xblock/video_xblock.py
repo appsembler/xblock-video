@@ -13,7 +13,6 @@ to "manual" + "default".
 """
 
 import datetime
-import httplib
 import json
 import logging
 import os.path
@@ -92,7 +91,7 @@ class VideoXBlock(
     )
 
     account_id = String(
-        default='default',
+        default='',
         display_name=_('Account Id'),
         help=_('Your Brightcove account id'),
         scope=Scope.content,
@@ -224,25 +223,28 @@ class VideoXBlock(
             validation (xblock.validation.Validation): Object containing validation information for an xblock instance.
             data (xblock.internal.VideoXBlockWithMixins): Object containing data on xblock.
         """
-        is_provided_account_id = \
-            data.account_id != self.fields['account_id'].default  # pylint: disable=unsubscriptable-object
+        account_id_is_empty = data.account_id in ['', u'']  # pylint: disable=unsubscriptable-object
         # Validate provided account id
-        if is_provided_account_id:
-            try:
-                response = requests.head(VideoXBlock.get_brightcove_js_url(data.account_id, data.player_id))
-                if response.status_code != httplib.OK:
-                    self.add_validation_message(validation, _(u"Invalid Account Id, please recheck."))
-            except requests.ConnectionError:
-                self.add_validation_message(
-                    validation,
-                    _(u"Can't validate submitted account id at the moment. "
-                      u"Please try to save settings one more time.")
-                )
-        # Account Id field is mandatory
-        else:
+        if account_id_is_empty:
+            # Account Id field is mandatory
             self.add_validation_message(
                 validation,
-                _(u"Account Id can not be empty. Please provide a valid Brightcove Account Id.")
+                _(u"Account ID can not be empty. Please provide a valid Brightcove Account ID.")
+            )
+            return
+
+        try:
+            response = requests.head(VideoXBlock.get_brightcove_js_url(data.account_id, data.player_id))
+            if not response.ok:
+                self.add_validation_message(validation, _(
+                    u"Invalid Account ID or Player ID, please recheck."
+                ))
+
+        except requests.ConnectionError:
+            self.add_validation_message(
+                validation,
+                _(u"Can't validate submitted account ID at the moment. "
+                  u"Please try to save settings one more time.")
             )
 
     def validate_href_data(self, validation, data):
