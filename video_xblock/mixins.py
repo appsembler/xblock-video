@@ -302,7 +302,7 @@ class TranscriptsMixin(XBlock):
         """
         trans_path = self.get_path_for(request.query_string)
         filename = self.get_file_name_from_path(trans_path)
-        transcript = requests.get(request.host_url + request.query_string).text
+        transcript = requests.get(request.schema + '://127.0.0.1' + request.query_string).text
         response = Response(transcript)
         headerlist = [
             ('Content-Type', 'text/plain'),
@@ -325,7 +325,7 @@ class TranscriptsMixin(XBlock):
             webob.Response: WebVTT transcripts wrapped in Response object.
         """
         caps_path = request.query_string
-        caps = requests.get(request.host_url + caps_path).text
+        caps = requests.get(request.scheme + '://127.0.0.1' + caps_path).text
         return Response(self.convert_caps_to_vtt(caps))
 
     @XBlock.handler
