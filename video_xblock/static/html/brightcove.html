@@ -1,3 +1,46 @@
+<style>
+.bc-player-{{player_id}}_default {
+    width: 100%;
+    overflow: visible;
+}
+.bc-player- {{player_id}}_default .vjs-menu-button-inline:hover, .bc-player- {{player_id}}_default.vjs-no-flex .vjs-menu-button-inline {
+    width: 12em;
+}
+.bc-player- {{player_id}}_default .vjs-big-play-button:active,
+.bc-player- {{player_id}}_default .vjs-big-play-button:focus,
+.bc-player- {{player_id}}_default:active .vjs-big-play-button,
+.bc-player- {{player_id}}_default:hover .vjs-big-play-button.video-js .vjs-big-play-button:focus {
+    outline: 0;
+    border-color: #fff;
+    background-color: #73859f !important;
+    background-color: rgba(115, 133, 159, .5) !important;
+    /*-webkit-transition: none;*/
+    /*-moz-transition: none;*/
+    /*-o-transition: none;*/
+    /*transition: none;*/
+}
+.bc-player- {{player_id}}_default .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
+    width: 41px;
+    left: 30px;
+    background: #171a1b;
+}
+.bc-player- {{player_id}}_default .vjs-time-control.vjs-current-time {
+    margin-left: 22px !important;
+}
+.vjs-mouse.bc-player- {{player_id}}_default .vjs-progress-control:hover .vjs-play-progress.vjs-slider-bar.vjs-keep-tooltips-inside:after {
+    width: 10px;
+}
+.bc-player- {{player_id}}_default .vjs-menu-button-popup .vjs-menu .vjs-menu-item {
+    font-weight: bold;
+}
+.bc-player- {{player_id}}_default .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
+    text-shadow: none;
+    color: inherit;
+    background: rgba(115,133,159,.5);
+    border-radius: 0;
+}
+</style>
+
 <div class="display-flex">
     <video data-video-id="{{ video_id }}"
         id="{{ video_player_id }}"
