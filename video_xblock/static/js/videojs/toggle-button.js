@@ -5,6 +5,8 @@
 
 domReady(function() {
     'use strict';
+    // Videojs 5/6 shim;
+    var registerPlugin = videojs.registerPlugin || videojs.plugin;
 
     var MenuItem = videojs.getComponent('MenuItem');
    /**
@@ -12,6 +14,7 @@ domReady(function() {
     */
     var ToggleMenuItem = videojs.extend(MenuItem, {
         constructor: function constructor(player, options) {
+            console.debug("Initiating ToggleMenuItem");
             MenuItem.call(this, player, options);
             this.on('click', this.onClick);
             this.createEl();
@@ -65,9 +68,10 @@ domReady(function() {
     var ToggleButton = videojs.extend(MenuButton, {
         // base class for create buttons for caption and transcripts
         constructor: function constructor(player, options) {
+            console.debug("Initiating ToggleButton");
             this.kind_ = 'captions';
 
-            ClickableComponent.call(this, player, options);
+            MenuButton.call(this, player, options);
 
             if (!this.player_.singleton_menu) {
                 this.update();
@@ -84,7 +88,6 @@ domReady(function() {
             this.on('click', this.onClick);
             this.on('mouseenter', function() {
                 var caretButton = this.$$('.vjs-custom-caret-button', this.el_.parentNode);
-                this.menu.el_.classList.add('is-visible');
                 if (caretButton.length > 0) {
                     caretButton[0].classList.add('fa-caret-up');
                     caretButton[0].classList.remove('fa-caret-left');
@@ -155,13 +158,9 @@ domReady(function() {
     });
 
     var toggleButton = function(options) {
-        if (this.tagAttributes.brightcove !== undefined) {
-            this.controlBar.customControlSpacer.addChild('ToggleButton', options);
-        } else {
-            this.controlBar.addChild('ToggleButton', options);
-        }
+        this.controlBar.addChild('ToggleButton', options);
     };
 
     videojs.registerComponent('ToggleButton', ToggleButton);
-    videojs.plugin('toggleButton', toggleButton);
+    registerPlugin('toggleButton', toggleButton);
 });

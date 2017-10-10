@@ -4,6 +4,7 @@
 domReady(function() {
     'use strict';
 
+    console.log("Initializing transcripts...");
     videojs(window.videoPlayerId).ready(function() {
         var enableTrack = false;
         var player_ = this;
