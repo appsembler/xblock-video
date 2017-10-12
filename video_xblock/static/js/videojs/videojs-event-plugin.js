@@ -105,23 +105,23 @@
         this.ready(function() {
             this.logEvent('onReady');
         });
-        player.on('timeupdate', function () {
+        player.on('timeupdate', function() {
             previousTime = currentTime;
             currentTime = this.currentTime();
         });
-        player.on('ratechange', function () {
+        player.on('ratechange', function() {
             this.logEvent('onSpeedChange');
         });
-        player.on('play', function () {
+        player.on('play', function() {
             this.logEvent('onPlay');
         });
-        player.on('pause', function () {
+        player.on('pause', function() {
             this.logEvent('onPause');
         });
-        player.on('ended', function () {
+        player.on('ended', function() {
             this.logEvent('onEnded');
         });
-        player.on('seeked', function () {
+        player.on('seeked', function() {
             this.logEvent('onSeek');
         });
 

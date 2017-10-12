@@ -14,7 +14,6 @@ domReady(function() {
     */
     var ToggleMenuItem = videojs.extend(MenuItem, {
         constructor: function constructor(player, options) {
-            console.debug("Initiating ToggleMenuItem");
             MenuItem.call(this, player, options);
             this.on('click', this.onClick);
             this.createEl();
@@ -60,7 +59,6 @@ domReady(function() {
     });
 
     var MenuButton = videojs.getComponent('MenuButton');
-    var ClickableComponent = videojs.getComponent('ClickableComponent');
 
    /**
     *  Custom Video.js component responsible for creation of the custom captions/transcripts buttons.
@@ -68,7 +66,6 @@ domReady(function() {
     var ToggleButton = videojs.extend(MenuButton, {
         // base class for create buttons for caption and transcripts
         constructor: function constructor(player, options) {
-            console.debug("Initiating ToggleButton");
             this.kind_ = 'captions';
 
             MenuButton.call(this, player, options);
