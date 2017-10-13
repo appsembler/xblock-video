@@ -305,20 +305,25 @@ class VideoXBlock(
 
         if transcript_download_link:
             full_transcript_download_link = download_transcript_handler_url + transcript_download_link
+
+        context = {
+            'player_url': player_url,
+            'display_name': self.display_name,
+            'usage_id': self.usage_id,
+            'handout': self.handout,
+            'transcripts': self.route_transcripts(),
+            'download_transcript_allowed': self.download_transcript_allowed,
+            'transcripts_streaming_enabled': self.threeplaymedia_streaming,
+            'download_video_url': self.get_download_video_url(),
+            'handout_file_name': self.get_file_name_from_path(self.handout),
+            'transcript_download_link': full_transcript_download_link,
+            'version': __version__
+        }
+        log.debug("[student_view_context]: transcripts %s", context['transcripts'])
         frag = Fragment(
             render_resource(
                 'static/html/student_view.html',
-                player_url=player_url,
-                display_name=self.display_name,
-                usage_id=self.usage_id,
-                handout=self.handout,
-                transcripts=self.route_transcripts(),
-                download_transcript_allowed=self.download_transcript_allowed,
-                transcripts_streaming_enabled=self.threeplaymedia_streaming,
-                download_video_url=self.get_download_video_url(),
-                handout_file_name=self.get_file_name_from_path(self.handout),
-                transcript_download_link=full_transcript_download_link,
-                version=__version__,
+                **context
             )
         )
         frag.add_javascript(resource_string("static/js/student-view/video-xblock.js"))
@@ -813,6 +818,7 @@ class VideoXBlock(
             transcripts = normalize_transcripts(list(self.fetch_available_3pm_transcripts()))
         else:
             transcripts = self.get_enabled_managed_transcripts()
+        log.debug("Getting enabled transcripts: %s", transcripts)
         return transcripts
 
     def get_enabled_managed_transcripts(self):

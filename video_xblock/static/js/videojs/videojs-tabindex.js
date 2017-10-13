@@ -31,15 +31,15 @@ domReady(function() {
             var controlsMap = {
                 progressControl: controlBar.progressControl.seekBar.el_,
                 playToggle: controlBar.playToggle.el_,
-                captionsButton: controlBar.captionsButton.el_,
-                volumeMenuButton: controlBar.volumeMenuButton.volumeBar.el_,
+                captionsButton: (controlBar.subtitlesButton || controlBar.subsCapsButton).el_,
+                volumeMenuButton: (controlBar.volumeMenuButton || controlBar.volumePanel.volumeControl).volumeBar.el_,
                 fullscreenToggle: controlBar.fullscreenToggle.el_,
                 playbackRateMenuButton: controlBar.playbackRateMenuButton.el_
             };
             /* eslint-enable vars-on-top */
 
             // Switch off tabIndex for volumeMenuButton and free slot for volumeBar
-            controlBar.volumeMenuButton.el_.tabIndex = -1;
+            (controlBar.volumeMenuButton || controlBar.volumePanel.volumeControl).el_.tabIndex = -1;
 
             controlBarActions.forEach(function(action) {
                 var el = controlsMap[action] || controlBar[action].el_;  // eslint-disable-line vars-on-top
