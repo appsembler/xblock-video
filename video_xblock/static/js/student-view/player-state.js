@@ -41,10 +41,9 @@ var PlayerState = function(player, playerState) {
         if (stateCurrentTime > 0) {
             player.currentTime(stateCurrentTime);
         }
-        player
-            .volume(state.volume)
-            .muted(state.muted)
-            .playbackRate(state.playbackRate);
+        player.volume(state.volume);
+        player.muted(state.muted);
+        player.playbackRate(state.playbackRate);
         player.captionsLanguage = state.captionsLanguage;  // eslint-disable-line no-param-reassign
         // To switch off transcripts and captions state if doesn`t have transcripts with current captions language
         if (!transcripts[player.captionsLanguage]) {
@@ -101,16 +100,15 @@ var PlayerState = function(player, playerState) {
 
     setInitialState(playerState);
 
-    player
-        .on('timeupdate', saveProgressToLocalStore)
-        .on('volumechange', saveState)
-        .on('ratechange', saveState)
-        .on('play', saveState)
-        .on('pause', saveState)
-        .on('ended', saveState)
-        .on('transcriptstatechanged', saveState)
-        .on('captionstatechanged', saveState)
-        .on('languagechange', saveState);
+    player.on('timeupdate', saveProgressToLocalStore);
+    player.on('volumechange', saveState);
+    player.on('ratechange', saveState);
+    player.on('play', saveState);
+    player.on('pause', saveState);
+    player.on('ended', saveState);
+    player.on('transcriptstatechanged', saveState);
+    player.on('captionstatechanged', saveState);
+    player.on('languagechange', saveState);
 };
 
 domReady(function() {

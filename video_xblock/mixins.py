@@ -109,6 +109,7 @@ class TranscriptsMixin(XBlock):
         Arguments:
             transcripts (unicode): Raw transcripts.
         """
+        log.debug("Routing transcripts: 3PM status={}".format(self.threeplaymedia_streaming))
         transcripts = self.get_enabled_transcripts()
         for tran in transcripts:
             if self.threeplaymedia_streaming:

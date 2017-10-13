@@ -8,6 +8,8 @@
 
 (function() {
     'use strict';
+    // Videojs 5/6 shim;
+    var registerPlugin = videojs.registerPlugin || videojs.plugin;
     /**
         Videojs speed handler
     */
@@ -70,5 +72,5 @@
     }
     // Export plugin to the root
     window.videoJSSpeedHandler = videoJSSpeedHandler;
-    window.videojs.plugin('videoJSSpeedHandler', videoJSSpeedHandler);
+    registerPlugin('videoJSSpeedHandler', videoJSSpeedHandler);
 }).call(this);
