@@ -531,12 +531,12 @@ body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
 }
 .vjs-v6 .vjs-fullscreen-control.vjs-button > .vjs-icon-placeholder:before {
     line-height: 1.8 !important;
-    font-size: 2.8em;
+    font-size: 24px;
 }
 
 .vjs-v6 .vjs-subs-caps-button.vjs-button > .vjs-icon-placeholder:before {
     line-height: 1.4 !important;
-    font-size: 2.8em;
+    font-size: 24px;
 }
 
 .video-js.vjs-v6 .vjs-play-control:before {
@@ -545,7 +545,7 @@ body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
 
 .video-js.vjs-v6 .vjs-play-control.vjs-button > .vjs-icon-placeholder:before {
     line-height: 1.8 !important;
-    font-size: 2.8em;
+    font-size: 24px;
 }
 
 .vjs-v6.video-js .vjs-mute-control.vjs-vol-0:before,
@@ -639,6 +639,7 @@ body .vjs-v6.video-js .vjs-custom-caption-button {
 }
 div.vjs-control-bar > div.vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-cc.vjs-singleton:hover .vjs-menu,
 div.vjs-control-bar > div.vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-quote-left.vjs-singleton:hover .vjs-menu,
-div.vjs-control-bar > div.vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-cc.vjs-singleton.vjs-control-enabled .vjs-menu {
-     display: none !important;
+div.vjs-control-bar > div.vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-cc.vjs-singleton.vjs-control-enabled .vjs-menu,
+div.vjs-control-bar > div.vjs-custom-caption-button.vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-cc.vjs-singleton.vjs-control-enabled .vjs-menu {
+    display: none !important;
  }
