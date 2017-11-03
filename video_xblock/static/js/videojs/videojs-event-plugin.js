@@ -17,6 +17,7 @@
      * @param {Object} options - Plugin options passed in at initialization time.
      */
     function XBlockEventPlugin() {
+        var player = this;
         var previousTime = 0;
         var currentTime = 0;
 
@@ -103,26 +104,26 @@
         };
         this.ready(function() {
             this.logEvent('onReady');
-        })
-            .on('timeupdate', function() {
-                previousTime = currentTime;
-                currentTime = this.currentTime();
-            })
-            .on('ratechange', function() {
-                this.logEvent('onSpeedChange');
-            })
-            .on('play', function() {
-                this.logEvent('onPlay');
-            })
-            .on('pause', function() {
-                this.logEvent('onPause');
-            })
-            .on('ended', function() {
-                this.logEvent('onEnded');
-            })
-            .on('seeked', function() {
-                this.logEvent('onSeek');
-            });
+        });
+        player.on('timeupdate', function() {
+            previousTime = currentTime;
+            currentTime = this.currentTime();
+        });
+        player.on('ratechange', function() {
+            this.logEvent('onSpeedChange');
+        });
+        player.on('play', function() {
+            this.logEvent('onPlay');
+        });
+        player.on('pause', function() {
+            this.logEvent('onPause');
+        });
+        player.on('ended', function() {
+            this.logEvent('onEnded');
+        });
+        player.on('seeked', function() {
+            this.logEvent('onSeek');
+        });
 
         /* TODO Add following events forwarding to Open edX when respective features are implemented
          onShowLanguageMenu, onHideLanguageMenu, onShowTranscript, onHideTranscript, onShowCaptions, onHideCaptions
