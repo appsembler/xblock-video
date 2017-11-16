@@ -135,14 +135,18 @@ domReady(function() {
             return this.options_.cssClasses;
         },
         createEl: function createEl(props, attributes) {
+            var el;
             var menuProps = props || {};
-            var el = MenuButton.prototype.createEl.call(this, arguments.tag, menuProps, attributes);
             menuProps.className = this.buildCSSClass() + ' icon fa ' + this.styledSpan();
             menuProps.tabIndex = 0;
+
+            el = MenuButton.prototype.createEl.call(this, arguments.tag, menuProps, attributes);
             el.setAttribute('role', 'menuitem');
             el.setAttribute('aria-live', 'polite');
             el.tabIndex = this.options_.tabIndex || 0;
-            el.classList += ' icon fa ' + this.styledSpan();
+            el.classList.add('icon');
+            el.classList.add('fa');
+            el.classList.add(this.styledSpan());
             el.classList.add('vjs-singleton');
             return el;
         },

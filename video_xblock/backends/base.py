@@ -207,6 +207,7 @@ class BaseVideoPlayer(Plugin):
             'static/vendor/js/video.min.js',
             'static/vendor/js/videojs-contextmenu.min.js',
             'static/vendor/js/videojs-contextmenu-ui.min.js',
+            'static/vendor/js/array-from-polyfill.js',
             'static/js/videojs/video-speed.js',
             'static/js/student-view/player-state.js',
             'static/js/videojs/videojs-speed-handler.js'

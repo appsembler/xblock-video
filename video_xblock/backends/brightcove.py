@@ -400,6 +400,7 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         )
         js_files = [
             'static/js/base.js',
+            'static/vendor/js/array-from-polyfill.js',
             'static/js/student-view/player-state.js'
         ]
         js_files += [
