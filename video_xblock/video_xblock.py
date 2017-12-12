@@ -273,7 +273,7 @@ class VideoXBlock(
         Validate data submitted via xblock edit pop-up.
 
         Reference:
-            https://github.com/edx/xblock-utils/blob/v1.0.3/xblockutils/studio_editable.py#L245
+            https://github.com/edx/xblock-utils/blob/v1.0.5/xblockutils/studio_editable.py#L245
 
         Attributes:
             validation (xblock.validation.Validation): Object containing validation information for an xblock instance.
@@ -551,7 +551,7 @@ class VideoXBlock(
 
         Create the information that the template needs to render a form field for this field.
         Reference:
-            https://github.com/edx/xblock-utils/blob/v1.0.3/xblockutils/studio_editable.py#L96
+            https://github.com/edx/xblock-utils/blob/v1.0.5/xblockutils/studio_editable.py#L96
 
         Arguments:
             field_name (str): Name of a video XBlock field whose info is to be made.
