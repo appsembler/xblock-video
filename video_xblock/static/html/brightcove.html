@@ -3,7 +3,7 @@
     width: 100% !important;
     overflow: visible;
 }
-.bc-player-{{player_id}}_default .vjs-menu-button-inline:hover, .bc-player- {{player_id}}_default.vjs-no-flex .vjs-menu-button-inline {
+.bc-player-{{player_id}}_default .vjs-menu-button-inline:hover, .bc-player-{{player_id}}_default.vjs-no-flex .vjs-menu-button-inline {
     width: 12em;
 }
 .bc-player-{{player_id}}_default .vjs-big-play-button:active,
@@ -39,8 +39,14 @@
     background: rgba(115,133,159,.5);
     border-radius: 0;
 }
-</style>
 
+
+</style>
+<style>
+    body .wrapper-xblock.level-element .xblock-header-primary {
+        display: none !important;
+    }
+</style>
 <div class="display-flex">
     <video data-video-id="{{ video_id }}"
         id="{{ video_player_id }}"

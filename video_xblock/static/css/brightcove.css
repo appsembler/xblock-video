@@ -643,3 +643,11 @@ div.vjs-control-bar > div.vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-
 div.vjs-control-bar > div.vjs-custom-caption-button.vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-cc.vjs-singleton.vjs-control-enabled .vjs-menu {
     display: none !important;
  }
+
+div.vjs-control-bar > div.vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-cc.vjs-singleton > div > ul,
+body .video-js .fa-quote-left .vjs-menu,
+body .video-js .fa-cc .vjs-menu,
+body .vjs-v6 .vjs-custom-caption-button .vjs-menu-content,
+body .vjs-v6 .vjs-custom-transcript-button .vjs-menu-content {
+    display: none !important;.
+}
