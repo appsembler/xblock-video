@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.9.3] - 2017-12-28
+
+### Fixed
+
+- Removed menu popup doubling in player's subtitles/transcripts control group.
+- Updated python code quality configuration.
+
 ## [0.9.2] - 2017-11-03
 
 ### Fixed
@@ -253,4 +260,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 [0.9.0]: https://github.com/raccoongang/xblock-video/compare/v0.8.0...v0.9.0
 [0.9.1]: https://github.com/raccoongang/xblock-video/compare/v0.9.0...v0.9.1
 [0.9.2]: https://github.com/raccoongang/xblock-video/compare/v0.9.1...v0.9.2
-[Unreleased]: https://github.com/raccoongang/xblock-video/compare/v0.9.2...HEAD
+[0.9.3]: https://github.com/raccoongang/xblock-video/compare/v0.9.2...v0.9.3
+[Unreleased]: https://github.com/raccoongang/xblock-video/compare/v0.9.3...HEAD
