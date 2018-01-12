@@ -5,6 +5,8 @@
 
 domReady(function() {
     'use strict';
+    // Videojs 5/6 shim;
+    var registerPlugin = videojs.registerPlugin || videojs.plugin;
 
     var MenuItem = videojs.getComponent('MenuItem');
    /**
@@ -57,7 +59,6 @@ domReady(function() {
     });
 
     var MenuButton = videojs.getComponent('MenuButton');
-    var ClickableComponent = videojs.getComponent('ClickableComponent');
 
    /**
     *  Custom Video.js component responsible for creation of the custom captions/transcripts buttons.
@@ -67,7 +68,7 @@ domReady(function() {
         constructor: function constructor(player, options) {
             this.kind_ = 'captions';
 
-            ClickableComponent.call(this, player, options);
+            MenuButton.call(this, player, options);
 
             if (!this.player_.singleton_menu) {
                 this.update();
@@ -84,7 +85,6 @@ domReady(function() {
             this.on('click', this.onClick);
             this.on('mouseenter', function() {
                 var caretButton = this.$$('.vjs-custom-caret-button', this.el_.parentNode);
-                this.menu.el_.classList.add('is-visible');
                 if (caretButton.length > 0) {
                     caretButton[0].classList.add('fa-caret-up');
                     caretButton[0].classList.remove('fa-caret-left');
@@ -135,14 +135,18 @@ domReady(function() {
             return this.options_.cssClasses;
         },
         createEl: function createEl(props, attributes) {
+            var el;
             var menuProps = props || {};
-            var el = MenuButton.prototype.createEl.call(this, arguments.tag, menuProps, attributes);
             menuProps.className = this.buildCSSClass() + ' icon fa ' + this.styledSpan();
             menuProps.tabIndex = 0;
+
+            el = MenuButton.prototype.createEl.call(this, arguments.tag, menuProps, attributes);
             el.setAttribute('role', 'menuitem');
             el.setAttribute('aria-live', 'polite');
             el.tabIndex = this.options_.tabIndex || 0;
-            el.classList += ' icon fa ' + this.styledSpan();
+            el.classList.add('icon');
+            el.classList.add('fa');
+            el.classList.add(this.styledSpan());
             el.classList.add('vjs-singleton');
             return el;
         },
@@ -155,13 +159,9 @@ domReady(function() {
     });
 
     var toggleButton = function(options) {
-        if (this.tagAttributes.brightcove !== undefined) {
-            this.controlBar.customControlSpacer.addChild('ToggleButton', options);
-        } else {
-            this.controlBar.addChild('ToggleButton', options);
-        }
+        this.controlBar.addChild('ToggleButton', options);
     };
 
     videojs.registerComponent('ToggleButton', ToggleButton);
-    videojs.plugin('toggleButton', toggleButton);
+    registerPlugin('toggleButton', toggleButton);
 });

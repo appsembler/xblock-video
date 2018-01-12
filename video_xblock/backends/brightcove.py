@@ -400,13 +400,14 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         )
         js_files = [
             'static/js/base.js',
-            'static/js/videojs/toggle-button.js',
+            'static/vendor/js/array-from-polyfill.js',
             'static/js/student-view/player-state.js'
         ]
         js_files += [
             'static/js/videojs/videojs-tabindex.js',
+            'static/js/videojs/toggle-button.js',
             'static/js/videojs/videojs-event-plugin.js',
-            'static/js/videojs/brightcove-videojs-init.js'
+            'static/js/videojs/brightcove-videojs-init.js',
         ]
 
         for js_file in js_files:
@@ -415,6 +416,7 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         frag.add_css(
             self.resource_string('static/css/brightcove.css')
         )
+        log.debug("[get_frag] initialized scripts: %s", js_files)
         return frag
 
     def get_player_html(self, **context):
@@ -422,19 +424,16 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         Add VideoJS plugins to the context and render player html using base class logic.
         """
         vjs_plugins = [
-            self.resource_string(
-                'static/vendor/js/videojs-offset.min.js'
-            ),
-            self.resource_string('static/js/videojs/videojs-speed-handler.js')
+            'static/vendor/js/videojs-offset.min.js',
+            'static/js/videojs/videojs-speed-handler.js'
         ]
         if context.get('transcripts'):
             vjs_plugins += [
-                self.resource_string(
-                    'static/vendor/js/videojs-transcript.min.js'
-                ),
-                self.resource_string('static/js/videojs/videojs-transcript.js')
+                'static/vendor/js/videojs-transcript.min.js',
+                'static/js/videojs/videojs-transcript.js'
             ]
-        context['vjs_plugins'] = vjs_plugins
+        context['vjs_plugins'] = map(self.resource_string, vjs_plugins)
+        log.debug("[get_player_html] initialized scripts: %s", vjs_plugins)
         return super(BrightcovePlayer, self).get_player_html(**context)
 
     def dispatch(self, _request, suffix):

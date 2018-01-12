@@ -43,7 +43,7 @@ test-acceptance:
 quality: quality-py quality-js ## Run code quality checks
 
 quality-py:
-	pep8 . --format=pylint --max-line-length=120
+	pycodestyle . --format=pylint --max-line-length=120
 	pydocstyle
 	pylint -f colorized video_xblock
 
