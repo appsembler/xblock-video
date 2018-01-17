@@ -649,5 +649,9 @@ body .video-js .fa-quote-left .vjs-menu,
 body .video-js .fa-cc .vjs-menu,
 body .vjs-v6 .vjs-custom-caption-button .vjs-menu-content,
 body .vjs-v6 .vjs-custom-transcript-button .vjs-menu-content {
-    display: none !important;.
+    display: none !important;
+}
+
+body .vjs-playback-rate .vjs-menu-content {
+    transform: translate(50%,0);
 }
