@@ -152,9 +152,16 @@ domReady(function() {
         },
         onClick: function onClick(event) {
             var el = event.currentTarget;
+            var menusCollection = this.player_.el_.getElementsByClassName('vjs-lock-showing');
             var eventName = this.hasClass('vjs-control-enabled') ? this.disabledEventName() : this.enabledEventName();
             el.classList.toggle('vjs-control-enabled');
             this.player_.trigger(eventName);
+
+            // kind a hack here - removing vjs special class to make lang menu appear on hover...
+            for (var i = 0; i < menusCollection.length; i++) {
+                menusCollection.item(i).classList.remove('vjs-lock-showing');
+            }
+            el.blur();
         }
     });
 

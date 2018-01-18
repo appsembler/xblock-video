@@ -106,12 +106,5 @@ domReady(function() {
             cssClasses: cssClasses,
             tabIndex: 7
         });
-        this.toggleButton({
-            style: 'fa-caret-left',
-            enabledEvent: 'caretenabled',
-            disabledEvent: 'caretdisabled',
-            cssClasses: 'vjs-custom-caret-button vjs-menu-button vjs-menu-button-popup vjs-control vjs-button',
-            tabIndex: 8
-        });
     });
 });
