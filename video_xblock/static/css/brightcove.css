@@ -238,7 +238,7 @@ body {
 }
 .video-js .vjs-custom-transcript-button {
     position: absolute;
-    right: 20px;
+    right: 0;
     width: 40px;
     font-size: 8px;
 }
@@ -247,7 +247,7 @@ body {
 }
 .video-js .vjs-custom-caption-button {
     position: absolute;
-    right: 61px;
+    right: 41px;
     width: 40px;
     font-size: 8px;
 }
@@ -256,19 +256,19 @@ body {
 }
 .video-js .vjs-fullscreen-control {
     position: absolute;
-    right: 100;
+    right: 80;
     border-left: 1px dotted #4f595d;
     border-right: 1px dotted #4f595d;
     width: 41px;
 }
 .video-js .vjs-volume-menu-button {
     position: absolute;
-    right: 140px !important;
+    right: 120px !important;
     border-left: 1px dotted #4f595d;
 }
 .video-js .vjs-playback-rate {
     position: absolute;
-    right: 182px;
+    right: 122px;
     border-left: 1px dotted #4f595d;
     width: 120px;
 }
@@ -637,7 +637,7 @@ body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
 body .vjs-v6.video-js .vjs-custom-caption-button {
     right: 0 !important;
 }
-div.vjs-control-bar > div.vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-cc.vjs-singleton:hover .vjs-menu,
+/* div.vjs-control-bar > div.vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-cc.vjs-singleton:hover .vjs-menu,
 div.vjs-control-bar > div.vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-quote-left.vjs-singleton:hover .vjs-menu,
 div.vjs-control-bar > div.vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-cc.vjs-singleton.vjs-control-enabled .vjs-menu,
 div.vjs-control-bar > div.vjs-custom-caption-button.vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-cc.vjs-singleton.vjs-control-enabled .vjs-menu {
@@ -649,5 +649,15 @@ body .video-js .fa-quote-left .vjs-menu,
 body .video-js .fa-cc .vjs-menu,
 body .vjs-v6 .vjs-custom-caption-button .vjs-menu-content,
 body .vjs-v6 .vjs-custom-transcript-button .vjs-menu-content {
-    display: none !important;.
+    display: none !important;
+} */
+body .vjs-custom-transcript-button:focus .vjs-menu,
+body .vjs-custom-caption-button:focus .vjs-menu,
+body .vjs-custom-caption-button .vjs-menu.vjs-lock-showing,
+body .vjs-custom-caret-button {
+    display: none !important;
+}
+
+body .vjs-playback-rate .vjs-menu-content {
+    transform: translate(50%,0);
 }
