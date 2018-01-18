@@ -158,7 +158,7 @@ domReady(function() {
             this.player_.trigger(eventName);
 
             // kind a hack here - removing vjs special class to make lang menu appear on hover...
-            for (var i = 0; i < menusCollection.length; i++) {
+            for (var i = 0; i < menusCollection.length; i++) {  // eslint-disable-line vars-on-top
                 menusCollection.item(i).classList.remove('vjs-lock-showing');
             }
             el.blur();
