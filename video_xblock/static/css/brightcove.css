@@ -343,7 +343,7 @@ body {
     font-size: 13px !important;
 }
 .vjs-playback-rate .vjs-playback-rate-value {
-    top: 3px !important;
+    top: 1px !important;
     padding: 2px 0 0 76px;
     color: #e7ecee;
     text-align: left;
@@ -530,7 +530,7 @@ body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
     display: none !important;
 }
 .vjs-v6 .vjs-fullscreen-control.vjs-button > .vjs-icon-placeholder:before {
-    line-height: 1.8 !important;
+    line-height: 1.6 !important;
     font-size: 24px;
 }
 
@@ -544,7 +544,7 @@ body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
 }
 
 .video-js.vjs-v6 .vjs-play-control.vjs-button > .vjs-icon-placeholder:before {
-    line-height: 1.8 !important;
+    line-height: 1.6 !important;
     font-size: 24px;
 }
 
@@ -579,7 +579,7 @@ body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
     display: none;
 }
 .vjs-v6.video-js .vjs-fullscreen-control {
-    right: 125px !important;
+    right: 80px !important;
 }
 .vjs-v6 .fa-quote-left:before,
 .vjs-v6 .vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-caret-left.vjs-singleton:before,
