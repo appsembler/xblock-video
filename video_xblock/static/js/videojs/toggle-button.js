@@ -33,14 +33,9 @@ domReady(function() {
             return el;
         },
         onClick: function onClick(event) {
-            var menuItem = this.$$('.vjs-menu-item', this.el_.parentNode);
             var el = event.currentTarget;
             var self = this;
             var tracks = this.player_.textTracks();
-            Array.from(menuItem).forEach(function(caption) {
-                caption.classList.remove('vjs-selected');
-            });
-            el.classList.add('vjs-selected');
 
             tracks.tracks_.forEach(function(track) {
                 if (track.kind === 'captions') {
