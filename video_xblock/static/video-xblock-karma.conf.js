@@ -15,15 +15,15 @@ module.exports = function (config) {
 
         // list of files / patterns to load in the browser
         files: [
-            'https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js',
+            'vendor/js/jquery.min.js',
             'vendor/js/video.min.js',
             'js/spec/test-context.js',
             'js/base.js',
             'js/runtime-handlers.js',
             'js/studio-edit/utils.js',
-            'js/studio-edit/transcripts-manual-upload.js',
             'js/spec/*spec.js',
-            'js/spec/studio-edit/*spec.js'
+            'js/spec/studio-edit/*spec.js',
+            'js/studio-edit/transcripts-manual-upload.js'
         ],
         plugins: [
             'karma-chrome-launcher',
