@@ -532,6 +532,10 @@ class PlaybackStateMixin(XBlock):
             if field_name not in player_state:
                 player_state[field_name] = request[underscore_to_mixedcase(field_name)]
 
+        # make sure player's volume is down when muted:
+        if player_state['muted']:
+            player_state['volume'] = 0.000
+
         self.player_state = player_state
         return {'success': True}
 
