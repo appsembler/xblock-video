@@ -20,13 +20,21 @@
             </a>
         </li>
     {% endif %}
-    {% if download_transcript_allowed and transcripts and not transcripts_streaming_enabled %}
-        <li class="video-transcript video-download-button-custom
-            {% if not transcript_download_link %}is-hidden{% endif %}"
-            id="download-transcript-button">
-            <a  class="download-transcript"
-                href="{{ transcript_download_link }}">{% trans 'Download transcript' %}
-            </a>
+    {% if download_transcript_allowed and transcripts %}
+        <li class="video-transcript video-download-button-custom" id="download-transcripts-button">
+            <div class="dropdown">
+                <button class="dropbtn">
+                    {% trans 'Download transcripts' %}
+                </button>
+                <div class="dropdown-content">
+                    {% for transcript in transcripts %}
+                    <a href="{{ transcript.url }}"
+                       download="{{ transcript.label|lower }}_{{ transcript.lang }}.vtt">
+                        {{ transcript.label }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
         </li>
     {% endif %}
     {% if download_video_url %}

@@ -358,7 +358,7 @@ class TranscriptsMixin(XBlock):
         transcript = self.fetch_single_3pm_translation(transcript_data={'id': transcript_id, 'language_id': lang_id})
         if transcript is None:
             return Response()
-        return Response(transcript.content)
+        return Response(transcript.content, content_type='text/vtt')
 
     @XBlock.handler
     def validate_three_play_media_config(self, request, _suffix=''):

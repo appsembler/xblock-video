@@ -35,3 +35,43 @@
     background-color: #1aa1de;
     color: #fff;
 }
+
+/* Transcripts download dropdown button */
+.dropbtn {
+    padding: 5px;
+    font-size: 15px;
+    border: 1px solid #0075b4;
+    background: #fff !important;
+    color: #0075b4;
+    font-weight: 100;
+}
+
+.dropdown {
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {background-color: #1aa1de}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+    background-color: #0075b4 !important;
+    color: #fff !important;
+}
