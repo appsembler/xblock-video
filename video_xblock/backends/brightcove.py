@@ -110,7 +110,7 @@ class BrightcoveApiClient(BaseApiClient):
             if resp.status_code == httplib.OK:
                 result = resp.json()
                 return result['access_token']
-        except (IOError):
+        except IOError:
             log.exception(_("Connection issue. Couldn't refresh API access token."))
             return None
 
