@@ -105,10 +105,14 @@ class BrightcoveApiClient(BaseApiClient):
             "Content-Type": "application/x-www-form-urlencoded",
             "Authorization": "Basic " + auth_string
         }
-        resp = requests.post(url, headers=headers, data=params)
-        if resp.status_code == httplib.OK:
-            result = resp.json()
-            return result['access_token']
+        try:
+            resp = requests.post(url, headers=headers, data=params)
+            if resp.status_code == httplib.OK:
+                result = resp.json()
+                return result['access_token']
+        except (IOError):
+            log.exception(_("Connection issue. Couldn't refresh API access token."))
+            return None
 
     def get(self, url, headers=None, can_retry=True):
         """

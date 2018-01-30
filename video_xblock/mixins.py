@@ -251,6 +251,7 @@ class TranscriptsMixin(XBlock):
                     domain=domain, file_id=file_id, api_key=apikey
                 )
             )
+            log.debug(response._content)  # pylint: disable=protected-access
         except IOError:
             log.exception(failure_message)
             return feedback, transcripts_list
