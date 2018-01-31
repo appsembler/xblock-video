@@ -23,9 +23,9 @@
     {% if download_transcript_allowed and transcripts %}
         <li class="video-transcript video-download-button-custom" id="download-transcripts-button">
             <div class="dropdown">
-                <button class="dropbtn">
+                <a href="{{ handout }}" class="download-transcript dropdown">
                     {% trans 'Download transcripts' %}
-                </button>
+                </a>
                 <div class="dropdown-content">
                     {% for transcript in transcripts %}
                     <a href="{{ transcript.url }}"
