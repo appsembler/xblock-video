@@ -11,7 +11,7 @@ from xblock.core import XBlock
 from xblock.exceptions import NoSuchServiceError
 from xblock.fields import Scope, Boolean, Float, String
 
-from .constants import DEFAULT_LANG, TPMApiTranscriptFormatID, TPMApiLanguage, TranscriptSource, Status
+from .constants import DEFAULT_LANG, TPMApiTranscriptFormatID, TPMApiLanguage, TranscriptSource, Status, PlayerName
 from .utils import import_from, ugettext as _, underscore_to_mixedcase, Transcript
 
 log = logging.getLogger(__name__)
@@ -125,9 +125,13 @@ class TranscriptsMixin(XBlock):
         transcripts = self.get_enabled_transcripts()
         for tran in transcripts:
             if self.threeplaymedia_streaming:
-                tran['url'] = self.runtime.handler_url(
-                    self, 'fetch_from_three_play_media', query="{}={}".format(tran['lang_id'], tran['id'])
-                )
+                # NOTE(wowkalucky): for some reason handler's URL doesn't work in combination
+                # Brightcove player/Safari browser. Safari just doesn't populate text tracks with cues!
+                # So, we have to expose raw 3PM URL for Brightcove users, for now...
+                if str(self.player_name) != PlayerName.BRIGHTCOVE:
+                    tran['url'] = self.runtime.handler_url(
+                        self, 'fetch_from_three_play_media', query="{}={}".format(tran['lang_id'], tran['id'])
+                    )
             elif not tran['url'].endswith('.vtt'):
                 tran['url'] = self.runtime.handler_url(
                     self, 'srt_to_vtt', query=tran['url']
