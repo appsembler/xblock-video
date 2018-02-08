@@ -392,6 +392,7 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         Because of this it doesn't use `super.get_frag()`.
         """
         context['player_state'] = json.dumps(context['player_state'])
+        log.debug('CONTEXT: player_state: %s', context.get('player_state'))
 
         frag = Fragment(
             self.render_template('brightcove.html', **context)
@@ -437,7 +438,7 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
                 'static/js/videojs/videojs-transcript.js'
             ]
         context['vjs_plugins'] = map(self.resource_string, vjs_plugins)
-        log.debug("[get_player_html] initialized scripts: %s", vjs_plugins)
+        log.debug("Initialized scripts: %s", vjs_plugins)
         return super(BrightcovePlayer, self).get_player_html(**context)
 
     def dispatch(self, _request, suffix):
