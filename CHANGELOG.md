@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.0] - 2018-01-24
+
+## Added
+
+- Ability to perform search within text tracks (subtitles/transcripts);
+
+### Fixed
+
+- Player controls alignment;
+- Active languages highlighting inconsistency between transcript and caption menus;
+
 ## [0.9.4] - 2018-01-18
 
 ### Fixed
@@ -270,4 +281,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 [0.9.2]: https://github.com/raccoongang/xblock-video/compare/v0.9.1...v0.9.2
 [0.9.3]: https://github.com/raccoongang/xblock-video/compare/v0.9.2...v0.9.3
 [0.9.4]: https://github.com/raccoongang/xblock-video/compare/v0.9.3...v0.9.4
-[Unreleased]: https://github.com/raccoongang/xblock-video/compare/v0.9.4...HEAD
+[0.10.0]: https://github.com/raccoongang/xblock-video/compare/v0.9.4...v0.10.0
+[Unreleased]: https://github.com/raccoongang/xblock-video/compare/v0.10.0...HEAD
