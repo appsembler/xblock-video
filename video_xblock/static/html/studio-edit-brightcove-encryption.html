@@ -6,32 +6,33 @@
     >
       <div class='wrapper-comp-setting {% if field.type == "set" %}metadata-list-enum{% endif %} {% if field.type == "handout" %}file-uploader{% endif %}{% if field.type == "transcripts" %}metadata-video-translations{% endif %}'>
 
-        <label class="label setting-label" for="xb-field-edit-retranscode-options">{% trans "Brightcove content protection" %}</label>
-            <div class="custom-field-list">
-              <div class="custom-field-section-label">{% trans "Video autoquality & encryption" %}</div>
-              <select
-              class="field-data-control"
-              id="xb-field-edit-retranscode-options"
-            >
-              <option value="default">
-                {% trans "Default profile" %}
-              </option>
-              <option value="autoquality">
-                {% trans "Autoquality" %}
-              </option>
-              <option value="encryption">
-                {% trans "Autoquality & Encryption" %}
-              </option>
-            </select>
-
-              <div class="field-elements-wrapper">
-                <button id="submit-re-transcode" class="studio-edit-button">
-                  <span aria-hidden="true"></span>{% trans "Re-transcode this video" %}<span class="sr"></span>
-                </button>
-              </div>
-
-            <div id="brightcove-retranscode-status"></div>
+        <label class="label setting-label" for="xb-field-edit-retranscode-options">
+          {% trans "Brightcove content protection" %}
+        </label>
+        <div class="custom-field-list">
+          <div class="custom-field-section-label">
+            {% trans "Video autoquality & encryption" %}
           </div>
+          <select class="field-data-control" id="xb-field-edit-retranscode-options">
+            <option value="default">
+              {% trans "Default profile" %}
+            </option>
+            <option value="autoquality">
+              {% trans "Autoquality" %}
+            </option>
+            <option value="encryption">
+              {% trans "Autoquality & Encryption" %}
+            </option>
+          </select>
+
+          <div class="field-elements-wrapper">
+            <button id="submit-re-transcode" class="studio-edit-button retranscode-button">
+              <span aria-hidden="true"></span>{% trans "Re-transcode this video" %}<span class="sr"></span>
+            </button>
+          </div>
+
+          <div id="brightcove-retranscode-status"></div>
+        </div>
       </div>
   </li>
 
