@@ -443,7 +443,7 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
 
             # Assert
             self.assertIsInstance(transcripts_routes, Iterable)
-            self.assertEqual(next(transcripts_routes), {'url': 'test-trans.vtt', 'download_url': 'test-trans.srt'})
+            self.assertEqual(next(transcripts_routes), {'url': 'test-trans.vtt'})
             handler_url_mock.assert_called_once_with(
                 self.xblock, 'srt_to_vtt', query='test-trans.srt'
             )
