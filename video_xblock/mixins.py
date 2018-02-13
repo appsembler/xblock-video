@@ -124,6 +124,7 @@ class TranscriptsMixin(XBlock):
         log.debug("Routing transcripts: 3PM status={}".format(self.threeplaymedia_streaming))
         transcripts = self.get_enabled_transcripts()
         for tran in transcripts:
+            tran['download_url'] = trans['url']
             if self.threeplaymedia_streaming:
                 # NOTE(wowkalucky): for some reason handler's URL doesn't work in combination
                 # Brightcove player/Safari browser. Safari just doesn't populate text tracks with cues!
