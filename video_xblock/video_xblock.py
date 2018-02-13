@@ -311,7 +311,7 @@ class VideoXBlock(
             'display_name': self.display_name,
             'usage_id': self.usage_id,
             'handout': self.handout,
-            'transcripts': self.route_transcripts(),
+            'transcripts': list(self.route_transcripts()),
             'download_transcript_allowed': self.download_transcript_allowed,
             'transcripts_streaming_enabled': self.threeplaymedia_streaming,
             'download_video_url': self.get_download_video_url(),
