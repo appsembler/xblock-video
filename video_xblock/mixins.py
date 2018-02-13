@@ -125,6 +125,10 @@ class TranscriptsMixin(XBlock):
         transcripts = self.get_enabled_transcripts()
         for tran in transcripts:
             if self.threeplaymedia_streaming:
+                # download URL remains hidden behind the handler:
+                tran['download_url'] = self.runtime.handler_url(
+                    self, 'fetch_from_three_play_media', query="{}={}".format(tran['lang_id'], tran['id'])
+                )
                 # NOTE(wowkalucky): for some reason handler's URL doesn't work in combination
                 # Brightcove player/Safari browser. Safari just doesn't populate text tracks with cues!
                 # So, we have to expose raw 3PM URL for Brightcove users, for now...
