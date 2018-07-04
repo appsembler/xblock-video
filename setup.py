@@ -74,5 +74,5 @@ setup(
             'html5-player = video_xblock.backends.html5:Html5Player',
         ]
     },
-    package_data=package_data("video_xblock", ["static", ]),
+    package_data=package_data("video_xblock", ["static", "backends", "public", "tests"]),
 )
