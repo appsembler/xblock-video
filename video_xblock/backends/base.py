@@ -13,7 +13,7 @@ import operator
 import re
 
 from webob import Response
-from xblock.fragment import Fragment
+from web_fragments.fragment import Fragment
 from xblock.plugin import Plugin
 
 from django.conf import settings
@@ -303,7 +303,7 @@ class BaseVideoPlayer(Plugin):
         Returns:
             django.utils.safestring.SafeText
         """
-        return render_template(name, **context)
+        return render_template(self.xblock, name, **context)
 
     @classmethod
     def match(cls, href):

@@ -164,7 +164,7 @@ class VimeoPlayer(BaseVideoPlayer):
 
         frag = super(VimeoPlayer, self).get_frag(**context)
         frag.add_content(
-            self.render_resource('static/html/vimeo.html', **context)
+            self.render_template('vimeo.html', **context)
         )
         js_files = [
             'static/vendor/js/Vimeo.js',

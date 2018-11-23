@@ -45,14 +45,26 @@ def render_resource(path, **context):
     )
 
 
-def render_template(template_name, **context):
+def render_template(xblock, template_name, **context):
     """
     Render static resource using provided context.
 
     Returns: django.utils.safestring.SafeText
     """
+
+    context = context.copy()
+    i18n_service = xblock.runtime.service(xblock, "i18n")
+    context['_i18n_service'] = i18n_service
+    libraries = {
+        'i18n': 'xblockutils.templatetags.i18n',
+    }
+
+    from django.template.backends.django import get_installed_libraries
+    installed_libraries = get_installed_libraries()
+    installed_libraries.update(libraries)
+
     template_dirs = [os.path.join(os.path.dirname(__file__), 'static/html')]
-    engine = Engine(dirs=template_dirs, debug=True)
+    engine = Engine(dirs=template_dirs, libraries=installed_libraries, debug=True)
     html = engine.get_template(template_name)
 
     return html_parser.unescape(

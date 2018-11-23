@@ -98,7 +98,7 @@ class WistiaPlayer(BaseVideoPlayer):
 
         frag = super(WistiaPlayer, self).get_frag(**context)
         frag.add_content(
-            self.render_resource('static/html/wistiavideo.html', **context)
+            self.render_template('wistiavideo.html', **context)
         )
 
         js_files = [

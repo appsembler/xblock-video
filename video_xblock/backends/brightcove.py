@@ -11,7 +11,7 @@ import logging
 import re
 
 import requests
-from xblock.fragment import Fragment
+from web_fragments.fragment import Fragment
 
 from video_xblock.backends.base import BaseVideoPlayer, BaseApiClient
 from video_xblock.constants import TranscriptSource

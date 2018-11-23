@@ -21,7 +21,7 @@ import requests
 from webob import Response
 from xblock.core import XBlock
 from xblock.fields import Scope, Boolean, String, Dict
-from xblock.fragment import Fragment
+from web_fragments.fragment import Fragment
 from xblock.validation import ValidationMessage
 from xblockutils.studio_editable import StudioEditableXBlockMixin
 
@@ -41,6 +41,7 @@ from .workbench.mixin import WorkbenchMixin
 log = logging.getLogger(__name__)
 
 
+@XBlock.needs("i18n")
 class VideoXBlock(
         SettingsMixin, TranscriptsMixin, PlaybackStateMixin, LocationMixin,
         StudioEditableXBlockMixin, ContentStoreMixin, WorkbenchMixin, XBlock
@@ -321,10 +322,7 @@ class VideoXBlock(
         }
         log.debug("[student_view_context]: transcripts %s", context['transcripts'])
         frag = Fragment(
-            render_resource(
-                'static/html/student_view.html',
-                **context
-            )
+            render_template(self, 'student_view.html', **context)
         )
         frag.add_javascript(resource_string("static/js/student-view/video-xblock.js"))
         frag.add_css(resource_string("static/css/student-view.css"))
@@ -369,7 +367,6 @@ class VideoXBlock(
         """
         Render a form for XBlock editing.
         """
-        fragment = Fragment()
         player = self.get_player()
         languages = [{'label': label, 'code': lang} for lang, label in ALL_LANGUAGES]
         languages.sort(key=lambda l: l['label'])
@@ -415,7 +412,9 @@ class VideoXBlock(
             'download_transcript_handler_url': download_transcript_handler_url,
         }
 
-        fragment.content = render_template('studio-edit.html', **context)
+        fragment = Fragment(
+            render_template(self, 'studio-edit.html', **context)
+        )
         fragment.add_css(resource_string("static/css/student-view.css"))
         fragment.add_css(resource_string("static/css/transcripts-upload.css"))
         fragment.add_css(resource_string("static/css/studio-edit.css"))
@@ -441,10 +440,7 @@ class VideoXBlock(
         """
         player = self.get_player()
         save_state_url = self.runtime.handler_url(self, 'save_player_state')
-        transcripts = render_resource(
-            'static/html/transcripts.html',
-            transcripts=self.route_transcripts()
-        ).strip()
+        transcripts = render_template(self, 'transcripts.html', transcripts=self.route_transcripts()).strip()
         return player.get_player_html(
             url=self.href, account_id=self.account_id, player_id=self.player_id,
             video_id=player.media_id(self.href),

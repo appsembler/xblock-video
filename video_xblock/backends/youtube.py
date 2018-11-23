@@ -63,7 +63,7 @@ class YoutubePlayer(BaseVideoPlayer):
 
         frag = super(YoutubePlayer, self).get_frag(**context)
         frag.add_content(
-            self.render_resource('static/html/youtube.html', **context)
+            self.render_template('youtube.html', **context)
         )
 
         js_files = [

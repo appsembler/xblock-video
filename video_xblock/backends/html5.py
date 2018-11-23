@@ -60,7 +60,7 @@ class Html5Player(BaseVideoPlayer):
 
         frag = super(Html5Player, self).get_frag(**context)
         frag.add_content(
-            self.render_resource('static/html/html5.html', **context)
+            self.render_template('html5.html', **context)
         )
         js_files = [
             'static/vendor/js/videojs-offset.min.js',

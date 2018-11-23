@@ -4,7 +4,7 @@ Dummy Video player plugin.
 
 import re
 
-from xblock.fragment import Fragment
+from web_fragments.fragment import Fragment
 from video_xblock import BaseVideoPlayer
 
 
