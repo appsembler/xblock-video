@@ -67,7 +67,7 @@ THE SOFTWARE. */
       this.iframe.setAttribute('allowFullScreen', '0');
 
       var divWrapper = document.createElement('div');
-      divWrapper.setAttribute('style', 'margin:0 auto;padding-bottom:56.25%;width:100%;height:0;position:relative;overflow:hidden;');
+      divWrapper.setAttribute('style', 'margin:0 auto;width:100%;height:100%;position:relative;overflow:hidden;');
       divWrapper.setAttribute('class', 'vimeoFrame');
       divWrapper.appendChild(this.iframe);
 
@@ -390,8 +390,9 @@ THE SOFTWARE. */
               '.vjs-vimeo .vjs-iframe-blocker { display: none; }' +
               '.vjs-vimeo.vjs-user-inactive .vjs-iframe-blocker { display: block; }' +
               '.vjs-vimeo .vjs-poster { background-size: cover; }' +
-              // '.vjs-vimeo { height:100%; }' +
-              '.vimeoplayer { width:100%; height:180%; position:absolute; left:0; top:-40%; }';
+              '.vimeoplayer { width:100%; height:100%; position:absolute; left:0; top:0;}' +
+              '.video-js .vjs-control-bar { z-index: 3; display: none}' +
+              '.video-js .vjs-big-play-button {display: none}';
 
     var head = document.head || document.getElementsByTagName('head')[0];
 
