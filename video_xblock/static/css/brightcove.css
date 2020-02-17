@@ -446,7 +446,12 @@ body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
   background-color: inherit;
 }
 
+#transcript > div {
+  max-height: 100%;
+}
+
 .transcript-body {
+  height: 100%;
   max-height: 100%;
   overflow: scroll;
   padding: 0 0 0 20px;
