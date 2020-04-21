@@ -11,7 +11,7 @@ from xblock.core import XBlock
 from xblock.exceptions import NoSuchServiceError
 from xblock.fields import Scope, Boolean, Float, String
 
-from .constants import DEFAULT_LANG, TPMApiTranscriptFormatID, TPMApiLanguage, TranscriptSource, Status, PlayerName
+from .constants import DEFAULT_LANG, TPMApiTranscriptFormatID, TPMApiLanguage, TranscriptSource, Status
 from .utils import import_from, ugettext as _, underscore_to_mixedcase, Transcript
 
 log = logging.getLogger(__name__)
@@ -99,18 +99,6 @@ class TranscriptsMixin(XBlock):
                 return WebVTTWriter().write(reader().read(caps))
         return u''
 
-    @staticmethod
-    def vtt_to_text(vtt_content):
-        """
-        Utility method to extract text from WebVTT format transcript.
-        """
-        text_lines = []
-        for line in vtt_content.splitlines():
-            if '-->' in line or line == '':
-                continue
-            text_lines.append(line)
-        return ' '.join(text_lines)
-
     def route_transcripts(self):
         """
         Re-route transcripts to appropriate handler.
@@ -121,21 +109,12 @@ class TranscriptsMixin(XBlock):
         Arguments:
             transcripts (unicode): Raw transcripts.
         """
-        log.debug("Routing transcripts: 3PM status={}".format(self.threeplaymedia_streaming))
         transcripts = self.get_enabled_transcripts()
         for tran in transcripts:
             if self.threeplaymedia_streaming:
-                # download URL remains hidden behind the handler:
-                tran['download_url'] = self.runtime.handler_url(
+                tran['url'] = self.runtime.handler_url(
                     self, 'fetch_from_three_play_media', query="{}={}".format(tran['lang_id'], tran['id'])
                 )
-                # NOTE(wowkalucky): for some reason handler's URL doesn't work in combination
-                # Brightcove player/Safari browser. Safari just doesn't populate text tracks with cues!
-                # So, we have to expose raw 3PM URL for Brightcove users, for now...
-                if str(self.player_name) != PlayerName.BRIGHTCOVE:
-                    tran['url'] = self.runtime.handler_url(
-                        self, 'fetch_from_three_play_media', query="{}={}".format(tran['lang_id'], tran['id'])
-                    )
             elif not tran['url'].endswith('.vtt'):
                 tran['url'] = self.runtime.handler_url(
                     self, 'srt_to_vtt', query=tran['url']
@@ -259,7 +238,6 @@ class TranscriptsMixin(XBlock):
                     domain=domain, file_id=file_id, api_key=apikey
                 )
             )
-            log.debug(response._content)  # pylint: disable=protected-access
         except IOError:
             log.exception(failure_message)
             return feedback, transcripts_list
@@ -366,7 +344,7 @@ class TranscriptsMixin(XBlock):
         transcript = self.fetch_single_3pm_translation(transcript_data={'id': transcript_id, 'language_id': lang_id})
         if transcript is None:
             return Response()
-        return Response(transcript.content, content_type='text/vtt')
+        return Response(transcript.content)
 
     @XBlock.handler
     def validate_three_play_media_config(self, request, _suffix=''):
@@ -539,10 +517,6 @@ class PlaybackStateMixin(XBlock):
         for field_name in self.player_state_fields:
             if field_name not in player_state:
                 player_state[field_name] = request[underscore_to_mixedcase(field_name)]
-
-        # make sure player's volume is down when muted:
-        if player_state['muted']:
-            player_state['volume'] = 0.000
 
         self.player_state = player_state
         return {'success': True}
