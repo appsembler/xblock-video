@@ -57,7 +57,7 @@ THE SOFTWARE. */
       this.iframe.setAttribute('id', this.options_.techId);
       this.iframe.setAttribute('title', 'Vimeo Video Player');
       this.iframe.setAttribute('class', 'vimeoplayer');
-      this.iframe.setAttribute('src', this.baseUrl + this.videoId + '?api=1&player_id=' + this.options_.techId);
+      this.iframe.setAttribute('src', this.baseUrl + this.videoId + '?api=1&loop=0&autoplay=0&controls=0&player_id=' + this.options_.techId);
       this.iframe.setAttribute('frameborder', '0');
       this.iframe.setAttribute('scrolling', 'no');
       this.iframe.setAttribute('marginWidth', '0');
@@ -67,7 +67,7 @@ THE SOFTWARE. */
       this.iframe.setAttribute('allowFullScreen', '0');
 
       var divWrapper = document.createElement('div');
-      divWrapper.setAttribute('style', 'margin:0 auto;padding-bottom:56.25%;width:100%;height:0;position:relative;overflow:hidden;');
+      divWrapper.setAttribute('style', 'margin:0 auto;width:100%;height:100%;position:relative;overflow:hidden;');
       divWrapper.setAttribute('class', 'vimeoFrame');
       divWrapper.appendChild(this.iframe);
 
@@ -391,7 +391,8 @@ THE SOFTWARE. */
               '.vjs-vimeo.vjs-user-inactive .vjs-iframe-blocker { display: block; }' +
               '.vjs-vimeo .vjs-poster { background-size: cover; }' +
               // '.vjs-vimeo { height:100%; }' +
-              '.vimeoplayer { width:100%; height:180%; position:absolute; left:0; top:-40%; }';
+              '.vimeoplayer { width:100%; height:100%; position:absolute; left:0; top:0;}' +
+              '.video-js .vjs-control-bar { z-index: 3;}';
 
     var head = document.head || document.getElementsByTagName('head')[0];
 
