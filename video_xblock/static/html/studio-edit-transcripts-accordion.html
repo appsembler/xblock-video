@@ -1,9 +1,7 @@
 {% load i18n %}
 
 <div class="accordion">
-  <button class="accordion-btn {% if transcripts_type == 'manual' %}active{% endif %}">
-    {% trans "Manual & default transcripts" %}
-  </button>
+  <button class="accordion-btn {% if transcripts_type == 'manual' %}active{% endif %}">Manual & default transcripts</button>
   <div class="accordion-panel {% if transcripts_type == 'manual' %}active{% endif %}" id="accordion-panel-transcripts">
     {% for field in transcripts_fields %}
       <li class="field comp-setting-entry metadata_entry is-set" data-field-name="{{ field.name }}" data-default="{{ field.default|default_if_none:"" }}" data-cast="transcripts">
@@ -24,9 +22,7 @@
     {% endfor %}
   </div>
 
-  <button class="accordion-btn {% if transcripts_type == '3PM' %}active{% endif %}">
-    {% trans "3PlayMedia transcripts" %}
-  </button>
+  <button class="accordion-btn {% if transcripts_type == '3PM' %}active{% endif %}">3PlayMedia transcripts</button>
   <div class="accordion-panel {% if transcripts_type == '3PM' %}active{% endif %}" id="accordion-panel-3pm">
     {% for field in three_pm_fields %}
       <li
@@ -56,47 +52,32 @@
 <script type="text/javascript">
   var accButtons = document.getElementsByClassName('accordion-btn');
   var accPanels = document.getElementsByClassName('accordion-panel');
-  var advSettingsContainer = document.getElementsByClassName('settings-list advanced')[0];
 
   Array.prototype.forEach.call(accButtons, function(accButton) {
-    // Set initial tooltips
-    setTooltip(accButton);
-
-    accButton.onclick = function(evt) {
+    accButton.onclick = function() {
       // Toggle all buttons and panels inactive
       Array.prototype.forEach.call(accPanels, function(panel) {
         panel.classList.remove('active');
+        // panel.style.maxHeight = null;
       });
+
       Array.prototype.forEach.call(accButtons, function(button) {
         button.classList.remove('active');
       });
 
       // Toggle clicked button and panel to active
       this.classList.add('active');
+
       var panel = this.nextElementSibling;
       panel.classList.add('active');
-
-      // Update tooltips
-      Array.prototype.forEach.call(accButtons, function(button) {
-        setTooltip(button);
-      });
+      // panel.style.maxHeight = panel.scrollHeight + 'px';
 
       // Toggle 3PM streaming
       if (panel.id === 'accordion-panel-3pm') {
         $("#xb-field-edit-threeplaymedia_streaming>option[value|=1]").prop('selected', true);
-        $(advSettingsContainer).scrollTo(0, 1500);
       } else if (panel.id === 'accordion-panel-transcripts') {
         $("#xb-field-edit-threeplaymedia_streaming>option[value|=0]").prop('selected', true)
       }
     }
   });
-  
-  function setTooltip(button) {
-    var $button = $(button);
-    if ($button.hasClass('active')) {
-      $button.attr('data-tooltip', gettext(button.innerText + " now enabled"));
-    } else {
-      $button.attr('data-tooltip', gettext("Click to enable " + button.innerText));
-    }
-  }
 </script>

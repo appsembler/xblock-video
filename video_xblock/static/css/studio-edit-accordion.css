@@ -1,17 +1,17 @@
 /* Style the buttons that are used to open and close the accordion panel */
 .accordion-btn {
-  /*background-color: #eee;*/
-  border: 1px solid #009fe6;
+  background-color: #eee;
+  border: none;
   color: #444;
   cursor: pointer;
   padding: 18px;
   text-align: left;
-  transition: 1s;
+  transition: 0.4s;
   width: 100%;
 }
 
 .accordion-btn::after {
-  content: 'OFF';
+  content: '\002B';
   color: #777;
   font-weight: bold;
   float: right;
@@ -19,36 +19,25 @@
 }
 
 .accordion-btn.active::after {
-  content: "ON";
-  color: #0D6;
+  content: "\2212";
 }
 
 /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
-.accordion-btn.active {
+.accordion-btn.active, .accordion-btn:hover {
   background-color: #009fe6;
   color: #fff;
 }
 
-.accordion-btn.active:hover {
-  background-color: #009fe6;
-}
-
-.accordion-btn:hover {
-  background-color: #0D6;
-}
-
 /* Style the accordion panel. Note: hidden by default */
 .accordion-panel {
-  max-height: 0;
   background-color: white;
-  border: none;
-  display: block;
+  border: 1px solid #009fe6;
+  display: none;
   overflow: hidden;
   padding: 0 18px;
-  transition: max-height 1.5s;
+  transition: max-height 0.2s ease-out;
 }
 
 .accordion-panel.active {
-  border: 5px solid #009fe6;
-  max-height: 1080px;
+  display: block;
 }

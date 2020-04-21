@@ -124,7 +124,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
         render_resource_mock.return_value = u'<iframe/>'
         handler_url = self.xblock.runtime.handler_url = Mock()
         handler_url.side_effect = ['/player/url', '/transcript/download/url']
-        route_transcripts.return_value = ['transcripts.vtt']
+        route_transcripts.return_value = 'transcripts.vtt'
         self.xblock.get_transcript_download_link = Mock(return_value='/transcript/link.vtt')
         self.xblock.threeplaymedia_streaming = True
 
@@ -143,7 +143,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
             handout_file_name='',
             player_url='/player/url',
             transcript_download_link='/transcript/download/url'+'/transcript/link.vtt',
-            transcripts=['transcripts.vtt'],
+            transcripts='transcripts.vtt',
             usage_id='usage_id',
             version=__version__,
         )

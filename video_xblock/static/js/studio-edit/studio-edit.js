@@ -111,13 +111,9 @@ function StudioEditableXBlock(runtime, element) {
         $.when(
             dispatch('POST', 'submit_retranscode_' + profile)
         ).then(function(response) {
-            var error = 'error_code' in response;
-            var color = error ? 'red' : 'green';
-            var message = error ?
-                response.message :
+            $('#brightcove-retranscode-status').html(
                 'Your retranscode request was successfully submitted to Brightcove VideoCloud. ' +
-                'It takes few minutes to process it. Job id: ' + response.id;
-            $('#brightcove-retranscode-status').html(message).css('color', color);
+                'It takes few minutes to process it. Job id ' + response.id);
         });
     }
 
@@ -160,7 +156,8 @@ function StudioEditableXBlock(runtime, element) {
     $('#submit-re-transcode').click(function() {
         var profile = $('#xb-field-edit-retranscode-options').val();
         submitBCReTranscode(profile);
-    });
+    }
+    );
 
     $('#settings-tab').ready(function() {
         showBackendSettings();

@@ -39,13 +39,6 @@ class ResponseStub(object):
         """
         return getattr(self, 'body', '')
 
-    @property
-    def _content(self):
-        """
-        Make response compatible with requests.Response.
-        """
-        return getattr(self, 'body', '')
-
     def get(self, key):
         """
         Allow to fetch data from response body by key.
