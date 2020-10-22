@@ -22,7 +22,7 @@ from video_xblock.exceptions import VideoXBlockException
 from video_xblock.utils import render_resource, render_template, resource_string, ugettext as _
 
 
-class BaseApiClient(object):
+class BaseApiClient:
     """
     Low level video platform API client.
 
@@ -76,7 +76,7 @@ class BaseVideoPlayer(Plugin, metaclass=abc.ABCMeta):
         """
         self.xblock = xblock
 
-    @abc.abstractproperty
+    @abc.abstractmethod
     def url_re(self):
         """
         Regex (list) to match video url.
@@ -85,7 +85,8 @@ class BaseVideoPlayer(Plugin, metaclass=abc.ABCMeta):
         """
         return [] or re.compile('') or ''
 
-    @abc.abstractproperty
+    @property
+    @abc.abstractmethod
     def captions_api(self):
         """
         Dictionary of url, request parameters, and response structure of video platform's captions API.
@@ -310,7 +311,7 @@ class BaseVideoPlayer(Plugin, metaclass=abc.ABCMeta):
 
         `cls.url_re` attribute, defined in subclassess, is used for the check.
         """
-        if isinstance(cls.url_re, list):
+        if isinstance(cls.url_re, list):  # pylint: disable=no-else-return
             return any(regex.search(href) for regex in cls.url_re)
         elif isinstance(cls.url_re, type(re.compile(''))):
             return cls.url_re.search(href)  # pylint: disable=no-member

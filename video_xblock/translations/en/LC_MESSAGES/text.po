@@ -1,0 +1,549 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-10-16 09:11+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: backends/base.py:392
+msgid ""
+"Not all the languages of transcripts fetched from video platform are "
+"consistent with the pre-configured ALL_LANGUAGES"
+msgstr ""
+
+#: backends/brightcove.py:29
+msgid "Brightcove API error."
+msgstr ""
+
+#: backends/brightcove.py:114
+msgid "Connection issue. Couldn't refresh API access token."
+msgstr ""
+
+#: backends/brightcove.py:171
+msgid "Can't parse unexpected response during POST request to Brightcove API!"
+msgstr ""
+
+#: backends/brightcove.py:472 backends/brightcove.py:563
+msgid "No API credentials provided"
+msgstr ""
+
+#: backends/brightcove.py:574 backends/brightcove.py:578
+msgid "No timed transcript may be fetched from a video platform."
+msgstr ""
+
+#: backends/brightcove.py:585 backends/wistia.py:213
+msgid ""
+"For now, video platform doesn't have any timed transcript for this video."
+msgstr ""
+
+#: backends/brightcove.py:613 backends/youtube.py:227
+msgid "`url` parameter is required."
+msgstr ""
+
+#: backends/vimeo.py:25
+msgid "Vimeo API error."
+msgstr ""
+
+#: backends/vimeo.py:63
+msgid "Can't fetch requested data from API."
+msgstr ""
+
+#: backends/vimeo.py:69
+msgid "Advanced API operations not allowed for now."
+msgstr ""
+
+#: backends/vimeo.py:142
+msgid "URL of the video page. E.g. https://vimeo.com/987654321"
+msgstr ""
+
+#: backends/vimeo.py:144
+msgid ""
+"You can generate a Vimeo access token via <b>Application console's "
+"Authentication section</b> by <a href=\"https://developer.vimeo.com/apps/new"
+"\" target=\"_blank\">creating new app</a>. Please ensure appropriate "
+"operations scope (\"private\") has been set for access token."
+msgstr ""
+
+#: backends/vimeo.py:218 tests/unit/test_backends.py:553
+msgid "No API credentials provided."
+msgstr ""
+
+#: backends/vimeo.py:222 tests/unit/test_backends.py:530
+msgid "Default transcripts successfully fetched from a video platform."
+msgstr ""
+
+#: backends/vimeo.py:228 tests/unit/test_backends.py:570
+msgid "No timed transcript may be fetched from a video platform.<br>"
+msgstr ""
+
+#: backends/vimeo.py:232 tests/unit/test_backends.py:589
+msgid "There are no default transcripts for the video on the video platform."
+msgstr ""
+
+#: backends/vimeo.py:264
+msgid "Transcripts API has been changed."
+msgstr ""
+
+#: backends/wistia.py:181 tests/unit/test_backends.py:668
+#: tests/unit/test_backends.py:795
+msgid "Success."
+msgstr ""
+
+#: backends/wistia.py:189
+msgid ""
+"No timed transcript may be fetched from a video platform.\n"
+"Error details: {}"
+msgstr ""
+
+#: backends/wistia.py:198
+msgid "Wistia video {} doesn't exist."
+msgstr ""
+
+#: backends/wistia.py:203
+msgid "Invalid request."
+msgstr ""
+
+#: exceptions.py:15
+msgid "An exception occurred."
+msgstr ""
+
+#: exceptions.py:43
+msgid "A Mock exception occurred."
+msgstr ""
+
+#: exceptions.py:51
+msgid "API error occurred."
+msgstr ""
+
+#: mixins.py:63
+msgid "Direct 3PlayMedia"
+msgstr ""
+
+#: mixins.py:65
+msgid ""
+"Direct <a href='http://www.3playmedia.com/'>3PlayMedia</a> transcripts usage "
+"enabled."
+msgstr ""
+
+#: mixins.py:70
+msgid "3PlayMedia API Key"
+msgstr ""
+
+#: mixins.py:71 video_xblock.py:176
+msgid ""
+"You can generate a client token following official documentation of your "
+"video platform's API."
+msgstr ""
+
+#: mixins.py:78
+msgid "File Id"
+msgstr ""
+
+#: mixins.py:79
+msgid "3playmedia file id for download bind transcripts."
+msgstr ""
+
+#: mixins.py:252 tests/unit/test_mixins.py:556
+msgid "3PlayMedia transcripts fetching API request has failed!"
+msgstr ""
+
+#: mixins.py:253 tests/unit/test_mixins.py:530
+msgid "3PlayMedia transcripts fetched successfully."
+msgstr ""
+
+#: mixins.py:295
+msgid "Transcript fetching failure: language [{}]"
+msgstr ""
+
+#: mixins.py:387 tests/unit/test_mixins.py:661 tests/unit/test_mixins.py:700
+msgid "Success"
+msgstr ""
+
+#: mixins.py:388 tests/unit/test_mixins.py:680
+msgid "Check provided 3PlayMedia configuration"
+msgstr ""
+
+#: mixins.py:392 tests/unit/test_mixins.py:642
+msgid "Initialization"
+msgstr ""
+
+#: mixins.py:456
+msgid "Enabled transcripts"
+msgstr ""
+
+#: mixins.py:458
+msgid ""
+"Add transcripts in different languages. Click below to specify a language "
+"and upload an .srt transcript file for that language."
+msgstr ""
+
+#: static/html/fields/file-uploader.html:3
+#: static/html/studio-edit-transcripts.html:15
+msgid "Replace"
+msgstr ""
+
+#: static/html/fields/file-uploader.html:3
+#: static/html/studio-edit-transcripts.html:30
+msgid "Upload"
+msgstr ""
+
+#: static/html/fields/file-uploader.html:4
+#: static/html/studio-edit-default-transcripts.html:21
+#: static/html/studio-edit-transcripts.html:16
+msgid "Download"
+msgstr ""
+
+#: static/html/fields/set.html:17
+msgid "None Available"
+msgstr ""
+
+#: static/html/student_view.html:19
+msgid "Download Handout"
+msgstr ""
+
+#: static/html/student_view.html:27
+msgid "Download transcripts"
+msgstr ""
+
+#: static/html/student_view.html:43
+msgid "Right-click and save link as to download file"
+msgstr ""
+
+#: static/html/student_view.html:44
+msgid "Download Video file"
+msgstr ""
+
+#: static/html/studio-edit-3playmedia-apikey.html:5
+msgid "3playmedia Key"
+msgstr ""
+
+#: static/html/studio-edit-brightcove-encryption.html:10
+msgid "Brightcove content protection"
+msgstr ""
+
+#: static/html/studio-edit-brightcove-encryption.html:14
+msgid "Video autoquality & encryption"
+msgstr ""
+
+#: static/html/studio-edit-brightcove-encryption.html:18
+msgid "Default profile"
+msgstr ""
+
+#: static/html/studio-edit-brightcove-encryption.html:21
+msgid "Autoquality"
+msgstr ""
+
+#: static/html/studio-edit-brightcove-encryption.html:24
+msgid "Autoquality & Encryption"
+msgstr ""
+
+#: static/html/studio-edit-brightcove-encryption.html:30
+msgid "Re-transcode this video"
+msgstr ""
+
+#: static/html/studio-edit-brightcove-encryption.html:42
+msgid "Brightcove Video tech info"
+msgstr ""
+
+#: static/html/studio-edit-brightcove-encryption.html:45
+msgid "Renditions count:"
+msgstr ""
+
+#: static/html/studio-edit-brightcove-encryption.html:46
+msgid "Autoquality:"
+msgstr ""
+
+#: static/html/studio-edit-brightcove-encryption.html:47
+msgid "Encryption:"
+msgstr ""
+
+#: static/html/studio-edit-default-transcripts.html:5
+msgid "Show available default transcripts"
+msgstr ""
+
+#: static/html/studio-edit-default-transcripts.html:27
+msgid "Delete"
+msgstr ""
+
+#: static/html/studio-edit-default-transcripts.html:50
+#: static/html/studio-edit-default-transcripts.html:69
+msgid "Fetch"
+msgstr ""
+
+#: static/html/studio-edit-default-transcripts.html:77
+msgid "There are no transcripts to upload."
+msgstr ""
+
+#: static/html/studio-edit-default-transcripts.html:82
+msgid ""
+"You can manually add transcripts using the `+Add` button in \"Enabled "
+"transcript\" field."
+msgstr ""
+
+#: static/html/studio-edit-tab.html:41
+msgid "Unsupported field type. This setting cannot be edited."
+msgstr ""
+
+#: static/html/studio-edit-tab.html:45
+msgid "Clear"
+msgstr ""
+
+#: static/html/studio-edit-tab.html:46
+msgid "Clear Value"
+msgstr ""
+
+#: static/html/studio-edit-token.html:6
+msgid "Application Access Token"
+msgstr ""
+
+#: static/html/studio-edit-token.html:8
+msgid "Client Token"
+msgstr ""
+
+#: static/html/studio-edit-token.html:20
+msgid "Connect to video platform"
+msgstr ""
+
+#: static/html/studio-edit-transcripts-accordion.html:5
+msgid "Manual & default transcripts"
+msgstr ""
+
+#: static/html/studio-edit-transcripts-accordion.html:28
+msgid "3PlayMedia transcripts"
+msgstr ""
+
+#: static/html/studio-edit-transcripts.html:40
+msgid "Add"
+msgstr ""
+
+#: static/html/studio-edit.html:11
+msgid "Save"
+msgstr ""
+
+#: static/html/studio-edit.html:14
+msgid "Cancel"
+msgstr ""
+
+#: tests/unit/test_backends.py:213
+msgid "Not all the languages of transcripts fetched from video platform"
+msgstr ""
+
+#: tests/unit/test_backends.py:697
+msgid ""
+"No timed transcript may be fetched from a video platform.\n"
+"Error details: test_exc_message"
+msgstr ""
+
+#: tests/unit/test_video_xblock.py:34 video_xblock.py:66
+msgid "Video"
+msgstr ""
+
+#: video_xblock.py:67
+msgid "Component Display Name"
+msgstr ""
+
+#: video_xblock.py:68
+msgid ""
+"The name students see. This name appears in the course ribbon and as a "
+"header for the video."
+msgstr ""
+
+#: video_xblock.py:74
+msgid "Video URL"
+msgstr ""
+
+#: video_xblock.py:75
+msgid ""
+"URL of the video page. E.g. https://example.wistia.com/medias/12345abcde"
+msgstr ""
+
+#: video_xblock.py:82
+msgid "Video Download Allowed"
+msgstr ""
+
+#: video_xblock.py:84
+msgid ""
+"Allow students to download this video if they cannot use the edX video "
+"player. A link to download the file appears below the video."
+msgstr ""
+
+#: video_xblock.py:92
+msgid "Video file URL"
+msgstr ""
+
+#: video_xblock.py:93
+msgid ""
+"The URL where you've posted non hosted versions of the video. URL must end "
+"in .mpeg, .mp4, .ogg, or .webm. (For browser compatibility, we strongly "
+"recommend .mp4 and .webm format.) To allow students to download these "
+"videos, set Video Download Allowed to True."
+msgstr ""
+
+#: video_xblock.py:101
+msgid "Account Id"
+msgstr ""
+
+#: video_xblock.py:102
+msgid "Your Brightcove account id"
+msgstr ""
+
+#: video_xblock.py:108
+msgid "Player Id"
+msgstr ""
+
+#: video_xblock.py:109
+msgid ""
+"Your Brightcove player id. Use \"Luna\" theme for all your players. You can "
+"choose one of your players from a <a href=\"https://studio.brightcove.com/"
+"products/videocloud/players\" target=\"_blank\">list</a>."
+msgstr ""
+
+#: video_xblock.py:121
+msgid ""
+"Time you want the video to start if you don't want the entire video to play. "
+"Not supported in the native mobile app: the full video file will play. "
+"Formatted as HH:MM:SS. The maximum value is 23:59:59."
+msgstr ""
+
+#: video_xblock.py:125
+msgid "Video Start Time"
+msgstr ""
+
+#: video_xblock.py:132
+msgid ""
+"Time you want the video to stop if you don't want the entire video to play. "
+"Not supported in the native mobile app: the full video file will play. "
+"Formatted as HH:MM:SS. The maximum value is 23:59:59."
+msgstr ""
+
+#: video_xblock.py:136
+msgid "Video Stop Time"
+msgstr ""
+
+#: video_xblock.py:144
+msgid "Upload handout"
+msgstr ""
+
+#: video_xblock.py:145
+msgid "You can upload handout file for students"
+msgstr ""
+
+#: video_xblock.py:151
+msgid "Download Transcript Allowed"
+msgstr ""
+
+#: video_xblock.py:153
+msgid ""
+"Allow students to download the timed transcript. A link to download the file "
+"appears below the video. By default, the transcript is an .vtt or .srt file. "
+"If you want to provide the transcript for download in a different format, "
+"upload a file by using the Upload Handout field."
+msgstr ""
+
+#: video_xblock.py:163
+msgid "Default Timed Transcript"
+msgstr ""
+
+#: video_xblock.py:165
+msgid ""
+"Default transcripts are uploaded automatically from a video platform to the "
+"list of available transcripts.<br/><b>Note: valid \"Video API Token\" should "
+"be given in order to make auto fetching possible.</b><br/>Advice: disable "
+"transcripts displaying on your video service to avoid transcripts "
+"overlapping."
+msgstr ""
+
+#: video_xblock.py:175
+msgid "Video API Token"
+msgstr ""
+
+#: video_xblock.py:183
+msgid "Metadata"
+msgstr ""
+
+#: video_xblock.py:184
+msgid ""
+"This field stores different metadata, e.g. authentication data. If new "
+"metadata item is designed, this is to add an appropriate key to backend's "
+"`metadata_fields` property."
+msgstr ""
+
+#: video_xblock.py:238
+msgid ""
+"Account ID can not be empty. Please provide a valid Brightcove Account ID."
+msgstr ""
+
+#: video_xblock.py:246
+msgid "Invalid Account ID or Player ID, please recheck."
+msgstr ""
+
+#: video_xblock.py:252
+msgid ""
+"Can't validate submitted account ID at the moment. Please try to save "
+"settings one more time."
+msgstr ""
+
+#: video_xblock.py:274
+msgid "Incorrect or unsupported video URL, please recheck."
+msgstr ""
+
+#: video_xblock.py:384
+msgid "Failed to fetch default transcripts."
+msgstr ""
+
+#: video_xblock.py:823
+msgid "Couldn't upload transcript text."
+msgstr ""
+
+#: static/js/studio-edit/studio-edit.js:16
+msgid ""
+"This may be happening because of an error with our server or your internet "
+"connection. Try refreshing the page or making sure you are online."
+msgstr ""
+
+#: static/js/studio-edit/studio-edit.js:379
+msgid "Saving"
+msgstr ""
+
+#: static/js/studio-edit/studio-edit.js:393
+#: static/js/studio-edit/studio-edit.js:416
+#: static/js/studio-edit/studio-edit.js:425
+#: static/js/studio-edit/studio-edit.js:503
+#: static/js/studio-edit/studio-edit.js:615
+msgid "Unable to update settings"
+msgstr ""
+
+#: static/js/studio-edit/studio-edit.js:532
+msgid "File \"{filename}\" uploaded successfully"
+msgstr ""
+
+#: static/js/studio-edit/transcripts-autoload.js:170
+msgid ""
+"{langLabel} transcripts are successfully removed from the list of enabled "
+"ones."
+msgstr ""
+
+#: static/js/studio-edit/transcripts-autoload.js:173
+msgid ""
+"{langLabel} transcripts are removed, but can not be uploaded from the video "
+"platform."
+msgstr ""
+
+#: static/js/studio-edit/transcripts-autoload.js:176
+msgid ""
+"{langLabel} transcripts are not neither removed nor added to the list of "
+"available ones."
+msgstr ""

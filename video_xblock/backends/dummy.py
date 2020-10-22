@@ -28,6 +28,7 @@ class DummyPlayer(BaseVideoPlayer):
         """
         return '<media_id>'
 
+    @property
     def captions_api(self):
         """
         Dictionary of url, request parameters, and response structure of video platform's captions API.

@@ -17,12 +17,16 @@ import json
 import logging
 import os.path
 
+from django.utils.translation import get_language
 import requests
+import pkg_resources
+
 from webob import Response
 from xblock.core import XBlock
 from xblock.fields import Scope, Boolean, String, Dict
 from xblock.fragment import Fragment
 from xblock.validation import ValidationMessage
+from xblockutils.resources import ResourceLoader
 from xblockutils.studio_editable import StudioEditableXBlockMixin
 
 from . import __version__
@@ -38,9 +42,11 @@ from .utils import (
 )
 from .workbench.mixin import WorkbenchMixin
 
+loader = ResourceLoader(__name__)
 log = logging.getLogger(__name__)
 
 
+@XBlock.needs('i18n')
 class VideoXBlock(
         SettingsMixin, TranscriptsMixin, PlaybackStateMixin, LocationMixin,
         StudioEditableXBlockMixin, ContentStoreMixin, WorkbenchMixin, XBlock
@@ -294,6 +300,31 @@ class VideoXBlock(
         """
         return self.download_video_allowed and self.get_player().download_video_url
 
+    @staticmethod
+    def _get_statici18n_js_url():
+        """
+        Returns the Javascript translation file for the selected language.
+        """
+        lang_code = get_language()
+
+        if not lang_code:
+            return None
+
+        country_code = lang_code.split('-')[0]
+        text_js = 'static/js/translations/{lang_code}/text.js'
+
+        for code in (lang_code, country_code):
+            if pkg_resources.resource_exists(loader.module_name, text_js.format(lang_code=code)):
+                return text_js.format(lang_code=code)
+    
+    def add_i18n_resource(self, frag):
+        """
+        Add translations source for frontend.
+        """
+        statici18n_js_url = self._get_statici18n_js_url()
+        if statici18n_js_url:
+            frag.add_javascript(resource_string(statici18n_js_url))
+
     def student_view(self, _context=None):
         """
         The primary view of the `VideoXBlock`, shown to students when viewing courses.
@@ -317,15 +348,13 @@ class VideoXBlock(
             'download_video_url': self.get_download_video_url(),
             'handout_file_name': self.get_file_name_from_path(self.handout),
             'transcript_download_link': full_transcript_download_link,
-            'version': __version__
+            'version': __version__,
+            'i18n_service': self.runtime.service(self, 'i18n'),
         }
         log.debug("[student_view_context]: transcripts %s", context['transcripts'])
-        frag = Fragment(
-            render_resource(
-                'static/html/student_view.html',
-                **context
-            )
-        )
+        frag = Fragment()
+        frag.content = render_template('student_view.html', **context)
+        self.add_i18n_resource(frag)
         frag.add_javascript(resource_string("static/js/student-view/video-xblock.js"))
         frag.add_css(resource_string("static/css/student-view.css"))
         frag.initialize_js('VideoXBlockStudentViewInit')
@@ -413,6 +442,7 @@ class VideoXBlock(
             'initial_default_transcripts': initial_default_transcripts,
             'transcripts_autoupload_message': transcripts_autoupload_message,
             'download_transcript_handler_url': download_transcript_handler_url,
+            'i18n_service': self.runtime.service(self, 'i18n'),
         }
 
         fragment.content = render_template('studio-edit.html', **context)
@@ -420,6 +450,8 @@ class VideoXBlock(
         fragment.add_css(resource_string("static/css/transcripts-upload.css"))
         fragment.add_css(resource_string("static/css/studio-edit.css"))
         fragment.add_css(resource_string("static/css/studio-edit-accordion.css"))
+
+        self.add_i18n_resource(fragment)
         fragment.add_javascript(resource_string("static/js/runtime-handlers.js"))
         fragment.add_javascript(resource_string("static/js/studio-edit/utils.js"))
         fragment.add_javascript(resource_string("static/js/studio-edit/studio-edit.js"))
@@ -513,7 +545,7 @@ class VideoXBlock(
         and lastly fall back to empty string.
         """
         backend_fields_help = self.get_player().fields_help
-        if field_name in backend_fields_help:
+        if field_name in backend_fields_help: # pylint: disable=no-else-return
             return backend_fields_help[field_name]
         elif field.help:
             return field.help

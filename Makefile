@@ -90,3 +90,30 @@ vendored: $(vendored_js) $(vendored_css) $(vendored_fonts)  ## Update vendored J
 
 help:
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+
+
+# Localisation tasks
+
+WORKING_DIR := video_xblock
+JS_TARGET := $(WORKING_DIR)/static/js/translations
+EXTRACT_DIR := $(WORKING_DIR)/translations/en/LC_MESSAGES
+EXTRACTED_DJANGO := $(EXTRACT_DIR)/django-partial.po
+EXTRACTED_DJANGOJS := $(EXTRACT_DIR)/djangojs-partial.po
+EXTRACTED_TEXT := $(EXTRACT_DIR)/text.po
+I18N_CONFIG_PATH = translations/config.yaml
+
+
+extract_translations: ## extract strings to be translated, outputting .po files
+	cd $(WORKING_DIR) && i18n_tool extract
+	mv $(EXTRACTED_DJANGO) $(EXTRACTED_TEXT)
+	tail -n +20 $(EXTRACTED_DJANGOJS) >> $(EXTRACTED_TEXT)
+	rm $(EXTRACTED_DJANGOJS)
+	sed -i'' -e 's/nplurals=INTEGER/nplurals=2/' $(EXTRACTED_TEXT)
+	sed -i'' -e 's/plural=EXPRESSION/plural=\(n != 1\)/' $(EXTRACTED_TEXT)
+
+compile_translations: ## compile translation files, outputting .mo files for each supported language
+	cd $(WORKING_DIR) && i18n_tool generate -c $(I18N_CONFIG_PATH)
+	python manage.py compilejsi18n --output $(JS_TARGET)
+
+dummy_translations: ## generate dummy translation (.po) files
+	cd $(WORKING_DIR) && i18n_tool dummy

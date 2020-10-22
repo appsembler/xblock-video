@@ -27,6 +27,13 @@ class VideoXBlockException(Exception):
         """
         return self.detail
 
+    @property
+    def message(self):
+        """
+        Backward compatibility with python2.7 error messages.
+        """
+        return self.detail
+
 
 class VideoXBlockMockException(VideoXBlockException):
     """

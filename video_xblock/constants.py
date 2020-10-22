@@ -16,7 +16,7 @@ class Status(Enum):
     warning = 'warning'
 
 
-class PlayerName(object):
+class PlayerName:
     """
     Contains Player names for each backends.
     """
@@ -29,7 +29,7 @@ class PlayerName(object):
     YOUTUBE = 'youtube-player'
 
 
-class TranscriptSource(object):
+class TranscriptSource:
     """
     Define transcript source, e.g. where transcript was fetched from.
     """
@@ -48,7 +48,7 @@ class TranscriptSource(object):
         return {k: getattr(cls, k) for k in cls.ALL}
 
 
-class TPMApiTranscriptFormatID(object):
+class TPMApiTranscriptFormatID:
     """
     3PlayMedia service's transcripts API format_name - format_ID mapping.
 
@@ -61,7 +61,7 @@ class TPMApiTranscriptFormatID(object):
     WEBVTT = 51
 
 
-class TPMApiLanguage(object):
+class TPMApiLanguage:
     """
     3PlayMedia service's transcripts API language_ID - language info (e.g.: code, name...) mapping.
 

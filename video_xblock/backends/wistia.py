@@ -5,7 +5,7 @@ Wistia Video player plugin.
 
 from html import parser as html_parser
 import json
-import http.client as httplib
+import http.client as http_client
 import logging
 import re
 
@@ -146,7 +146,7 @@ class WistiaPlayer(BaseVideoPlayer):
         auth_data['token'] = token
         url = self.captions_api.get('auth_sample_url').format(token=str(token))
         response = requests.get('https://' + url)
-        if response.status_code == httplib.UNAUTHORIZED:
+        if response.status_code == http_client.UNAUTHORIZED:
             error_message = "Authentication failed. " \
                             "Please ensure you have provided a valid master token, using Video API Token field."
         return auth_data, error_message
@@ -194,7 +194,7 @@ class WistiaPlayer(BaseVideoPlayer):
 
         # If a video does not exist, the response will be an empty HTTP 404 Not Found.
         # Reference: https://wistia.com/doc/data-api#captions_index
-        if response.status_code == httplib.NOT_FOUND:
+        if response.status_code == http_client.NOT_FOUND:
             message = _("Wistia video {} doesn't exist.").format(video_id)
             return self.default_transcripts, message
 

@@ -5,7 +5,7 @@ Workbench mixin adds XBlock SDK workbench runtime support.
 from video_xblock.utils import loader
 
 
-class WorkbenchMixin(object):
+class WorkbenchMixin:
     """
     WorkbenchMixin adds XBlock-SDK workbench support to an XBlock.
     """
