@@ -11,7 +11,6 @@ body {
 .video-js .vjs-control-bar {
     background-color: #282C2E;
     display: flex;
-    margin-bottom: -30px;
     color: #CFD8DC;
     height: 40px;
 }
