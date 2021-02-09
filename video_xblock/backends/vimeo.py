@@ -3,7 +3,7 @@
 Vimeo Video player plugin.
 """
 
-import httplib
+import http.client as httplib
 import json
 import logging
 import re

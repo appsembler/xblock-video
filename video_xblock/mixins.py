@@ -624,5 +624,5 @@ class LocationMixin(XBlock):
         Returns stub value if `location` property is unavailabe. E.g. in workbench runtime.
         """
         if hasattr(self, 'location'):
-            return self.location.to_deprecated_string()
+            return self.location._to_deprecated_string()
         return 'usage_id'
