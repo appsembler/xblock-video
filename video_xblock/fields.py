@@ -7,6 +7,7 @@ https://github.com/edx/edx-platform/blob/open-release/eucalyptus.master/common/l
 """
 
 import datetime
+from six import string_types
 import time
 
 from xblock.fields import JSONField
@@ -73,7 +74,7 @@ class RelativeTime(JSONField):
         if isinstance(value, float):
             return datetime.timedelta(seconds=value)
 
-        if isinstance(value, basestring):
+        if isinstance(value, string_types):
             return self.isotime_to_timedelta(value)
 
         msg = "RelativeTime Field {0} has bad value '{1!r}'".format(self.name, value)

@@ -6,7 +6,7 @@ Brightcove Video player plugin.
 import base64
 from datetime import datetime
 import json
-import httplib
+import http.client as httplib
 import logging
 import re
 
