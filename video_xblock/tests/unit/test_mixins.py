@@ -217,7 +217,7 @@ class PlaybackStateMixinTests(VideoXBlockTestBase):
             'currentTime': data['currentTime'],
             'muted': data['muted'],
             'playbackRate': data['playbackRate'],
-            'volume': data['volume'],
+            'volume': 0,
             'transcripts': data['transcripts'],
             'transcriptsEnabled': data['transcriptsEnabled'],
             'captionsEnabled': data['captionsEnabled'],
