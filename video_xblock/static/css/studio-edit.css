@@ -251,3 +251,22 @@
     color: #fff;
 }
 
+.retranscode-button {
+    box-sizing: border-box;
+    display: inline-block;
+    font-size: 1.2rem;
+    font-weight: 600;
+    transition: all 0.15s;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    border: 1px solid #0075b4;
+    background-color: #fff;
+    color: #0075b4;
+    padding: 10px;
+}
+
+.retranscode-button:hover {
+    background-color: #065683;
+    color: #fff;
+}

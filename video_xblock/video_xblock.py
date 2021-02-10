@@ -305,20 +305,25 @@ class VideoXBlock(
 
         if transcript_download_link:
             full_transcript_download_link = download_transcript_handler_url + transcript_download_link
+
+        context = {
+            'player_url': player_url,
+            'display_name': self.display_name,
+            'usage_id': self.usage_id,
+            'handout': self.handout,
+            'transcripts': list(self.route_transcripts()),
+            'download_transcript_allowed': self.download_transcript_allowed,
+            'transcripts_streaming_enabled': self.threeplaymedia_streaming,
+            'download_video_url': self.get_download_video_url(),
+            'handout_file_name': self.get_file_name_from_path(self.handout),
+            'transcript_download_link': full_transcript_download_link,
+            'version': __version__
+        }
+        log.debug("[student_view_context]: transcripts %s", context['transcripts'])
         frag = Fragment(
             render_resource(
                 'static/html/student_view.html',
-                player_url=player_url,
-                display_name=self.display_name,
-                usage_id=self.usage_id,
-                handout=self.handout,
-                transcripts=self.route_transcripts(),
-                download_transcript_allowed=self.download_transcript_allowed,
-                transcripts_streaming_enabled=self.threeplaymedia_streaming,
-                download_video_url=self.get_download_video_url(),
-                handout_file_name=self.get_file_name_from_path(self.handout),
-                transcript_download_link=full_transcript_download_link,
-                version=__version__,
+                **context
             )
         )
         frag.add_javascript(resource_string("static/js/student-view/video-xblock.js"))
@@ -670,7 +675,7 @@ class VideoXBlock(
             else:
                 resp['data'] = {'canShow': False}
 
-        response = Response(json.dumps(resp), content_type='application/json')
+        response = Response(json.dumps(resp), charset='UTF-8', content_type='application/json')
         return response
 
     def authenticate_video_api(self, token):

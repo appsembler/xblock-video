@@ -6,7 +6,7 @@ Brightcove Video player plugin.
 import base64
 from datetime import datetime
 import json
-import httplib
+import http.client as httplib
 import logging
 import re
 
@@ -105,10 +105,14 @@ class BrightcoveApiClient(BaseApiClient):
             "Content-Type": "application/x-www-form-urlencoded",
             "Authorization": "Basic " + auth_string
         }
-        resp = requests.post(url, headers=headers, data=params)
-        if resp.status_code == httplib.OK:
-            result = resp.json()
-            return result['access_token']
+        try:
+            resp = requests.post(url, headers=headers, data=params)
+            if resp.status_code == httplib.OK:
+                result = resp.json()
+                return result['access_token']
+        except IOError:
+            log.exception(_("Connection issue. Couldn't refresh API access token."))
+            return None
 
     def get(self, url, headers=None, can_retry=True):
         """
@@ -153,13 +157,21 @@ class BrightcoveApiClient(BaseApiClient):
             headers_.update(headers)
 
         resp = requests.post(url, data=payload, headers=headers_)
+        log.debug("BC response status: {}".format(resp.status_code))
         if resp.status_code in (httplib.OK, httplib.CREATED):
             return resp.json()
         elif resp.status_code == httplib.UNAUTHORIZED and can_retry:
             self.access_token = self._refresh_access_token()
             return self.post(url, payload, headers, can_retry=False)
-        else:
-            raise BrightcoveApiClientError
+
+        try:
+            resp_dict = resp.json()[0]
+            log.warn("API error code: %s - %s", resp_dict.get(u'error_code'), resp_dict.get(u'message'))
+        except (ValueError, IndexError):
+            message = _("Can't parse unexpected response during POST request to Brightcove API!")
+            log.exception(message)
+            resp_dict = {"message": message}
+        return resp_dict
 
 
 class BrightcoveHlsMixin(object):
@@ -169,6 +181,8 @@ class BrightcoveHlsMixin(object):
     These features are:
     1. Video playback autoquality. i.e. adjusting video bitrate depending on client's bandwidth.
     2. Video content encryption using short-living keys.
+
+    NOTE(wowkalucky): Dynamic Ingest is the legacy ingest system. New Video Cloud accounts use Dynamic Delivery.
     """
 
     DI_PROFILES = {
@@ -240,6 +254,7 @@ class BrightcoveHlsMixin(object):
             - default - re-transcode using default DI profile;
             - autoquality - re-transcode using HLS only profile;
             - encryption - re-transcode using HLS with encryption profile;
+        ref: https://support.brightcove.com/dynamic-ingest-api
         """
         url = 'https://ingest.api.brightcove.com/v1/accounts/{account_id}/videos/{video_id}/ingest-requests'.format(
             account_id=account_id, video_id=video_id
@@ -255,9 +270,18 @@ class BrightcoveHlsMixin(object):
         if profile_type != 'default':
             retranscode_params['profile'] = self.DI_PROFILES[profile_type]['name']
         res = self.api_client.post(url, json.dumps(retranscode_params))
-        self.xblock.metadata['retranscode-status'] = (
-            'ReTranscode request submitted {:%Y-%m-%d %H:%M} UTC using profile "{}". Job id: {}'.format(
-                datetime.utcnow(), retranscode_params.get('profile', 'default'), res['id']))
+        if u'error_code' in res:
+            self.xblock.metadata['retranscode-status'] = (
+                'ReTranscode request encountered error {:%Y-%m-%d %H:%M} UTC using profile "{}".\nMessage: {}'.format(
+                    datetime.utcnow(), retranscode_params.get('profile', 'default'), res['message']
+                )
+            )
+        else:
+            self.xblock.metadata['retranscode-status'] = (
+                'ReTranscode request submitted {:%Y-%m-%d %H:%M} UTC using profile "{}". Job id: {}'.format(
+                    datetime.utcnow(), retranscode_params.get('profile', 'default'), res['id']
+                )
+            )
         return res
 
     def get_video_renditions(self, account_id, video_id):
@@ -388,6 +412,7 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         Because of this it doesn't use `super.get_frag()`.
         """
         context['player_state'] = json.dumps(context['player_state'])
+        log.debug('CONTEXT: player_state: %s', context.get('player_state'))
 
         frag = Fragment(
             self.render_template('brightcove.html', **context)
@@ -434,7 +459,8 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
                 ),
                 self.resource_string('static/js/videojs/videojs-transcript.js')
             ]
-        context['vjs_plugins'] = vjs_plugins
+        context['vjs_plugins'] = map(self.resource_string, vjs_plugins)
+        log.debug("Initialized scripts: %s", vjs_plugins)
         return super(BrightcovePlayer, self).get_player_html(**context)
 
     def dispatch(self, _request, suffix):
