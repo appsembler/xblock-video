@@ -99,6 +99,18 @@ class TranscriptsMixin(XBlock):
                 return WebVTTWriter().write(reader().read(caps))
         return u''
 
+    @staticmethod
+    def vtt_to_text(vtt_content):
+        """
+        Utility method to extract text from WebVTT format transcript.
+        """
+        text_lines = []
+        for line in vtt_content.splitlines():
+            if b'-->' in line or line == b'':
+                continue
+            text_lines.append(line)
+        return b' '.join(text_lines)
+
     def route_transcripts(self):
         """
         Re-route transcripts to appropriate handler.
