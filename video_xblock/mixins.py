@@ -106,10 +106,10 @@ class TranscriptsMixin(XBlock):
         """
         text_lines = []
         for line in vtt_content.splitlines():
-            if '-->' in line or line == '':
+            if b'-->' in line or line == b'':
                 continue
             text_lines.append(line)
-        return ' '.join(text_lines)
+        return b' '.join(text_lines)
 
     def route_transcripts(self):
         """
