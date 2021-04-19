@@ -41,9 +41,17 @@ var PlayerState = function(player, playerState) {
         if (stateCurrentTime > 0) {
             player.currentTime(stateCurrentTime);
         }
+        var isChrome = /Chrome/.test(navigator.userAgent)
+          && !/Edg/.test(navigator.userAgent)
+          && !/Edge/.test(navigator.userAgent)
+          && /Google Inc/.test(navigator.vendor);
+        if ( player.cache_.src.includes("vimeo") && isChrome ) {
+            state.muted = true;
+        }
         player.volume(state.volume);
         player.muted(state.muted);
         player.playbackRate(state.playbackRate);
+
         player.captionsLanguage = state.captionsLanguage;  // eslint-disable-line no-param-reassign
         // To switch off transcripts and captions state if doesn`t have transcripts with current captions language
         if (!transcripts[player.captionsLanguage]) {
