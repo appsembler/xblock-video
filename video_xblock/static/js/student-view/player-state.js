@@ -41,6 +41,13 @@ var PlayerState = function(player, playerState) {
         if (stateCurrentTime > 0) {
             player.currentTime(stateCurrentTime);
         }
+        var isChrome = /Chrome/.test(navigator.userAgent)
+          && !/Edg/.test(navigator.userAgent)
+          && !/Edge/.test(navigator.userAgent)
+          && /Google Inc/.test(navigator.vendor);
+        if ( player.cache_.src.includes("vimeo") && isChrome ) {
+            state.muted = true;
+        }
         player
             .volume(state.volume)
             .muted(state.muted)
