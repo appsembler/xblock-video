@@ -51,7 +51,7 @@ class VimeoApiClient(BaseApiClient):
             Response in python native data format.
         """
         headers_ = {
-            'Authorization': 'Bearer {}'.format(self.access_token.encode(encoding='utf-8')),
+            'Authorization': 'Bearer {}'.format(self.access_token),
             'Accept': 'application/json'
         }
         if headers is not None:
