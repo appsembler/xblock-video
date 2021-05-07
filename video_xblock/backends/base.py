@@ -423,6 +423,6 @@ class BaseVideoPlayer(Plugin):
         enabled_languages_codes = [t[u'lang'] for t in transcripts]
         default_transcripts = [
             dt for dt in default_transcripts
-            if (unicode(dt.get('lang')) not in enabled_languages_codes) and default_transcripts
+            if (dt.get('lang') not in enabled_languages_codes) and default_transcripts
         ]
         return default_transcripts

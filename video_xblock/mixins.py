@@ -209,7 +209,7 @@ class TranscriptsMixin(XBlock):
         sub = self.convert_caps_to_vtt(caps=caps)
         reference_name = "{lang_label}_captions_video_{video_id}".format(
             lang_label=lang_label, video_id=video_id
-        ).encode('utf8')
+        )
         file_name, external_url = self.create_transcript_file(
             trans_str=sub, reference_name=reference_name
         )
