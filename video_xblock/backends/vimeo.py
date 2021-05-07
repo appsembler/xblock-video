@@ -277,4 +277,4 @@ class VimeoPlayer(BaseVideoPlayer):
         data = requests.get(url)
         text = data.content.decode('utf8')
         cleaned_captions_text = remove_escaping(text)
-        return unicode(cleaned_captions_text)
+        return cleaned_captions_text

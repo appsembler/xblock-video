@@ -110,7 +110,7 @@ def create_reference_name(lang_label, video_id, source="default"):
         lang_label=lang_label,
         video_id=video_id,
         source=source,
-    ).encode('utf8')
+    )
     return reference
 
 
