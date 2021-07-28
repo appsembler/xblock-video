@@ -273,7 +273,7 @@ class VideoXBlock(
         Validate data submitted via xblock edit pop-up.
 
         Reference:
-            https://github.com/edx/xblock-utils/blob/v1.0.3/xblockutils/studio_editable.py#L245
+            https://github.com/edx/xblock-utils/blob/v1.0.5/xblockutils/studio_editable.py#L245
 
         Attributes:
             validation (xblock.validation.Validation): Object containing validation information for an xblock instance.
@@ -443,7 +443,7 @@ class VideoXBlock(
         save_state_url = self.runtime.handler_url(self, 'save_player_state')
         transcripts = render_resource(
             'static/html/transcripts.html',
-            transcripts=list(self.route_transcripts())
+            transcripts=self.route_transcripts()
         ).strip()
         return player.get_player_html(
             url=self.href, account_id=self.account_id, player_id=self.player_id,
@@ -556,7 +556,7 @@ class VideoXBlock(
 
         Create the information that the template needs to render a form field for this field.
         Reference:
-            https://github.com/edx/xblock-utils/blob/v1.0.3/xblockutils/studio_editable.py#L96
+            https://github.com/edx/xblock-utils/blob/v1.0.5/xblockutils/studio_editable.py#L96
 
         Arguments:
             field_name (str): Name of a video XBlock field whose info is to be made.
@@ -675,7 +675,7 @@ class VideoXBlock(
             else:
                 resp['data'] = {'canShow': False}
 
-        response = Response(json.dumps(resp), content_type='application/json')
+        response = Response(json.dumps(resp), charset='UTF-8', content_type='application/json')
         return response
 
     def authenticate_video_api(self, token):
@@ -818,7 +818,6 @@ class VideoXBlock(
             transcripts = normalize_transcripts(list(self.fetch_available_3pm_transcripts()))
         else:
             transcripts = self.get_enabled_managed_transcripts()
-        log.debug("Getting enabled transcripts: %s", transcripts)
         return transcripts
 
     def get_enabled_managed_transcripts(self):
@@ -834,48 +833,3 @@ class VideoXBlock(
         except ValueError:
             log.exception("JSON parser can't handle 'self.transcripts' field value: {}".format(self.transcripts))
             return []
-
-    def index_dictionary(self):
-        """
-        Part of edx-platform search index API.
-
-        Is invoked during course [re]index operation.
-        Takes enabled transcripts' content and puts it to search index.
-        """
-        xblock_body = super(VideoXBlock, self).index_dictionary()
-        video_body = {"display_name": self.display_name}
-
-        content = None
-        enabled_transcripts = self.route_transcripts()
-        for transcript in enabled_transcripts:
-            asset_file_name = transcript[u'url'].split('@')[-1]
-            try:
-                if transcript['source'] in [TranscriptSource.MANUAL, TranscriptSource.DEFAULT]:
-                    asset_location = self.static_content.compute_location(self.course_key, asset_file_name)
-                    asset = self.contentstore().find(asset_location)  # pylint: disable=not-callable
-                    content = asset.data
-                elif transcript['source'] == TranscriptSource.THREE_PLAY_MEDIA:
-                    external_transcript = self.fetch_single_3pm_translation({
-                        'id': transcript['id'], 'language_id': transcript['lang_id']
-                    })
-                    content = external_transcript and external_transcript.content
-            except IOError:
-                log.exception("Transcript indexing failure: can't fetch external transcript[{}]".format(transcript))
-            except (ValueError, KeyError, TypeError, AttributeError):
-                log.exception(
-                    "Transcript indexing failure: can't parse transcript for indexing: [{}]".format(transcript)
-                )
-            else:
-                if content:
-                    content_ = self.vtt_to_text(content)
-                    video_body.update({transcript[u'lang']: content_})
-            finally:
-                content = None
-
-        if "content" in xblock_body:
-            xblock_body["content"].update(video_body)
-        else:
-            xblock_body["content"] = video_body
-        xblock_body["content_type"] = "Video"
-
-        return xblock_body

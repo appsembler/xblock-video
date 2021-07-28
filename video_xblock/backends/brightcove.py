@@ -6,7 +6,7 @@ Brightcove Video player plugin.
 import base64
 from datetime import datetime
 import json
-import httplib
+import http.client as httplib
 import logging
 import re
 
@@ -425,14 +425,13 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         )
         js_files = [
             'static/js/base.js',
-            'static/vendor/js/array-from-polyfill.js',
+            'static/js/videojs/toggle-button.js',
             'static/js/student-view/player-state.js'
         ]
         js_files += [
             'static/js/videojs/videojs-tabindex.js',
-            'static/js/videojs/toggle-button.js',
             'static/js/videojs/videojs-event-plugin.js',
-            'static/js/videojs/brightcove-videojs-init.js',
+            'static/js/videojs/brightcove-videojs-init.js'
         ]
 
         for js_file in js_files:
@@ -441,7 +440,6 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         frag.add_css(
             self.resource_string('static/css/brightcove.css')
         )
-        log.debug("[get_frag] initialized scripts: %s", js_files)
         return frag
 
     def get_player_html(self, **context):
@@ -449,13 +447,17 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         Add VideoJS plugins to the context and render player html using base class logic.
         """
         vjs_plugins = [
-            'static/vendor/js/videojs-offset.min.js',
-            'static/js/videojs/videojs-speed-handler.js'
+            self.resource_string(
+                'static/vendor/js/videojs-offset.min.js'
+            ),
+            self.resource_string('static/js/videojs/videojs-speed-handler.js')
         ]
         if context.get('transcripts'):
             vjs_plugins += [
-                'static/vendor/js/videojs-transcript.min.js',
-                'static/js/videojs/videojs-transcript.js'
+                self.resource_string(
+                    'static/vendor/js/videojs-transcript.min.js'
+                ),
+                self.resource_string('static/js/videojs/videojs-transcript.js')
             ]
         context['vjs_plugins'] = map(self.resource_string, vjs_plugins)
         log.debug("Initialized scripts: %s", vjs_plugins)

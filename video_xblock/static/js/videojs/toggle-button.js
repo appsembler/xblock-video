@@ -5,8 +5,6 @@
 
 domReady(function() {
     'use strict';
-    // Videojs 5/6 shim;
-    var registerPlugin = videojs.registerPlugin || videojs.plugin;
 
     var MenuItem = videojs.getComponent('MenuItem');
    /**
@@ -33,9 +31,14 @@ domReady(function() {
             return el;
         },
         onClick: function onClick(event) {
+            var menuItem = this.$$('.vjs-menu-item', this.el_.parentNode);
             var el = event.currentTarget;
             var self = this;
             var tracks = this.player_.textTracks();
+            Array.from(menuItem).forEach(function(caption) {
+                caption.classList.remove('vjs-selected');
+            });
+            el.classList.add('vjs-selected');
 
             tracks.tracks_.forEach(function(track) {
                 if (track.kind === 'captions') {
@@ -54,6 +57,7 @@ domReady(function() {
     });
 
     var MenuButton = videojs.getComponent('MenuButton');
+    var ClickableComponent = videojs.getComponent('ClickableComponent');
 
    /**
     *  Custom Video.js component responsible for creation of the custom captions/transcripts buttons.
@@ -63,7 +67,7 @@ domReady(function() {
         constructor: function constructor(player, options) {
             this.kind_ = 'captions';
 
-            MenuButton.call(this, player, options);
+            ClickableComponent.call(this, player, options);
 
             if (!this.player_.singleton_menu) {
                 this.update();
@@ -80,6 +84,7 @@ domReady(function() {
             this.on('click', this.onClick);
             this.on('mouseenter', function() {
                 var caretButton = this.$$('.vjs-custom-caret-button', this.el_.parentNode);
+                this.menu.el_.classList.add('is-visible');
                 if (caretButton.length > 0) {
                     caretButton[0].classList.add('fa-caret-up');
                     caretButton[0].classList.remove('fa-caret-left');
@@ -130,40 +135,33 @@ domReady(function() {
             return this.options_.cssClasses;
         },
         createEl: function createEl(props, attributes) {
-            var el;
             var menuProps = props || {};
+            var el = MenuButton.prototype.createEl.call(this, arguments.tag, menuProps, attributes);
             menuProps.className = this.buildCSSClass() + ' icon fa ' + this.styledSpan();
             menuProps.tabIndex = 0;
-
-            el = MenuButton.prototype.createEl.call(this, arguments.tag, menuProps, attributes);
             el.setAttribute('role', 'menuitem');
             el.setAttribute('aria-live', 'polite');
             el.tabIndex = this.options_.tabIndex || 0;
-            el.classList.add('icon');
-            el.classList.add('fa');
-            el.classList.add(this.styledSpan());
+            el.classList += ' icon fa ' + this.styledSpan();
             el.classList.add('vjs-singleton');
             return el;
         },
         onClick: function onClick(event) {
             var el = event.currentTarget;
-            var menusCollection = this.player_.el_.getElementsByClassName('vjs-lock-showing');
             var eventName = this.hasClass('vjs-control-enabled') ? this.disabledEventName() : this.enabledEventName();
             el.classList.toggle('vjs-control-enabled');
             this.player_.trigger(eventName);
-
-            // kind a hack here - removing vjs special class to make lang menu appear on hover...
-            for (var i = 0; i < menusCollection.length; i++) {  // eslint-disable-line vars-on-top
-                menusCollection.item(i).classList.remove('vjs-lock-showing');
-            }
-            el.blur();
         }
     });
 
     var toggleButton = function(options) {
-        this.controlBar.addChild('ToggleButton', options);
+        if (this.tagAttributes.brightcove !== undefined) {
+            this.controlBar.customControlSpacer.addChild('ToggleButton', options);
+        } else {
+            this.controlBar.addChild('ToggleButton', options);
+        }
     };
 
     videojs.registerComponent('ToggleButton', ToggleButton);
-    registerPlugin('toggleButton', toggleButton);
+    videojs.plugin('toggleButton', toggleButton);
 });

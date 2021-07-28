@@ -99,18 +99,6 @@ class TranscriptsMixin(XBlock):
                 return WebVTTWriter().write(reader().read(caps))
         return u''
 
-    @staticmethod
-    def vtt_to_text(vtt_content):
-        """
-        Utility method to extract text from WebVTT format transcript.
-        """
-        text_lines = []
-        for line in vtt_content.splitlines():
-            if '-->' in line or line == '':
-                continue
-            text_lines.append(line)
-        return ' '.join(text_lines)
-
     def route_transcripts(self):
         """
         Re-route transcripts to appropriate handler.
@@ -121,7 +109,6 @@ class TranscriptsMixin(XBlock):
         Arguments:
             transcripts (unicode): Raw transcripts.
         """
-        log.debug("Routing transcripts: 3PM status={}".format(self.threeplaymedia_streaming))
         transcripts = self.get_enabled_transcripts()
         for tran in transcripts:
             if self.threeplaymedia_streaming:
@@ -624,5 +611,5 @@ class LocationMixin(XBlock):
         Returns stub value if `location` property is unavailabe. E.g. in workbench runtime.
         """
         if hasattr(self, 'location'):
-            return self.location.to_deprecated_string()
+            return self.location._to_deprecated_string()
         return 'usage_id'

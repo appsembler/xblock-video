@@ -11,7 +11,6 @@ body {
 .video-js .vjs-control-bar {
     background-color: #282C2E;
     display: flex;
-    margin-bottom: -30px;
     color: #CFD8DC;
     height: 40px;
 }
@@ -228,7 +227,7 @@ body {
 
 .video-js .vjs-custom-transcript-button {
     position: absolute;
-    right: 0px;
+    right: 20px;
     width: 40px;
     font-size: 8px;
 }
@@ -238,7 +237,7 @@ body {
 
 .video-js .vjs-custom-caption-button {
     position: absolute;
-    right: 41px;
+    right: 61px;
     width: 40px;
     font-size: 8px;
 }
@@ -249,7 +248,7 @@ body {
 
 .video-js .vjs-fullscreen-control {
     position: absolute;
-    right: 80px;
+    right: 100;
     border-left: 1px dotted #4f595d;
     border-right: 1px dotted #4f595d;
     width: 41px;
@@ -257,14 +256,14 @@ body {
 
 .video-js .vjs-volume-menu-button {
     position: absolute;
-    right: 121px;
+    right: 141px;
     border-left: 1px dotted #4f595d;
     width: 41px;
 }
 
 .video-js .vjs-playback-rate {
     position: absolute;
-    right: 162px;
+    right: 182px;
     border-left: 1px dotted #4f595d;
     width: 128px;
 }
@@ -274,7 +273,7 @@ body {
         display: none;
     }
     .video-js .vjs-playback-rate {
-        width: 128px;
+        width: 41px;
     }
 }
 .vjs-playback-rate-value:before {
@@ -454,13 +453,3 @@ body {
 .vjs-text-track-display div div {
     width: 100% !important;
 } 
-
-.vjs-menu li.vjs-selected, .vjs-menu li.vjs-selected:focus, .vjs-menu li.vjs-selected:hover {
-    background-color: rgba(115,133,159,.5);
-    color: #e7ecee;
-}
-
-.vjs-custom-caption-button .vjs-menu,
-.vjs-custom-transcript-button .vjs-menu {
-    transform: translate(-75%);
-}
