@@ -531,6 +531,9 @@ class VideoXBlock(
             info (dict): Information on a field.
         """
         info = super(VideoXBlock, self)._make_field_info(field_name, field)
+        # workaround for '' account_id value when unset - should use default
+        if not info['is_set']:
+            info['value'] = info['default']
         info['help'] = self._get_field_help(field_name, field)
         if field_type:
             info['type'] = field_type
