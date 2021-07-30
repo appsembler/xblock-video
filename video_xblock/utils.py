@@ -3,7 +3,7 @@ Video xblock helpers.
 """
 
 from collections import namedtuple
-from HTMLParser import HTMLParser
+from html.parser import HTMLParser
 from importlib import import_module
 from xml.sax.saxutils import unescape
 import os.path
