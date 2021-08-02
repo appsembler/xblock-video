@@ -3,7 +3,7 @@ Video xblock helpers.
 """
 
 from collections import namedtuple
-from html.parser import HTMLParser
+from html import parser as html_parser
 from importlib import import_module
 from xml.sax.saxutils import unescape
 import os.path
@@ -14,7 +14,7 @@ from xblockutils.resources import ResourceLoader
 
 from .constants import TranscriptSource
 
-html_parser = HTMLParser()  # pylint: disable=invalid-name
+
 loader = ResourceLoader(__name__)  # pylint: disable=invalid-name
 
 
