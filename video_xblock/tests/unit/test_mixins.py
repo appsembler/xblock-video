@@ -129,7 +129,7 @@ class LocationMixinTests(VideoXBlockTestBase):
         Test xBlock's `usage_id` property works properly.
         """
         self.xblock.location = Mock()
-        self.xblock.location.to_deprecated_string = str_mock = Mock(
+        self.xblock.location._to_deprecated_string = str_mock = Mock(
             return_value='test_str'
         )
 
