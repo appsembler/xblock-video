@@ -97,15 +97,13 @@ class BrightcoveApiClient(BaseApiClient):
         """
         url = "https://oauth.brightcove.com/v3/access_token"
         params = {"grant_type": "client_credentials"}
-        auth_string = base64.encodestring(
-            '{}:{}'.format(self.api_key, self.api_secret)
-        ).replace('\n', '')
         headers = {
             "Content-Type": "application/x-www-form-urlencoded",
-            "Authorization": "Basic " + auth_string
         }
+        basicauth = requests.auth.HTTPBasicAuth(self.api_key, self.api_secret)
+
         try:
-            resp = requests.post(url, headers=headers, data=params)
+            resp = requests.post(url, auth=basicauth, headers=headers, data=params)
             if resp.status_code == httplib.OK:
                 result = resp.json()
                 return result['access_token']
