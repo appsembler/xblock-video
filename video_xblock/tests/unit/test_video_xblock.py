@@ -76,7 +76,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
         """
         # Arrange
         request_mock, suffix_mock = Mock(), Mock()
-        render_resource_mock.return_value = u'vtt transcripts'
+        render_resource_mock.return_value = 'vtt transcripts'
         handler_url = self.xblock.runtime.handler_url = Mock()
         get_player_html_mock = player_mock.return_value.get_player_html
         media_id_mock = player_mock.return_value.media_id
@@ -94,7 +94,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
             player_state=player_state_mock.return_value,
             save_state_url=handler_url.return_value,
             start_time=self.xblock.start_time.total_seconds(),  # pylint: disable=no-member
-            transcripts=u'vtt transcripts',
+            transcripts='vtt transcripts',
             url=self.xblock.href,
             video_id=media_id_mock.return_value,
             video_player_id='video_player_block_id'
@@ -121,7 +121,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
         """
         # Arrange
         unused_context_stub = object()
-        render_resource_mock.return_value = u'<iframe/>'
+        render_resource_mock.return_value = '<iframe/>'
         handler_url = self.xblock.runtime.handler_url = Mock()
         handler_url.side_effect = ['/player/url', '/transcript/download/url']
         route_transcripts.return_value = ['transcripts.vtt']
