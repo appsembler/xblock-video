@@ -49,7 +49,7 @@ class RelativeTime(JSONField):
         except ValueError as error:
             raise ValueError(
                 "Incorrect RelativeTime value {!r} was set in XML or serialized. "
-                "Original parse message is {}".format(value, error.message)
+                "Original parse message is {}".format(value, str(error))
             )
         return datetime.timedelta(
             hours=obj_time.tm_hour,
