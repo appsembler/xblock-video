@@ -17,7 +17,7 @@ def arrange_request_mock(request_body):
     """
     request_mock = mock.Mock()
     request_mock.method = 'POST'
-    request_mock.body = request_body
+    request_mock.body = bytes(request_body, 'utf-8')
     request_mock.json = json.loads(request_body)
     return request_mock
 

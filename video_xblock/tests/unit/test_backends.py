@@ -108,7 +108,7 @@ class TestCustomBackends(VideoXBlockTestBase):
         for backend in self.backends:
             player = self.player[backend]
             res = player(self.xblock).get_player_html(**context)
-            self.assertIn('window.videojs', res.body)
+            self.assertIn('window.videojs', str(res.body))
 
     expected_basic_fields = [
         ['display_name', 'href'],
