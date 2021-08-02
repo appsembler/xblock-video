@@ -151,7 +151,7 @@ class YoutubePlayer(BaseVideoPlayer):
             self.captions_api['params']['name'] = transcript_name
             transcript_url = 'http://{url}?{params}'.format(
                 url=self.captions_api['url'],
-                params=urllib.urlencode(self.captions_api['params'])
+                params=urllib.parse.urlencode(self.captions_api['params'])
             )
             # Update default transcripts languages parameters in accordance with pre-configured language settings
             lang_code, lang_label = self.get_transcript_language_parameters(lang_code)

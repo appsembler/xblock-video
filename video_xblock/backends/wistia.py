@@ -184,10 +184,10 @@ class WistiaPlayer(BaseVideoPlayer):
         try:
             # get all languages caps data:
             response = requests.get('https://{}'.format(url))
-        except IOError as exc:
+        except requests.exceptions.RequestException as exc:
             # Probably, current API has changed
             message = _('No timed transcript may be fetched from a video platform.\nError details: {}').format(
-                exc.message
+                str(exc)
             )
             log.exception("Transcripts INDEX request failure.")
             return self.default_transcripts, message
