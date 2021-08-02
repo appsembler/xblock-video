@@ -228,7 +228,7 @@ class YoutubePlayer(BaseVideoPlayer):
             raise VideoXBlockException(_('`url` parameter is required.'))
         utf8_parser = etree.XMLParser(encoding='utf-8')
         data = requests.get(url)
-        xmltree = etree.fromstring(bytes(data.content, 'utf-8'), parser=utf8_parser)
+        xmltree = etree.fromstring(data.content, parser=utf8_parser)
         sub = [
             self.format_transcript_element(element, i)
             for i, element in enumerate(xmltree, 1)

@@ -139,7 +139,7 @@ Forse me la canto e me la suono da sola un po',
         Substitute requests.get method.
         """
         if self.event == 'no_xml_data':
-            self.return_value = ResponseStub(status_code=200, body='{}')
+            self.return_value = ResponseStub(status_code=200, body=b'{}')
         else:
-            self.return_value = ResponseStub(status_code=200, body=self._xml)
+            self.return_value = ResponseStub(status_code=200, body=bytes(self._xml, 'utf-8'))
         return lambda x: self.return_value
