@@ -3,9 +3,9 @@
 Wistia Video player plugin.
 """
 
-import HTMLParser
+from html import parser as html_parser
 import json
-import httplib
+import http.client as httplib
 import logging
 import re
 

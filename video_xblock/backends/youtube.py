@@ -3,12 +3,12 @@
 YouTube Video player plugin.
 """
 
-import HTMLParser
+from html.parser import unescape, HTMLParser
 import json
-import httplib
+import http.client as httplib
 import re
 import textwrap
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import requests
 from lxml import etree
@@ -194,7 +194,7 @@ class YoutubePlayer(BaseVideoPlayer):
         Format transcript's element in order for it to be converted to WebVTT format.
         """
         sub_element = u"\n\n"
-        html_parser = HTMLParser.HTMLParser()
+        html_parser = HTMLParser()
         if element.tag == "text":
             start = float(element.get("start"))
             duration = float(element.get("dur", 0))  # dur is not mandatory
