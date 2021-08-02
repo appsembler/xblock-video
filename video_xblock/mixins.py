@@ -221,7 +221,7 @@ class TranscriptsMixin(XBlock):
         """
         Fetch all available transcripts from 3PlayMedia API for current file ID.
 
-        :return: (generator of OrderedDicts) all transcript's data
+        :return: (generator of OrderedDicts (dicts in Py3.6+)) all transcript's data
         """
         feedback, transcripts_list = self.get_3pm_transcripts_list(
             self.threeplaymedia_file_id, self.threeplaymedia_apikey

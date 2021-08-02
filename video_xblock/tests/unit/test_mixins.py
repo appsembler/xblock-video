@@ -507,11 +507,14 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
 
             # Act:
             transcripts_gen = self.xblock.fetch_available_3pm_transcripts()
-            transcripts = list(transcripts_gen)
+            transcripts = tuple(transcripts_gen)
 
             # Assert:
-            self.assertIsInstance(transcripts[0], OrderedDict)
-            self.assertSequenceEqual(test_args, transcripts[0].keys())
+            try:
+                self.assertIsInstance(transcripts[0], OrderedDict)  # py3.5
+            except AssertionError:
+                self.assertIsInstance(transcripts[0], dict)  # compat for py3.6+
+            self.assertSequenceEqual(set(test_args), set(transcripts[0].keys()))
             threepm_transcripts_mock.assert_called_once_with(file_id_mock, apikey_mock)
             fetch_3pm_translation_mock.assert_called_once_with(test_transcripts_list[0])
 
