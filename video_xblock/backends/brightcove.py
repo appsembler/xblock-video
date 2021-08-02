@@ -163,7 +163,7 @@ class BrightcoveApiClient(BaseApiClient):
 
         try:
             resp_dict = resp.json()[0]
-            log.warn("API error code: %s - %s", resp_dict.get(u'error_code'), resp_dict.get(u'message'))
+            log.warn("API error code: %s - %s", resp_dict.get('error_code'), resp_dict.get('message'))
         except (ValueError, IndexError):
             message = _("Can't parse unexpected response during POST request to Brightcove API!")
             log.exception(message)
@@ -267,7 +267,7 @@ class BrightcoveHlsMixin(object):
         if profile_type != 'default':
             retranscode_params['profile'] = self.DI_PROFILES[profile_type]['name']
         res = self.api_client.post(url, json.dumps(retranscode_params))
-        if u'error_code' in res:
+        if 'error_code' in res:
             self.xblock.metadata['retranscode-status'] = (
                 'ReTranscode request encountered error {:%Y-%m-%d %H:%M} UTC using profile "{}".\nMessage: {}'.format(
                     datetime.utcnow(), retranscode_params.get('profile', 'default'), res['message']

@@ -370,7 +370,7 @@ class BaseVideoPlayer(Plugin):
         Returns:
             str: Transcripts formatted in WebVTT.
         """
-        return u''
+        return ''
 
     @staticmethod
     def get_transcript_language_parameters(lang_code):
@@ -420,7 +420,7 @@ class BaseVideoPlayer(Plugin):
         """
         Exclude enabled transcripts (fetched from API) from the list of available ones (fetched from video xblock).
         """
-        enabled_languages_codes = [t[u'lang'] for t in transcripts]
+        enabled_languages_codes = [t['lang'] for t in transcripts]
         default_transcripts = [
             dt for dt in default_transcripts
             if (dt.get('lang') not in enabled_languages_codes) and default_transcripts

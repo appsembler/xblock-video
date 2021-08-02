@@ -22,15 +22,15 @@ class YoutubeDefaultTranscriptsMock(BaseMock):
     """
 
     _available_languages = [
-        (u'en', u'English', u''),
-        (u'uk', u'Українська', u'')
+        ('en', 'English', ''),
+        ('uk', 'Українська', '')
     ]
 
     _default_transcripts = [
-        {'label': u'English', 'lang': u'en', 'source': u'default',
-         'url': 'http://video.google.com/timedtext?lang=en&name=&v=set_video_id_here'},
-        {'label': u'Ukrainian', 'lang': u'uk', 'source': u'default',
-         'url': 'http://video.google.com/timedtext?lang=uk&name=&v=set_video_id_here'}
+        {'label': 'English', 'lang': 'en', 'source': 'default',
+         'url': 'http://video.google.com/timedtext?v=set_video_id_here&lang=en&name='},
+        {'label': 'Ukrainian', 'lang': 'uk', 'source': 'default',
+         'url': 'http://video.google.com/timedtext?v=set_video_id_here&lang=uk&name='}
     ]
 
     outcomes = (
@@ -99,7 +99,7 @@ class YoutubeDownloadTranscriptMock(RequestsMock):
     Youtube download default transcript mock class.
     """
 
-    _vtt = u"""WEBVTT
+    _vtt = """WEBVTT
 
 1
 00:00:00.000 --> 00:00:01.679
