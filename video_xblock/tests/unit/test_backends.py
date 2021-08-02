@@ -209,7 +209,7 @@ class TestCustomBackends(VideoXBlockTestBase):
                 res = player.get_transcript_language_parameters(lng_abbr)
                 self.assertEqual(res, (lng_abbr, lng_name))
             except VideoXBlockException as ex:
-                self.assertIn(_('Not all the languages of transcripts fetched from video platform'), ex.message)
+                self.assertIn(_('Not all the languages of transcripts fetched from video platform'), ex.detail)
 
     media_ids = [
         '44zaxzFsthY', '45263567468485', 'HRrr784kH8932Z', '202889234',
@@ -278,7 +278,7 @@ class TestCustomBackends(VideoXBlockTestBase):
                 self.assertIsInstance(res, tuple)
                 self.assertEqual(auth_data, expected_auth_data)
             except VideoXBlockException as ex:
-                error = ex.message
+                error = ex.detail
             expected_error = mock.expected_value[-1]
             self.assertIn(expected_error, error)
 
@@ -299,7 +299,7 @@ class TestCustomBackends(VideoXBlockTestBase):
                 self.assertIsInstance(res, tuple)
                 self.assertEqual(default_transcripts, expected_default_transcripts)
             except brightcove.BrightcoveApiClientError as ex:
-                message = ex.message
+                message = ex.detail
             except babelfish.converters.LanguageReverseError:
                 message = 'LanguageReverseError'
             expected_message = mock.expected_value[-1]
@@ -341,10 +341,10 @@ class TestCustomBackends(VideoXBlockTestBase):
                 res = player(self.xblock).download_default_transcript(**params[index])
                 message = ''
                 expected_default_transcript = mock.expected_value[0]
-                self.assertIsInstance(res, unicode)
+                self.assertIsInstance(res, str)
                 self.assertEqual(res, expected_default_transcript)
             except VideoXBlockException as ex:
-                message = ex.message
+                message = ex.detail
             except etree.XMLSyntaxError:
                 message = 'XMLSyntaxError exception'
             expected_message = mock.expected_value[-1]

@@ -524,7 +524,7 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         try:
             client_secret, client_id, error_message = BrightcoveApiClient.create_credentials(token, account_id)
         except BrightcoveApiClientError as bc_exception:
-            return {}, bc_exception.message
+            return {}, bc_exception.detail
 
         self.api_client.api_key = client_id
         self.api_client.api_secret = client_secret
