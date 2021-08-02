@@ -250,7 +250,7 @@ class WistiaPlayer(BaseVideoPlayer):
         """
         Replace comma with dot in timings, e.g. 00:00:10,500 should be 00:00:10.500.
         """
-        new_line = u""
+        new_line = ""
         for token in line.split():
             decoded_token = token.encode('utf8', 'ignore')
             formatted_token = re.sub(r'(\d{2}:\d{2}:\d{2}),(\d{3})', r'\1.\2', decoded_token)
@@ -267,8 +267,8 @@ class WistiaPlayer(BaseVideoPlayer):
         ]
         new_text = '\n'.join(new_text)
         unescaped_text = html_parser.unescape(new_text)
-        if u"WEBVTT" not in text:
-            text = u"WEBVTT\n\n" + unescaped_text
+        if "WEBVTT" not in text:
+            text = "WEBVTT\n\n" + unescaped_text
         else:
             text = unescaped_text
         return text
@@ -290,13 +290,13 @@ class WistiaPlayer(BaseVideoPlayer):
         try:
             response = requests.get(url)
             json_data = response.json()
-            return json_data[u'text']
+            return json_data['text']
         except IOError:
             log.exception("Transcript fetching failure: language [{}]".format(language_code))
-            return u''
+            return ''
         except (ValueError, KeyError, TypeError, AttributeError):
             log.exception("Can't parse fetched transcript: language [{}]".format(language_code))
-            return u''
+            return ''
 
     def dispatch(self, request, suffix):
         """

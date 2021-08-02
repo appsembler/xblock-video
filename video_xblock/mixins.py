@@ -97,7 +97,7 @@ class TranscriptsMixin(XBlock):
             reader = detect_format(caps)
             if reader:
                 return WebVTTWriter().write(reader().read(caps))
-        return u''
+        return ''
 
     @staticmethod
     def vtt_to_text(vtt_content):
@@ -205,7 +205,7 @@ class TranscriptsMixin(XBlock):
                 item = item[:29]
             out.append(item)
 
-        caps = u'\n'.join(out).replace('\n&nbsp;', '')
+        caps = '\n'.join(out).replace('\n&nbsp;', '')
         sub = self.convert_caps_to_vtt(caps=caps)
         reference_name = "{lang_label}_captions_video_{video_id}".format(
             lang_label=lang_label, video_id=video_id

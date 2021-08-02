@@ -570,7 +570,7 @@ class VimeoApiClientTest(VideoXBlockTestBase):
         Test Vimeo's default transcripts downloading.
         """
         # Arrange
-        test_file_data = u"test_file_data"
+        test_file_data = "test_file_data"
         requests_get_mock.return_value = Mock(content=test_file_data)
 
         # Act
@@ -779,8 +779,8 @@ class WistiaPlayerTest(VideoXBlockTestBase):
         Test Wistia's default transcripts downloading (request failure).
         """
         # Arrange
-        test_url = u"test_url"
-        test_language_code = u"test_language_code"
+        test_url = "test_url"
+        test_language_code = "test_language_code"
 
         requests_get_mock.side_effect = requests.RequestException()
 
@@ -798,7 +798,7 @@ class WistiaPlayerTest(VideoXBlockTestBase):
         """
         # Arrange
         test_url = "test_url"
-        test_language_code = u"test_language_code"
+        test_language_code = "test_language_code"
 
         requests_get_mock.return_value = []     # has no 'text' attribute
 
