@@ -482,11 +482,9 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
 
             # Act:
             transcripts_gen = self.xblock.fetch_available_3pm_transcripts()
-            transcripts = list(transcripts_gen)
 
             # Assert:
-            self.assertEqual(transcripts, [])
-            self.assertRaises(StopIteration, transcripts_gen.next)
+            self.assertRaises((StopIteration, RuntimeError), next, transcripts_gen)  # py3.5, py3.6+
             threepm_transcripts_mock.assert_called_once_with(file_id_mock, apikey_mock)
 
     def test_fetch_available_3pm_transcripts_success(self):
