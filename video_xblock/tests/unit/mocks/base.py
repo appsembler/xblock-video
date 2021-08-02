@@ -22,7 +22,7 @@ class ResponseStub(object):
         """
         self.ok = True  # pylint: disable=invalid-name
 
-        for key, val in kwargs.items():
+        for key, val in list(kwargs.items()):
             setattr(self, key, val)
 
     @property
@@ -87,7 +87,7 @@ class BaseMock(Mock):
         if not event:
             raise VideoXBlockMockException(
                 "%s: `event` parameter is not provided or not in %s." % (
-                    self.__class__.__name__, self.ordered_results.keys()
+                    self.__class__.__name__, list(self.ordered_results.keys())
                 )
             )
         if event and event in self.get_outcomes():

@@ -399,7 +399,7 @@ class VideoXBlock(
             'languages': languages,
             'player_name': self.player_name,  # for players identification
             'players': PlayerName,
-            'sources': TranscriptSource.to_dict().items(),
+            'sources': list(TranscriptSource.to_dict().items()),
             # transcripts context:
             'transcripts': filter_transcripts_by_source(
                 transcripts, sources=[TranscriptSource.THREE_PLAY_MEDIA], exclude=True
@@ -546,7 +546,7 @@ class VideoXBlock(
         """
         Populate unset default values from settings file.
         """
-        for key, value in self.settings.items():
+        for key, value in list(self.settings.items()):
             # if field value is empty and there is json-settings default:
             if field.name == key and getattr(field, 'default', None) in ['', b'', 'default']:
                 setattr(field, '_default', value)  # pylint: disable=literal-used-as-attribute
@@ -871,7 +871,7 @@ class VideoXBlock(
             else:
                 if content:
                     content_ = self.vtt_to_text(content)
-                    video_body.update({transcript[u'lang']: content_})
+                    video_body.update({transcript['lang']: content_})
             finally:
                 content = None
 

@@ -2,7 +2,7 @@
 Custom, VideoXblock specific Exceptions.
 """
 
-from __future__ import unicode_literals
+
 
 from .utils import ugettext as _
 

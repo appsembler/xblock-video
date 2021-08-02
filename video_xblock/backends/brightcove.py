@@ -454,7 +454,7 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
                 'static/vendor/js/videojs-transcript.min.js',
                 'static/js/videojs/videojs-transcript.js'
             ]
-        context['vjs_plugins'] = map(self.resource_string, vjs_plugins)
+        context['vjs_plugins'] = list(map(self.resource_string, vjs_plugins))
         log.debug("Initialized scripts: %s", vjs_plugins)
         return super(BrightcovePlayer, self).get_player_html(**context)
 

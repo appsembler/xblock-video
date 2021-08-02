@@ -141,7 +141,7 @@ class TestCustomBackends(VideoXBlockTestBase):
         ],
     ]
 
-    @data(*zip(backends, expected_basic_fields, expected_advanced_fields))
+    @data(*list(zip(backends, expected_basic_fields, expected_advanced_fields)))
     @unpack
     def test_basic_advanced_fields(self, backend, expected_basic_fields, expected_advanced_fields):
         """
@@ -167,7 +167,7 @@ class TestCustomBackends(VideoXBlockTestBase):
         ['transcripts', 'default_transcripts'],
     ]
 
-    @data(*zip(backends, expected_trans_fields, expected_3pm_fields))
+    @data(*list(zip(backends, expected_trans_fields, expected_3pm_fields)))
     @unpack
     def test_transcripts_fields(self, backend, expected_trans_fields, expected_3pm_fields):
         """
@@ -234,7 +234,7 @@ class TestCustomBackends(VideoXBlockTestBase):
         ],
     ]
 
-    @data(*zip(backends, media_urls, media_ids))
+    @data(*list(zip(backends, media_urls, media_ids)))
     @unpack
     def test_media_id(self, backend, urls, expected_media_id):
         """
@@ -245,7 +245,7 @@ class TestCustomBackends(VideoXBlockTestBase):
             res = player.media_id(url)
             self.assertEqual(res, expected_media_id)
 
-    @data(*zip(backends, media_urls))
+    @data(*list(zip(backends, media_urls)))
     @unpack
     def test_match(self, backend, urls):
         """
@@ -260,7 +260,7 @@ class TestCustomBackends(VideoXBlockTestBase):
             res = player.match('http://wrong.url')
             self.assertFalse(bool(res))
 
-    @data(*zip(backends, ['some_token'] * len(backends), auth_mocks))
+    @data(*list(zip(backends, ['some_token'] * len(backends), auth_mocks)))
     @unpack
     def test_authenticate_api(self, backend, token, auth_mock):
         """
@@ -283,7 +283,7 @@ class TestCustomBackends(VideoXBlockTestBase):
             self.assertIn(expected_error, error)
 
     @override_settings(ALL_LANGUAGES=ALL_LANGUAGES)
-    @data(*(zip(backends, media_ids, default_trans_mocks)))
+    @data(*(list(zip(backends, media_ids, default_trans_mocks))))
     @unpack
     def test_get_default_transcripts(self, backend, media_id, trans_mock):
         """
@@ -308,7 +308,7 @@ class TestCustomBackends(VideoXBlockTestBase):
 
     @data(
         *(
-            zip(
+            list(zip(
                 backends,
                 download_transcript_mocks,
                 [  # params
@@ -325,7 +325,7 @@ class TestCustomBackends(VideoXBlockTestBase):
                         {'url': None, 'language_code': None},
                     )
                 ],
-            )
+            ))
         )
     )
     @unpack
@@ -359,7 +359,7 @@ class TestCustomBackends(VideoXBlockTestBase):
         'href',
     ]
 
-    @data(*zip(backends, download_video_url_delegates))
+    @data(*list(zip(backends, download_video_url_delegates)))
     @unpack
     def test_download_video_url_delegates_to_proper_xblock_attribute(self, backend, patch_target):
         """

@@ -205,7 +205,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
             'languages': [{'code': 'en', 'label': 'English'}],
             'player_name': self.xblock.player_name,
             'players': PlayerName,
-            'sources': {'DEFAULT' : 'default', 'THREE_PLAY_MEDIA': '3play-media', 'MANUAL': 'manual'}.items(),
+            'sources': list({'DEFAULT' : 'default', 'MANUAL': 'manual', 'THREE_PLAY_MEDIA': '3play-media'}.items()),
             'three_pm_fields': three_pm_fields_stub,
             'transcripts': [],
             'transcripts_fields': transcripts_fields_stub,

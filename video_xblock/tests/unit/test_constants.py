@@ -39,7 +39,7 @@ class ConstantsTest(unittest.TestCase):
         """
         Test 3PlayMedia available transcript language_info object creation.
         """
-        for lang_id, lang_info in test_data.items():
+        for lang_id, lang_info in list(test_data.items()):
             self.assertEqual(TPMApiLanguage(lang_id).ietf_code, lang_info["ietf_code"])
             self.assertEqual(TPMApiLanguage(lang_id).iso_639_1_code, lang_info["iso_639_1_code"])
             self.assertEqual(TPMApiLanguage(lang_id).name, lang_info["name"])
