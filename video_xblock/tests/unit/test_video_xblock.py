@@ -205,7 +205,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
             'languages': [{'code': 'en', 'label': 'English'}],
             'player_name': self.xblock.player_name,
             'players': PlayerName,
-            'sources': [('DEFAULT', 'default'), ('THREE_PLAY_MEDIA', '3play-media'), ('MANUAL', 'manual')],
+            'sources': {'DEFAULT' : 'default', 'THREE_PLAY_MEDIA': '3play-media', 'MANUAL': 'manual'}.items(),
             'three_pm_fields': three_pm_fields_stub,
             'transcripts': [],
             'transcripts_fields': transcripts_fields_stub,
@@ -256,9 +256,9 @@ class VideoXBlockTests(VideoXBlockTestBase):
             'static/js/studio-edit/transcripts-manual-upload.js',
         ]
 
-        expected_fragment_resources = map(
+        expected_fragment_resources = [frag for frag in map(
             self._make_fragment_resource, expected_resources
-        )
+        )]
 
         # Act
         studio_view = self.xblock.studio_view(unused_context_stub)
