@@ -212,7 +212,7 @@ class PlaybackStateMixinTests(VideoXBlockTestBase):
 
         response = self.xblock.save_player_state(request)
 
-        self.assertEqual('{"success": true}', response.body)  # pylint: disable=no-member
+        self.assertEqual(bytes('{"success": true}', 'utf-8'), response.body)  # pylint: disable=no-member
         self.assertDictEqual(self.xblock.player_state, {
             'currentTime': data['currentTime'],
             'muted': data['muted'],
@@ -645,7 +645,7 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
         # Assert:
         self.assertEqual(
             result,
-            json.dumps({'isValid': True, 'message': success_message}, separators=(',', ':'))
+            bytes(json.dumps({'isValid': True, 'message': success_message}, separators=(',', ':')), 'utf-8')
         )
 
     def test_validate_three_play_media_config_without_streaming(self):
@@ -664,7 +664,7 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
         # Assert:
         self.assertEqual(
             result,
-            json.dumps({'isValid': True, 'message': success_message}, separators=(',', ':'))
+            bytes(json.dumps({'isValid': True, 'message': success_message}, separators=(',', ':')), 'utf-8')
         )
 
     def test_validate_three_play_media_config_partially_configured(self):
@@ -683,7 +683,7 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
         # Assert:
         self.assertEqual(
             result,
-            json.dumps({'isValid': False, 'message': invalid_message}, separators=(',', ':'))
+            bytes(json.dumps({'isValid': False, 'message': invalid_message}, separators=(',', ':')), 'utf-8')
         )
 
     @patch.object(VideoXBlock, 'get_3pm_transcripts_list')
@@ -706,7 +706,7 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
         # Assert:
         self.assertEqual(
             result,
-            json.dumps({'isValid': True, 'message': success_message}, separators=(',', ':'))
+            bytes(json.dumps({'isValid': True, 'message': success_message}, separators=(',', ':')), 'utf-8')
         )
         get_3pm_transcripts_list_mock.assert_called_once_with("test_fileid", "test_apikey")  # Python string
 

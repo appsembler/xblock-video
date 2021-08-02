@@ -205,9 +205,9 @@ class YoutubePlayer(BaseVideoPlayer):
                 formatted_end = self.format_transcript_timing(end, 'end')
                 timing = '{} --> {}'.format(formatted_start, formatted_end)
                 text_encoded = text.encode('utf8', 'ignore')
-                text = text_encoded.replace('\n', ' ')
-                unescaped_text = html_parser.unescape(text.decode('utf8'))
-                sub_element = u"""\
+                text = text_encoded.replace(b'\n', b' ')
+                unescaped_text = unescape(text.decode('utf8'))
+                sub_element = """\
                 {element_number}
                 {timing}
                 {unescaped_text}
