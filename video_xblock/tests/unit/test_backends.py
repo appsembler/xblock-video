@@ -430,26 +430,26 @@ class VimeoApiClientTest(VideoXBlockTestBase):
         """
         # Arrange
         transcripts_data = [{
-            u'hls_link_expires_time': 1498128010,
-            u'name': u'English_captions_video.vtt',
-            u'language': u'en',
-            u'uri': u'/texttracks/1234567',
-            u'link_expires_time': 1498128010,
-            u'hls_link': u'test_hls_captions_url',
-            u'link': u'test_captions_url',
-            u'active': True,
-            u'type': u'subtitles'
+            'hls_link_expires_time': 1498128010,
+            'name': 'English_captions_video.vtt',
+            'language': 'en',
+            'uri': '/texttracks/1234567',
+            'link_expires_time': 1498128010,
+            'hls_link': 'test_hls_captions_url',
+            'link': 'test_captions_url',
+            'active': True,
+            'type': 'subtitles'
         }]
-        get_lang_params_mock.return_value = (u'en', u'English')
+        get_lang_params_mock.return_value = ('en', 'English')
 
         # Act
         parsed = self.vimeo_player.parse_vimeo_texttracks(transcripts_data)
 
         # Assert
         self.assertEqual(parsed, [{
-            'lang': transcripts_data[0][u'language'],
-            'label': u'English',
-            'url': transcripts_data[0][u'link']
+            'lang': transcripts_data[0]['language'],
+            'label': 'English',
+            'url': transcripts_data[0]['link']
         }])
 
     @patch('video_xblock.backends.vimeo.VimeoPlayer.get_transcript_language_parameters')
@@ -459,7 +459,7 @@ class VimeoApiClientTest(VideoXBlockTestBase):
         """
         # Arrange
         transcripts_data = [{}]
-        get_lang_params_mock.return_value = (u'en', u'English')
+        get_lang_params_mock.return_value = ('en', 'English')
 
         # Act & Assert
         self.assertRaises(vimeo.VimeoApiClientError, self.vimeo_player.parse_vimeo_texttracks, transcripts_data)
@@ -788,7 +788,7 @@ class WistiaPlayerTest(VideoXBlockTestBase):
         content = self.wistia_player.download_default_transcript(test_url, test_language_code)
 
         # Assert
-        self.assertEqual(content, u'')
+        self.assertEqual(content, '')
         requests_get_mock.assert_called_once_with(test_url)
 
     @patch('video_xblock.backends.wistia.requests.get')
@@ -797,7 +797,7 @@ class WistiaPlayerTest(VideoXBlockTestBase):
         Test Wistia's default transcripts downloading (request parsing failure).
         """
         # Arrange
-        test_url = u"test_url"
+        test_url = "test_url"
         test_language_code = u"test_language_code"
 
         requests_get_mock.return_value = []     # has no 'text' attribute
@@ -806,7 +806,7 @@ class WistiaPlayerTest(VideoXBlockTestBase):
         content = self.wistia_player.download_default_transcript(test_url, test_language_code)
 
         # Assert
-        self.assertEqual(content, u'')
+        self.assertEqual(content, '')
         requests_get_mock.assert_called_once_with(test_url)
 
 

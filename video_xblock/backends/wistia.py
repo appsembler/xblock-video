@@ -254,24 +254,23 @@ class WistiaPlayer(BaseVideoPlayer):
         for token in line.split():
             decoded_token = token.encode('utf8', 'ignore')
             formatted_token = re.sub(r'(\d{2}:\d{2}:\d{2}),(\d{3})', r'\1.\2', decoded_token)
-            new_line += unicode(formatted_token.decode('utf8')) + u" "
+            new_line += formatted_token.decode('utf8') + " "
         return new_line
 
     def format_transcript_text(self, text):
         """
-        Prepare unicode transcripts to be converted to WebVTT format.
+        Prepare unescaped transcripts to be converted to WebVTT format.
         """
         new_text = [
             self.format_transcript_text_line(line)
             for line in text[0].splitlines()
         ]
         new_text = '\n'.join(new_text)
-        html_parser = HTMLParser.HTMLParser()
         unescaped_text = html_parser.unescape(new_text)
         if u"WEBVTT" not in text:
-            text = u"WEBVTT\n\n" + unicode(unescaped_text)
+            text = u"WEBVTT\n\n" + unescaped_text
         else:
-            text = unicode(unescaped_text)
+            text = unescaped_text
         return text
 
     def download_default_transcript(self, url, language_code):
@@ -286,7 +285,7 @@ class WistiaPlayer(BaseVideoPlayer):
             url (str): API url to fetch a default transcript from.
             language_code (str): Language ISO-639-2 code of a default transcript to be downloaded.
         Returns:
-            text (unicode): Text of transcripts.
+            text (str): Text of transcripts.
         """
         try:
             response = requests.get(url)

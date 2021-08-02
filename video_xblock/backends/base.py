@@ -368,7 +368,7 @@ class BaseVideoPlayer(Plugin):
             language_code (str): Language code of a transcript to be downloaded.
 
         Returns:
-            unicode: Transcripts formatted in WebVTT.
+            str: Transcripts formatted in WebVTT.
         """
         return u''
 

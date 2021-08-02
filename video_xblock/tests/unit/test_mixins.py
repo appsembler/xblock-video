@@ -344,11 +344,11 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
     @patch('video_xblock.mixins.detect_format')
     def test_convert_caps_to_vtt_fallback(self, detect_format_mock, vtt_writer_mock):
         """
-        Test caps to vtt convertation falls back to empty unicode object.
+        Test caps to vtt convertation falls back to empty str object.
         """
         detect_format_mock.return_value = None
 
-        self.assertEqual(self.xblock.convert_caps_to_vtt('test caps'), u'')
+        self.assertEqual(self.xblock.convert_caps_to_vtt('test caps'), '')
         vtt_writer_mock.assert_not_called()
         detect_format_mock.assert_called_once_with('test caps')
 
@@ -372,7 +372,7 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
 
         # Assert
         static_content_mock.assert_called_with(
-            'test-location.vtt', 'test_transcripts.vtt', 'application/json', u'test srt transcript'
+            'test-location.vtt', 'test_transcripts.vtt', 'application/json', b'test srt transcript'
         )
         save_mock.assert_called_once_with(static_content_mock.return_value)
         course_key.assert_called_once_with()

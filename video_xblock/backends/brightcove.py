@@ -3,7 +3,6 @@
 Brightcove Video player plugin.
 """
 
-import base64
 from datetime import datetime
 import json
 import httplib
@@ -606,12 +605,12 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         Arguments:
             url (str): Transcript download url.
         Returns:
-            sub (unicode): Transcripts formatted per WebVTT format https://w3c.github.io/webvtt/
+            sub (str): Transcripts formatted per WebVTT format https://w3c.github.io/webvtt/
         """
         log.debug("BC: downloading default transcript from url:{}".format(url))
         if url is None:
             raise VideoXBlockException(_('`url` parameter is required.'))
         data = requests.get(url)
-        text = data.content.decode('utf8')
+        text = data.content
         cleaned_captions_text = remove_escaping(text)
-        return unicode(cleaned_captions_text)
+        return cleaned_captions_text
