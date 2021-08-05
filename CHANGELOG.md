@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.0-community-alpha] - 2021-08-05
+
+### Added
+
+- Partial Py3/Juniper compat updates, not backward compat to Python 2.
+
 ## [0.10.7] - 2021-08-05
 
 ### Fixed
