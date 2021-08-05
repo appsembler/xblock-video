@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.5] - 2021-08-05
+
+Released 2021-08-05, fix commit was made 2021-04-19
+
+### Fixed
+
+-  Added mute before playing video for chrome to avoid autoplay policy restriction
+
 ## [0.10.4] - 2021-08-05
 
 Released 2021-08-05, fix commit on 2020-09-18
