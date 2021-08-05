@@ -7,14 +7,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.0] - 2021-07-30
+
+### Added
+
+- Juniper/Python 3 compatibilty (contributions from Raccoon Gang, Edly, UCSD ETS, Appsembler).
+- Dependencies break Python 2 compatibility.
+
+### Fixed
+
+- Brightcove account id warning and duplicate save required for account_id and player_id
+- Brightcove Video.js 7 compatiblity (CSS styles)
+- Rendering of Django templates fails in Ironwood after a video_xblock is rendered RGang #402
+
 ## [0.10.1] - 2018-02-13
 
-## Added
+### Added
 
 - Multiple transcripts downloading;
 - Error handling during Brightcove video re-transcode job submitting;
 
-## Fixed
+### Fixed
 
 - Safari `empty transcripts` issue;
 - Studio editor improvements:
@@ -23,7 +36,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.10.0] - 2018-01-24
 
-## Added
+### Added
 
 - Ability to perform search within text tracks (subtitles/transcripts);
 
@@ -297,4 +310,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 [0.9.4]: https://github.com/raccoongang/xblock-video/compare/v0.9.3...v0.9.4
 [0.10.0]: https://github.com/raccoongang/xblock-video/compare/v0.9.4...v0.10.0
 [0.10.1]: https://github.com/raccoongang/xblock-video/compare/v0.10.0...v0.10.1
+[0.10.1]: https://github.com/raccoongang/xblock-video/compare/v0.10.0...v0.10.1
+[1.0.0]: https://github.com/appsembler/xblock-video/compare/v0.10.1...v1.0.0
 [Unreleased]: https://github.com/raccoongang/xblock-video/compare/v0.10.1...HEAD
