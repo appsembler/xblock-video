@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.6] - 2021-08-05
+
+### Fixed
+
+- Fix BrightCove styling for players based on video.js v6+ (breaks video.js5 but that's very old now)
+- a11y fix - title on video iframe
+
 ## [0.10.5] - 2021-08-05
 
 Released 2021-08-05, fix commit was made 2021-04-19
