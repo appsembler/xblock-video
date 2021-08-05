@@ -7,14 +7,34 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.4] - 2021-08-05
+
+Released 2021-08-05, fix commit on 2020-09-18
+
+### Fixed
+
+- Fixed rendering of Django templates fails in Ironwood after a video_xblock is rendered
+
+## [0.10.3] - 2018-11-22
+
+### Added
+
+- Fixes for Hawthorn
+
+## [0.10.2] - 2018-07-04
+
+### Fixes
+
+- Fixed list of components installed by pip install
+
 ## [0.10.1] - 2018-02-13
 
-## Added
+### Added
 
 - Multiple transcripts downloading;
 - Error handling during Brightcove video re-transcode job submitting;
 
-## Fixed
+### Fixed
 
 - Safari `empty transcripts` issue;
 - Studio editor improvements:
@@ -23,7 +43,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.10.0] - 2018-01-24
 
-## Added
+### Added
 
 - Ability to perform search within text tracks (subtitles/transcripts);
 
