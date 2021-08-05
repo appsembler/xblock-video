@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.7] - 2021-08-05
+
+### Fixed
+
+- Don't override account_id with a blank form value for new XBlock instances when value available from settings
+
 ## [0.10.6] - 2021-08-05
 
 ### Fixed
