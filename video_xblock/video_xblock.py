@@ -443,7 +443,7 @@ class VideoXBlock(
         save_state_url = self.runtime.handler_url(self, 'save_player_state')
         transcripts = render_resource(
             'static/html/transcripts.html',
-            transcripts=self.route_transcripts()
+            transcripts=list(self.route_transcripts())
         ).strip()
         return player.get_player_html(
             url=self.href, account_id=self.account_id, player_id=self.player_id,

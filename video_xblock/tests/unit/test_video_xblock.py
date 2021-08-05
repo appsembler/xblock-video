@@ -63,7 +63,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
         )
 
     @patch('video_xblock.video_xblock.render_resource')
-    @patch.object(VideoXBlock, 'route_transcripts')
+    @patch.object(VideoXBlock, 'route_transcripts', return_value=[])
     @patch.object(VideoXBlock, 'get_player')
     @patch.object(VideoXBlock, 'player_state', new_callable=PropertyMock)
     @patch.object(VideoXBlock, 'get_brightcove_js_url')
