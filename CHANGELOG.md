@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.0] - 2021-07-30
+
+### Added
+
+- Python 3 compatibliity.
+
 ## [1.0.0-community-alpha] - 2021-08-05
 
 ### Added
@@ -344,4 +350,6 @@ Released 2021-08-05, fix commit on 2020-09-18
 [0.9.4]: https://github.com/raccoongang/xblock-video/compare/v0.9.3...v0.9.4
 [0.10.0]: https://github.com/raccoongang/xblock-video/compare/v0.9.4...v0.10.0
 [0.10.1]: https://github.com/raccoongang/xblock-video/compare/v0.10.0...v0.10.1
+[0.10.1]: https://github.com/raccoongang/xblock-video/compare/v0.10.0...v0.10.1
+[1.0.0]: https://github.com/appsembler/xblock-video/compare/v0.10.1...v1.0.0
 [Unreleased]: https://github.com/raccoongang/xblock-video/compare/v0.10.1...HEAD
