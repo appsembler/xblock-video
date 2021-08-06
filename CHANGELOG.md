@@ -350,6 +350,12 @@ Released 2021-08-05, fix commit on 2020-09-18
 [0.9.4]: https://github.com/raccoongang/xblock-video/compare/v0.9.3...v0.9.4
 [0.10.0]: https://github.com/raccoongang/xblock-video/compare/v0.9.4...v0.10.0
 [0.10.1]: https://github.com/raccoongang/xblock-video/compare/v0.10.0...v0.10.1
-[0.10.1]: https://github.com/raccoongang/xblock-video/compare/v0.10.0...v0.10.1
-[1.0.0]: https://github.com/appsembler/xblock-video/compare/v0.10.1...v1.0.0
-[Unreleased]: https://github.com/raccoongang/xblock-video/compare/v0.10.1...HEAD
+[0.10.2]: https://github.com/raccoongang/xblock-video/compare/v0.10.1...v0.10.2
+[0.10.3]: https://github.com/appsembler/xblock-video/compare/v0.10.2...v0.10.3
+[0.10.4]: https://github.com/appsembler/xblock-video/compare/v0.10.3...v0.10.4
+[0.10.5]: https://github.com/appsembler/xblock-video/compare/v0.10.4...v0.10.5
+[0.10.6]: https://github.com/appsembler/xblock-video/compare/v0.10.5...v0.10.6
+[0.10.7]: https://github.com/appsembler/xblock-video/compare/v0.10.6...v0.10.7
+[0.10.7]: https://github.com/appsembler/xblock-video/compare/v0.10.7...1.0.0-community-alpha
+[1.0.0]: https://github.com/appsembler/xblock-video/compare/1.0.0-community-alpha...v1.0.0
+[Unreleased]: https://github.com/appsembler/xblock-video/compare/v1.0.0...HEAD
