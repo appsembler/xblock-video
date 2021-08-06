@@ -413,7 +413,7 @@ class BaseVideoPlayer(Plugin):
         default_transcripts.sort(key=get_values)
         distinct_transcripts = []
         for _key, group in itertools.groupby(default_transcripts, get_values):
-            distinct_transcripts.append(group.next())
+            distinct_transcripts.append(next(group))
         return distinct_transcripts
 
     def filter_default_transcripts(self, default_transcripts, transcripts):
@@ -423,6 +423,6 @@ class BaseVideoPlayer(Plugin):
         enabled_languages_codes = [t[u'lang'] for t in transcripts]
         default_transcripts = [
             dt for dt in default_transcripts
-            if (unicode(dt.get('lang')) not in enabled_languages_codes) and default_transcripts
+            if (dt.get('lang') not in enabled_languages_codes) and default_transcripts
         ]
         return default_transcripts

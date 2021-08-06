@@ -51,7 +51,7 @@ class VimeoApiClient(BaseApiClient):
             Response in python native data format.
         """
         headers_ = {
-            'Authorization': 'Bearer {}'.format(self.access_token.encode(encoding='utf-8')),
+            'Authorization': 'Bearer {}'.format(self.access_token),
             'Accept': 'application/json'
         }
         if headers is not None:
@@ -277,4 +277,4 @@ class VimeoPlayer(BaseVideoPlayer):
         data = requests.get(url)
         text = data.content.decode('utf8')
         cleaned_captions_text = remove_escaping(text)
-        return unicode(cleaned_captions_text)
+        return cleaned_captions_text
