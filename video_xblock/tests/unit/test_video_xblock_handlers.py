@@ -31,7 +31,7 @@ class AuthenticateApiHandlerTests(VideoXBlockTestBase):
         # Assert
         self.assertEqual(
             result,
-            json.dumps({'success_message': 'Successfully authenticated to the video platform.'})
+            bytes(json.dumps({'success_message': 'Successfully authenticated to the video platform.'}), 'utf-8')
         )
         auth_video_api_mock.assert_called_once_with('test-token-123')  # Python string
 
@@ -85,11 +85,11 @@ class UploadDefaultTranscriptHandlerTests(VideoXBlockTestBase):
             create_transcript_file_mock.assert_called_with(trans_str=prepared_subs_mock, reference_name=test_reference)
             self.assertEqual(
                 response.body,  # pylint: disable=no-member
-                json.dumps({
+                bytes(json.dumps({
                     'success_message': 'Successfully uploaded "test_file_name".',
                     'lang': assert_data['lang'],
                     'url': test_external_url,
                     'label': assert_data['label'],
                     'source': assert_data['source'],
-                })
+                }), 'utf-8')
             )

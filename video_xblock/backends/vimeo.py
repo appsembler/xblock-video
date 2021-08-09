@@ -238,7 +238,7 @@ class VimeoPlayer(BaseVideoPlayer):
             default_transcripts = self.parse_vimeo_texttracks(transcripts_data)
             return default_transcripts, message
         except VimeoApiClientError as client_exc:
-            message = client_exc.message
+            message = client_exc.detail
             return default_transcripts, message
 
     def parse_vimeo_texttracks(self, transcripts_data):
@@ -272,9 +272,9 @@ class VimeoPlayer(BaseVideoPlayer):
         Arguments:
             url (str): Transcript download url.
         Returns:
-            sub (unicode): Transcripts formatted per WebVTT format https://w3c.github.io/webvtt/
+            sub (str): Transcripts formatted per WebVTT format https://w3c.github.io/webvtt/
         """
         data = requests.get(url)
-        text = data.content.decode('utf8')
+        text = data.content
         cleaned_captions_text = remove_escaping(text)
         return cleaned_captions_text

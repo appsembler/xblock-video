@@ -211,7 +211,7 @@ class VideoXBlock(
 
         Attributes:
             validation (xblock.validation.Validation): Object containing validation information for an xblock instance.
-            message_text (unicode): Message text per se.
+            message_text (str): Message text per se.
         """
         validation.add(ValidationMessage(ValidationMessage.ERROR, message_text))
 
@@ -223,13 +223,13 @@ class VideoXBlock(
             validation (xblock.validation.Validation): Object containing validation information for an xblock instance.
             data (xblock.internal.VideoXBlockWithMixins): Object containing data on xblock.
         """
-        account_id_is_empty = data.account_id in ['', u'']  # pylint: disable=unsubscriptable-object
+        account_id_is_empty = data.account_id in ['', b'']  # pylint: disable=unsubscriptable-object
         # Validate provided account id
         if account_id_is_empty:
             # Account Id field is mandatory
             self.add_validation_message(
                 validation,
-                _(u"Account ID can not be empty. Please provide a valid Brightcove Account ID.")
+                _("Account ID can not be empty. Please provide a valid Brightcove Account ID.")
             )
             return
 
@@ -237,14 +237,14 @@ class VideoXBlock(
             response = requests.head(VideoXBlock.get_brightcove_js_url(data.account_id, data.player_id))
             if not response.ok:
                 self.add_validation_message(validation, _(
-                    u"Invalid Account ID or Player ID, please recheck."
+                    "Invalid Account ID or Player ID, please recheck."
                 ))
 
         except requests.ConnectionError:
             self.add_validation_message(
                 validation,
-                _(u"Can't validate submitted account ID at the moment. "
-                  u"Please try to save settings one more time.")
+                _("Can't validate submitted account ID at the moment. "
+                  "Please try to save settings one more time.")
             )
 
     def validate_href_data(self, validation, data):
@@ -265,7 +265,7 @@ class VideoXBlock(
         if not (is_not_provided_href or is_matched_href):
             self.add_validation_message(
                 validation,
-                _(u"Incorrect or unsupported video URL, please recheck.")
+                _("Incorrect or unsupported video URL, please recheck.")
             )
 
     def validate_field_data(self, validation, data):
@@ -399,7 +399,7 @@ class VideoXBlock(
             'languages': languages,
             'player_name': self.player_name,  # for players identification
             'players': PlayerName,
-            'sources': TranscriptSource.to_dict().items(),
+            'sources': list(TranscriptSource.to_dict().items()),
             # transcripts context:
             'transcripts': filter_transcripts_by_source(
                 transcripts, sources=[TranscriptSource.THREE_PLAY_MEDIA], exclude=True
@@ -546,9 +546,9 @@ class VideoXBlock(
         """
         Populate unset default values from settings file.
         """
-        for key, value in self.settings.items():
+        for key, value in list(self.settings.items()):
             # if field value is empty and there is json-settings default:
-            if field.name == key and getattr(field, 'default', None) in ['', u'', 'default']:
+            if field.name == key and getattr(field, 'default', None) in ['', b'', 'default']:
                 setattr(field, '_default', value)  # pylint: disable=literal-used-as-attribute
 
         return field
@@ -780,10 +780,10 @@ class VideoXBlock(
         log.debug("Uploading default transcript with data: {}".format(data))
         player = self.get_player()
         video_id = player.media_id(self.href)
-        lang_code = str(data.get(u'lang'))
-        lang_label = str(data.get(u'label'))
-        source = str(data.get(u'source', ''))
-        sub_url = str(data.get(u'url'))
+        lang_code = str(data.get('lang'))
+        lang_label = str(data.get('label'))
+        source = str(data.get('source', ''))
+        sub_url = str(data.get('url'))
 
         reference_name = create_reference_name(lang_label, video_id, source)
 
@@ -851,7 +851,7 @@ class VideoXBlock(
         content = None
         enabled_transcripts = self.route_transcripts()
         for transcript in enabled_transcripts:
-            asset_file_name = transcript[u'url'].split('@')[-1]
+            asset_file_name = transcript['url'].split('@')[-1]
             try:
                 if transcript['source'] in [TranscriptSource.MANUAL, TranscriptSource.DEFAULT]:
                     asset_location = self.static_content.compute_location(self.course_key, asset_file_name)
@@ -871,7 +871,7 @@ class VideoXBlock(
             else:
                 if content:
                     content_ = self.vtt_to_text(content)
-                    video_body.update({transcript[u'lang']: content_})
+                    video_body.update({transcript['lang']: content_})
             finally:
                 content = None
 

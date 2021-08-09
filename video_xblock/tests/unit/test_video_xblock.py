@@ -76,7 +76,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
         """
         # Arrange
         request_mock, suffix_mock = Mock(), Mock()
-        render_resource_mock.return_value = u'vtt transcripts'
+        render_resource_mock.return_value = 'vtt transcripts'
         handler_url = self.xblock.runtime.handler_url = Mock()
         get_player_html_mock = player_mock.return_value.get_player_html
         media_id_mock = player_mock.return_value.media_id
@@ -94,7 +94,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
             player_state=player_state_mock.return_value,
             save_state_url=handler_url.return_value,
             start_time=self.xblock.start_time.total_seconds(),  # pylint: disable=no-member
-            transcripts=u'vtt transcripts',
+            transcripts='vtt transcripts',
             url=self.xblock.href,
             video_id=media_id_mock.return_value,
             video_player_id='video_player_block_id'
@@ -121,7 +121,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
         """
         # Arrange
         unused_context_stub = object()
-        render_resource_mock.return_value = u'<iframe/>'
+        render_resource_mock.return_value = '<iframe/>'
         handler_url = self.xblock.runtime.handler_url = Mock()
         handler_url.side_effect = ['/player/url', '/transcript/download/url']
         route_transcripts.return_value = ['transcripts.vtt']
@@ -205,7 +205,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
             'languages': [{'code': 'en', 'label': 'English'}],
             'player_name': self.xblock.player_name,
             'players': PlayerName,
-            'sources': [('DEFAULT', 'default'), ('THREE_PLAY_MEDIA', '3play-media'), ('MANUAL', 'manual')],
+            'sources': list({'DEFAULT' : 'default', 'MANUAL': 'manual', 'THREE_PLAY_MEDIA': '3play-media'}.items()),
             'three_pm_fields': three_pm_fields_stub,
             'transcripts': [],
             'transcripts_fields': transcripts_fields_stub,
@@ -256,9 +256,9 @@ class VideoXBlockTests(VideoXBlockTestBase):
             'static/js/studio-edit/transcripts-manual-upload.js',
         ]
 
-        expected_fragment_resources = map(
+        expected_fragment_resources = [frag for frag in map(
             self._make_fragment_resource, expected_resources
-        )
+        )]
 
         # Act
         studio_view = self.xblock.studio_view(unused_context_stub)

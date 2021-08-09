@@ -108,7 +108,7 @@ class TestCustomBackends(VideoXBlockTestBase):
         for backend in self.backends:
             player = self.player[backend]
             res = player(self.xblock).get_player_html(**context)
-            self.assertIn('window.videojs', res.body)
+            self.assertIn('window.videojs', str(res.body))
 
     expected_basic_fields = [
         ['display_name', 'href'],
@@ -141,7 +141,7 @@ class TestCustomBackends(VideoXBlockTestBase):
         ],
     ]
 
-    @data(*zip(backends, expected_basic_fields, expected_advanced_fields))
+    @data(*list(zip(backends, expected_basic_fields, expected_advanced_fields)))
     @unpack
     def test_basic_advanced_fields(self, backend, expected_basic_fields, expected_advanced_fields):
         """
@@ -167,7 +167,7 @@ class TestCustomBackends(VideoXBlockTestBase):
         ['transcripts', 'default_transcripts'],
     ]
 
-    @data(*zip(backends, expected_trans_fields, expected_3pm_fields))
+    @data(*list(zip(backends, expected_trans_fields, expected_3pm_fields)))
     @unpack
     def test_transcripts_fields(self, backend, expected_trans_fields, expected_3pm_fields):
         """
@@ -209,7 +209,7 @@ class TestCustomBackends(VideoXBlockTestBase):
                 res = player.get_transcript_language_parameters(lng_abbr)
                 self.assertEqual(res, (lng_abbr, lng_name))
             except VideoXBlockException as ex:
-                self.assertIn(_('Not all the languages of transcripts fetched from video platform'), ex.message)
+                self.assertIn(_('Not all the languages of transcripts fetched from video platform'), ex.detail)
 
     media_ids = [
         '44zaxzFsthY', '45263567468485', 'HRrr784kH8932Z', '202889234',
@@ -234,7 +234,7 @@ class TestCustomBackends(VideoXBlockTestBase):
         ],
     ]
 
-    @data(*zip(backends, media_urls, media_ids))
+    @data(*list(zip(backends, media_urls, media_ids)))
     @unpack
     def test_media_id(self, backend, urls, expected_media_id):
         """
@@ -245,7 +245,7 @@ class TestCustomBackends(VideoXBlockTestBase):
             res = player.media_id(url)
             self.assertEqual(res, expected_media_id)
 
-    @data(*zip(backends, media_urls))
+    @data(*list(zip(backends, media_urls)))
     @unpack
     def test_match(self, backend, urls):
         """
@@ -260,7 +260,7 @@ class TestCustomBackends(VideoXBlockTestBase):
             res = player.match('http://wrong.url')
             self.assertFalse(bool(res))
 
-    @data(*zip(backends, ['some_token'] * len(backends), auth_mocks))
+    @data(*list(zip(backends, ['some_token'] * len(backends), auth_mocks)))
     @unpack
     def test_authenticate_api(self, backend, token, auth_mock):
         """
@@ -278,12 +278,12 @@ class TestCustomBackends(VideoXBlockTestBase):
                 self.assertIsInstance(res, tuple)
                 self.assertEqual(auth_data, expected_auth_data)
             except VideoXBlockException as ex:
-                error = ex.message
+                error = ex.detail
             expected_error = mock.expected_value[-1]
             self.assertIn(expected_error, error)
 
     @override_settings(ALL_LANGUAGES=ALL_LANGUAGES)
-    @data(*(zip(backends, media_ids, default_trans_mocks)))
+    @data(*(list(zip(backends, media_ids, default_trans_mocks))))
     @unpack
     def test_get_default_transcripts(self, backend, media_id, trans_mock):
         """
@@ -299,7 +299,7 @@ class TestCustomBackends(VideoXBlockTestBase):
                 self.assertIsInstance(res, tuple)
                 self.assertEqual(default_transcripts, expected_default_transcripts)
             except brightcove.BrightcoveApiClientError as ex:
-                message = ex.message
+                message = ex.detail
             except babelfish.converters.LanguageReverseError:
                 message = 'LanguageReverseError'
             expected_message = mock.expected_value[-1]
@@ -308,7 +308,7 @@ class TestCustomBackends(VideoXBlockTestBase):
 
     @data(
         *(
-            zip(
+            list(zip(
                 backends,
                 download_transcript_mocks,
                 [  # params
@@ -325,7 +325,7 @@ class TestCustomBackends(VideoXBlockTestBase):
                         {'url': None, 'language_code': None},
                     )
                 ],
-            )
+            ))
         )
     )
     @unpack
@@ -341,10 +341,10 @@ class TestCustomBackends(VideoXBlockTestBase):
                 res = player(self.xblock).download_default_transcript(**params[index])
                 message = ''
                 expected_default_transcript = mock.expected_value[0]
-                self.assertIsInstance(res, unicode)
+                self.assertIsInstance(res, str)
                 self.assertEqual(res, expected_default_transcript)
             except VideoXBlockException as ex:
-                message = ex.message
+                message = ex.detail
             except etree.XMLSyntaxError:
                 message = 'XMLSyntaxError exception'
             expected_message = mock.expected_value[-1]
@@ -359,7 +359,7 @@ class TestCustomBackends(VideoXBlockTestBase):
         'href',
     ]
 
-    @data(*zip(backends, download_video_url_delegates))
+    @data(*list(zip(backends, download_video_url_delegates)))
     @unpack
     def test_download_video_url_delegates_to_proper_xblock_attribute(self, backend, patch_target):
         """
@@ -430,26 +430,26 @@ class VimeoApiClientTest(VideoXBlockTestBase):
         """
         # Arrange
         transcripts_data = [{
-            u'hls_link_expires_time': 1498128010,
-            u'name': u'English_captions_video.vtt',
-            u'language': u'en',
-            u'uri': u'/texttracks/1234567',
-            u'link_expires_time': 1498128010,
-            u'hls_link': u'test_hls_captions_url',
-            u'link': u'test_captions_url',
-            u'active': True,
-            u'type': u'subtitles'
+            'hls_link_expires_time': 1498128010,
+            'name': 'English_captions_video.vtt',
+            'language': 'en',
+            'uri': '/texttracks/1234567',
+            'link_expires_time': 1498128010,
+            'hls_link': 'test_hls_captions_url',
+            'link': 'test_captions_url',
+            'active': True,
+            'type': 'subtitles'
         }]
-        get_lang_params_mock.return_value = (u'en', u'English')
+        get_lang_params_mock.return_value = ('en', 'English')
 
         # Act
         parsed = self.vimeo_player.parse_vimeo_texttracks(transcripts_data)
 
         # Assert
         self.assertEqual(parsed, [{
-            'lang': transcripts_data[0][u'language'],
-            'label': u'English',
-            'url': transcripts_data[0][u'link']
+            'lang': transcripts_data[0]['language'],
+            'label': 'English',
+            'url': transcripts_data[0]['link']
         }])
 
     @patch('video_xblock.backends.vimeo.VimeoPlayer.get_transcript_language_parameters')
@@ -459,7 +459,7 @@ class VimeoApiClientTest(VideoXBlockTestBase):
         """
         # Arrange
         transcripts_data = [{}]
-        get_lang_params_mock.return_value = (u'en', u'English')
+        get_lang_params_mock.return_value = ('en', 'English')
 
         # Act & Assert
         self.assertRaises(vimeo.VimeoApiClientError, self.vimeo_player.parse_vimeo_texttracks, transcripts_data)
@@ -570,7 +570,7 @@ class VimeoApiClientTest(VideoXBlockTestBase):
         Test Vimeo's default transcripts downloading.
         """
         # Arrange
-        test_file_data = u"test_file_data"
+        test_file_data = "test_file_data"
         requests_get_mock.return_value = Mock(content=test_file_data)
 
         # Act
@@ -779,8 +779,8 @@ class WistiaPlayerTest(VideoXBlockTestBase):
         Test Wistia's default transcripts downloading (request failure).
         """
         # Arrange
-        test_url = u"test_url"
-        test_language_code = u"test_language_code"
+        test_url = "test_url"
+        test_language_code = "test_language_code"
 
         requests_get_mock.side_effect = requests.RequestException()
 
@@ -788,7 +788,7 @@ class WistiaPlayerTest(VideoXBlockTestBase):
         content = self.wistia_player.download_default_transcript(test_url, test_language_code)
 
         # Assert
-        self.assertEqual(content, u'')
+        self.assertEqual(content, '')
         requests_get_mock.assert_called_once_with(test_url)
 
     @patch('video_xblock.backends.wistia.requests.get')
@@ -797,8 +797,8 @@ class WistiaPlayerTest(VideoXBlockTestBase):
         Test Wistia's default transcripts downloading (request parsing failure).
         """
         # Arrange
-        test_url = u"test_url"
-        test_language_code = u"test_language_code"
+        test_url = "test_url"
+        test_language_code = "test_language_code"
 
         requests_get_mock.return_value = []     # has no 'text' attribute
 
@@ -806,7 +806,7 @@ class WistiaPlayerTest(VideoXBlockTestBase):
         content = self.wistia_player.download_default_transcript(test_url, test_language_code)
 
         # Assert
-        self.assertEqual(content, u'')
+        self.assertEqual(content, '')
         requests_get_mock.assert_called_once_with(test_url)
 
 

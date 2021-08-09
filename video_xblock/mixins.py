@@ -89,15 +89,15 @@ class TranscriptsMixin(XBlock):
         Supported input formats: DFXP/TTML - SAMI - SCC - SRT - WebVTT.
 
         Arguments:
-            caps (unicode): Raw transcripts.
+            caps (str): Raw transcripts.
         Returns:
-            unicode: Transcripts converted into WebVTT format.
+            str: Transcripts converted into WebVTT format.
         """
         if caps:
             reader = detect_format(caps)
             if reader:
                 return WebVTTWriter().write(reader().read(caps))
-        return u''
+        return ''
 
     @staticmethod
     def vtt_to_text(vtt_content):
@@ -119,7 +119,7 @@ class TranscriptsMixin(XBlock):
         and to `str_to_vtt` handler for non .vtt transcripts if opposite.
 
         Arguments:
-            transcripts (unicode): Raw transcripts.
+            transcripts (str): Raw transcripts.
         """
         log.debug("Routing transcripts: 3PM status={}".format(self.threeplaymedia_streaming))
         transcripts = self.get_enabled_transcripts()
@@ -185,7 +185,7 @@ class TranscriptsMixin(XBlock):
         Utility method to convert any supported transcripts into WebVTT format.
 
         Arguments:
-            caps (unicode)  : Raw transcripts.
+            caps (str)  : Raw transcripts.
             video_id (str)  : Video id from player.
             lang (str)      : Iso code for language.
             lang_label (str): Name of language.
@@ -205,7 +205,7 @@ class TranscriptsMixin(XBlock):
                 item = item[:29]
             out.append(item)
 
-        caps = u'\n'.join(out).replace('\n&nbsp;', '')
+        caps = '\n'.join(out).replace('\n&nbsp;', '')
         sub = self.convert_caps_to_vtt(caps=caps)
         reference_name = "{lang_label}_captions_video_{video_id}".format(
             lang_label=lang_label, video_id=video_id
@@ -221,7 +221,7 @@ class TranscriptsMixin(XBlock):
         """
         Fetch all available transcripts from 3PlayMedia API for current file ID.
 
-        :return: (generator of OrderedDicts) all transcript's data
+        :return: (generator of OrderedDicts (dicts in Py3.6+)) all transcript's data
         """
         feedback, transcripts_list = self.get_3pm_transcripts_list(
             self.threeplaymedia_file_id, self.threeplaymedia_apikey
