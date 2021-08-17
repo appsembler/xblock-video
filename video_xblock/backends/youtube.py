@@ -3,12 +3,12 @@
 YouTube Video player plugin.
 """
 
-import HTMLParser
+from html.parser import unescape, HTMLParser
 import json
-import httplib
+import http.client as httplib
 import re
 import textwrap
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import requests
 from lxml import etree
@@ -151,7 +151,7 @@ class YoutubePlayer(BaseVideoPlayer):
             self.captions_api['params']['name'] = transcript_name
             transcript_url = 'http://{url}?{params}'.format(
                 url=self.captions_api['url'],
-                params=urllib.urlencode(self.captions_api['params'])
+                params=urllib.parse.urlencode(self.captions_api['params'])
             )
             # Update default transcripts languages parameters in accordance with pre-configured language settings
             lang_code, lang_label = self.get_transcript_language_parameters(lang_code)
@@ -193,8 +193,8 @@ class YoutubePlayer(BaseVideoPlayer):
         """
         Format transcript's element in order for it to be converted to WebVTT format.
         """
-        sub_element = u"\n\n"
-        html_parser = HTMLParser.HTMLParser()
+        sub_element = "\n\n"
+        html_parser = HTMLParser()
         if element.tag == "text":
             start = float(element.get("start"))
             duration = float(element.get("dur", 0))  # dur is not mandatory
@@ -205,9 +205,9 @@ class YoutubePlayer(BaseVideoPlayer):
                 formatted_end = self.format_transcript_timing(end, 'end')
                 timing = '{} --> {}'.format(formatted_start, formatted_end)
                 text_encoded = text.encode('utf8', 'ignore')
-                text = text_encoded.replace('\n', ' ')
-                unescaped_text = html_parser.unescape(text.decode('utf8'))
-                sub_element = u"""\
+                text = text_encoded.replace(b'\n', b' ')
+                unescaped_text = unescape(text.decode('utf8'))
+                sub_element = """\
                 {element_number}
                 {timing}
                 {unescaped_text}
@@ -234,7 +234,7 @@ class YoutubePlayer(BaseVideoPlayer):
             for i, element in enumerate(xmltree, 1)
         ]
         sub = "".join(sub)
-        sub = u"WEBVTT\n\n" + unicode(sub) if "WEBVTT" not in sub else unicode(sub)
+        sub = "WEBVTT\n\n" + sub if "WEBVTT" not in sub else sub
         return sub
 
     def dispatch(self, request, suffix):

@@ -3,9 +3,9 @@
 Wistia Video player plugin.
 """
 
-import HTMLParser
+from html import parser as html_parser
 import json
-import httplib
+import http.client as httplib
 import logging
 import re
 
@@ -184,10 +184,10 @@ class WistiaPlayer(BaseVideoPlayer):
         try:
             # get all languages caps data:
             response = requests.get('https://{}'.format(url))
-        except IOError as exc:
+        except requests.exceptions.RequestException as exc:
             # Probably, current API has changed
             message = _('No timed transcript may be fetched from a video platform.\nError details: {}').format(
-                exc.message
+                str(exc)
             )
             log.exception("Transcripts INDEX request failure.")
             return self.default_transcripts, message
@@ -250,28 +250,27 @@ class WistiaPlayer(BaseVideoPlayer):
         """
         Replace comma with dot in timings, e.g. 00:00:10,500 should be 00:00:10.500.
         """
-        new_line = u""
+        new_line = ""
         for token in line.split():
             decoded_token = token.encode('utf8', 'ignore')
             formatted_token = re.sub(r'(\d{2}:\d{2}:\d{2}),(\d{3})', r'\1.\2', decoded_token)
-            new_line += unicode(formatted_token.decode('utf8')) + u" "
+            new_line += formatted_token.decode('utf8') + " "
         return new_line
 
     def format_transcript_text(self, text):
         """
-        Prepare unicode transcripts to be converted to WebVTT format.
+        Prepare unescaped transcripts to be converted to WebVTT format.
         """
         new_text = [
             self.format_transcript_text_line(line)
             for line in text[0].splitlines()
         ]
         new_text = '\n'.join(new_text)
-        html_parser = HTMLParser.HTMLParser()
         unescaped_text = html_parser.unescape(new_text)
-        if u"WEBVTT" not in text:
-            text = u"WEBVTT\n\n" + unicode(unescaped_text)
+        if "WEBVTT" not in text:
+            text = "WEBVTT\n\n" + unescaped_text
         else:
-            text = unicode(unescaped_text)
+            text = unescaped_text
         return text
 
     def download_default_transcript(self, url, language_code):
@@ -286,18 +285,18 @@ class WistiaPlayer(BaseVideoPlayer):
             url (str): API url to fetch a default transcript from.
             language_code (str): Language ISO-639-2 code of a default transcript to be downloaded.
         Returns:
-            text (unicode): Text of transcripts.
+            text (str): Text of transcripts.
         """
         try:
             response = requests.get(url)
             json_data = response.json()
-            return json_data[u'text']
+            return json_data['text']
         except IOError:
             log.exception("Transcript fetching failure: language [{}]".format(language_code))
-            return u''
+            return ''
         except (ValueError, KeyError, TypeError, AttributeError):
             log.exception("Can't parse fetched transcript: language [{}]".format(language_code))
-            return u''
+            return ''
 
     def dispatch(self, request, suffix):
         """

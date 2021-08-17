@@ -63,12 +63,10 @@ class BaseApiClient(object):
         """
 
 
-class BaseVideoPlayer(Plugin):
+class BaseVideoPlayer(Plugin, metaclass=abc.ABCMeta):
     """
     Inherit your video player class from this class.
     """
-
-    __metaclass__ = abc.ABCMeta
 
     entry_point = 'video_xblock.v1'
 
@@ -316,7 +314,7 @@ class BaseVideoPlayer(Plugin):
             return any(regex.search(href) for regex in cls.url_re)
         elif isinstance(cls.url_re, type(re.compile(''))):
             return cls.url_re.search(href)  # pylint: disable=no-member
-        elif isinstance(cls.url_re, basestring):
+        elif isinstance(cls.url_re, str):
             return re.search(cls.url_re, href, re.I)
 
     def add_js_content(self, path, **context):
@@ -368,9 +366,9 @@ class BaseVideoPlayer(Plugin):
             language_code (str): Language code of a transcript to be downloaded.
 
         Returns:
-            unicode: Transcripts formatted in WebVTT.
+            str: Transcripts formatted in WebVTT.
         """
-        return u''
+        return ''
 
     @staticmethod
     def get_transcript_language_parameters(lang_code):
@@ -413,16 +411,16 @@ class BaseVideoPlayer(Plugin):
         default_transcripts.sort(key=get_values)
         distinct_transcripts = []
         for _key, group in itertools.groupby(default_transcripts, get_values):
-            distinct_transcripts.append(group.next())
+            distinct_transcripts.append(next(group))
         return distinct_transcripts
 
     def filter_default_transcripts(self, default_transcripts, transcripts):
         """
         Exclude enabled transcripts (fetched from API) from the list of available ones (fetched from video xblock).
         """
-        enabled_languages_codes = [t[u'lang'] for t in transcripts]
+        enabled_languages_codes = [t['lang'] for t in transcripts]
         default_transcripts = [
             dt for dt in default_transcripts
-            if (unicode(dt.get('lang')) not in enabled_languages_codes) and default_transcripts
+            if (dt.get('lang') not in enabled_languages_codes) and default_transcripts
         ]
         return default_transcripts

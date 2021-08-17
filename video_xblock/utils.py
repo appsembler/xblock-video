@@ -3,7 +3,7 @@ Video xblock helpers.
 """
 
 from collections import namedtuple
-from HTMLParser import HTMLParser
+from html import parser as html_parser
 from importlib import import_module
 from xml.sax.saxutils import unescape
 import os.path
@@ -14,7 +14,7 @@ from xblockutils.resources import ResourceLoader
 
 from .constants import TranscriptSource
 
-html_parser = HTMLParser()  # pylint: disable=invalid-name
+
 loader = ResourceLoader(__name__)  # pylint: disable=invalid-name
 
 
@@ -109,7 +109,7 @@ def create_reference_name(lang_label, video_id, source="default"):
         lang_label=lang_label,
         video_id=video_id,
         source=source,
-    ).encode('utf8')
+    )
     return reference
 
 

@@ -3,7 +3,6 @@
 Brightcove Video player plugin.
 """
 
-import base64
 from datetime import datetime
 import json
 import httplib
@@ -98,15 +97,13 @@ class BrightcoveApiClient(BaseApiClient):
         """
         url = "https://oauth.brightcove.com/v3/access_token"
         params = {"grant_type": "client_credentials"}
-        auth_string = base64.encodestring(
-            '{}:{}'.format(self.api_key, self.api_secret)
-        ).replace('\n', '')
         headers = {
             "Content-Type": "application/x-www-form-urlencoded",
-            "Authorization": "Basic " + auth_string
         }
+        basicauth = requests.auth.HTTPBasicAuth(self.api_key, self.api_secret)
+
         try:
-            resp = requests.post(url, headers=headers, data=params)
+            resp = requests.post(url, auth=basicauth, headers=headers, data=params)
             if resp.status_code == httplib.OK:
                 result = resp.json()
                 return result['access_token']
@@ -166,7 +163,7 @@ class BrightcoveApiClient(BaseApiClient):
 
         try:
             resp_dict = resp.json()[0]
-            log.warn("API error code: %s - %s", resp_dict.get(u'error_code'), resp_dict.get(u'message'))
+            log.warn("API error code: %s - %s", resp_dict.get('error_code'), resp_dict.get('message'))
         except (ValueError, IndexError):
             message = _("Can't parse unexpected response during POST request to Brightcove API!")
             log.exception(message)
@@ -270,7 +267,7 @@ class BrightcoveHlsMixin(object):
         if profile_type != 'default':
             retranscode_params['profile'] = self.DI_PROFILES[profile_type]['name']
         res = self.api_client.post(url, json.dumps(retranscode_params))
-        if u'error_code' in res:
+        if 'error_code' in res:
             self.xblock.metadata['retranscode-status'] = (
                 'ReTranscode request encountered error {:%Y-%m-%d %H:%M} UTC using profile "{}".\nMessage: {}'.format(
                     datetime.utcnow(), retranscode_params.get('profile', 'default'), res['message']
@@ -457,7 +454,7 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
                 'static/vendor/js/videojs-transcript.min.js',
                 'static/js/videojs/videojs-transcript.js'
             ]
-        context['vjs_plugins'] = map(self.resource_string, vjs_plugins)
+        context['vjs_plugins'] = list(map(self.resource_string, vjs_plugins))
         log.debug("Initialized scripts: %s", vjs_plugins)
         return super(BrightcovePlayer, self).get_player_html(**context)
 
@@ -527,7 +524,7 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         try:
             client_secret, client_id, error_message = BrightcoveApiClient.create_credentials(token, account_id)
         except BrightcoveApiClientError as bc_exception:
-            return {}, bc_exception.message
+            return {}, bc_exception.detail
 
         self.api_client.api_key = client_id
         self.api_client.api_secret = client_secret
@@ -606,12 +603,12 @@ class BrightcovePlayer(BaseVideoPlayer, BrightcoveHlsMixin):
         Arguments:
             url (str): Transcript download url.
         Returns:
-            sub (unicode): Transcripts formatted per WebVTT format https://w3c.github.io/webvtt/
+            sub (str): Transcripts formatted per WebVTT format https://w3c.github.io/webvtt/
         """
         log.debug("BC: downloading default transcript from url:{}".format(url))
         if url is None:
             raise VideoXBlockException(_('`url` parameter is required.'))
         data = requests.get(url)
-        text = data.content.decode('utf8')
+        text = data.content
         cleaned_captions_text = remove_escaping(text)
-        return unicode(cleaned_captions_text)
+        return cleaned_captions_text

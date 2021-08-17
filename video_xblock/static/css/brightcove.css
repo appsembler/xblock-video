@@ -506,7 +506,7 @@ body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
 .vjs-text-track-display div div {
     width: 100% !important;
 }
-.vjs-v6.video-js .vjs-play-control .vjs-icon-placeholder {
+.video-js .vjs-play-control .vjs-icon-placeholder {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -522,97 +522,97 @@ body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
     display: flex;
 }
 
-.vjs-v6 .vjs-menu-content .vjs-icon-placeholder::before {
+ .vjs-menu-content .vjs-icon-placeholder::before {
    display: none;
 }
 
-.vjs-v6 .vjs-fullscreen-control::before {
+ .vjs-fullscreen-control::before {
     display: none !important;
 }
-.vjs-v6 .vjs-fullscreen-control.vjs-button > .vjs-icon-placeholder:before {
+ .vjs-fullscreen-control.vjs-button > .vjs-icon-placeholder:before {
     line-height: 1.6 !important;
     font-size: 24px;
 }
 
-.vjs-v6 .vjs-subs-caps-button.vjs-button > .vjs-icon-placeholder:before {
+ .vjs-subs-caps-button.vjs-button > .vjs-icon-placeholder:before {
     line-height: 1.4 !important;
     font-size: 24px;
 }
 
-.video-js.vjs-v6 .vjs-play-control:before {
+.video-js .vjs-play-control:before {
     display: none;
 }
 
-.video-js.vjs-v6 .vjs-play-control.vjs-button > .vjs-icon-placeholder:before {
+.video-js .vjs-play-control.vjs-button > .vjs-icon-placeholder:before {
     line-height: 1.6 !important;
     font-size: 24px;
 }
 
-.vjs-v6.video-js .vjs-mute-control.vjs-vol-0:before,
-.vjs-v6.video-js .vjs-mute-control.vjs-vol-1:before {
+.video-js .vjs-mute-control.vjs-vol-0:before,
+.video-js .vjs-mute-control.vjs-vol-1:before {
     display: none !important;
 }
-.vjs-v6 .vjs-volume-panel.vjs-control.vjs-volume-panel-horizontal .vjs-button > .vjs-icon-placeholder:before {
+ .vjs-volume-panel.vjs-control.vjs-volume-panel-horizontal .vjs-button > .vjs-icon-placeholder:before {
     line-height: 2.2;
 }
 
-.video-js.vjs-v6 .vjs-mute-control.vjs-vol-2:before {
+.video-js .vjs-mute-control.vjs-vol-2:before {
     display: none;
 }
 
-.vjs-v6 .vjs-volume-control.vjs-control.vjs-volume-horizontal {
+ .vjs-volume-control.vjs-control.vjs-volume-horizontal {
     margin-top: 3px;
 }
 
-.video-js.vjs-v6 .vjs-big-play-button .vjs-icon-placeholder:before {
+.video-js .vjs-big-play-button .vjs-icon-placeholder:before {
     display: none;
 }
 
-.vjs-v6 .vjs-mouse-display .vjs-time-tooltip {
+ .vjs-mouse-display .vjs-time-tooltip {
     display: none !important;
 }
 
-/*.vjs-v6 .vjs-menu-content li:first-child {*/
+/* .vjs-menu-content li:first-child {*/
     /*display: none !important;*/
 /*}*/
-.vjs-v6 .vjs-subs-caps-button.vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button {
+ .vjs-subs-caps-button.vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button {
     display: none;
 }
-.vjs-v6.video-js .vjs-fullscreen-control {
+.video-js .vjs-fullscreen-control {
     right: 80px !important;
 }
-.vjs-v6 .fa-quote-left:before,
-.vjs-v6 .vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-caret-left.vjs-singleton:before,
-.vjs-v6 .vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-cc.vjs-singleton:before {
+ .fa-quote-left:before,
+ .vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-caret-left.vjs-singleton:before,
+ .vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-cc.vjs-singleton:before {
     top: 50%;
     position: absolute;
     transform: translate(-50%, -60%);
     font-size: 16px;
     left: 50%;
 }
-.vjs-v6 .vjs-custom-caret-button.vjs-menu-button.vjs-menu-button-popup.vjs-button.fa-caret-up ,
-.vjs-v6 button.vjs-custom-caret-button.vjs-menu-button.vjs-menu-button-popup.vjs-button.fa-caret-left:before {
+ .vjs-custom-caret-button.vjs-menu-button.vjs-menu-button-popup.vjs-button.fa-caret-up ,
+ button.vjs-custom-caret-button.vjs-menu-button.vjs-menu-button-popup.vjs-button.fa-caret-left:before {
     display: none !important;
 
 }
-.vjs-v6 .vjs-custom-transcript-button.vjs-menu-button.vjs-menu-button-popup.vjs-button.vjs-control-enabled {
+ .vjs-custom-transcript-button.vjs-menu-button.vjs-menu-button-popup.vjs-button.vjs-control-enabled {
     right: -4px;
     background: none;
 }
 
-.vjs-v6 .vjs-workinghover .vjs-menu-button-popup:hover .vjs-menu {
+ .vjs-workinghover .vjs-menu-button-popup:hover .vjs-menu {
     left: 3em;
 }
-.vjs-v6 .vjs-subs-caps-button.vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button .vjs-menu-item:not(.vjs-captions-menu-item) {
+ .vjs-subs-caps-button.vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button .vjs-menu-item:not(.vjs-captions-menu-item) {
     display: none;
 }
-.vjs-v6 .vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-caret-left.vjs-singleton:hover:before {
+ .vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-caret-left.vjs-singleton:hover:before {
     transform:  translate(-50%, -60%) rotate(90deg);
 }
-.vjs-v6 .vjs-custom-transcript-button.vjs-menu-button.vjs-menu-button-popup.vjs-button {
+ .vjs-custom-transcript-button.vjs-menu-button.vjs-menu-button-popup.vjs-button {
     right: 0;
 }
-.vjs-v6 .vjs-menu .vjs-menu-item.vjs-selected {
+ .vjs-menu .vjs-menu-item.vjs-selected {
     background-color: rgba(115,133,159,.5) !important;
 }
 .video-js .vjs-volume-menu-button.vjs-menu-button {
@@ -627,14 +627,14 @@ body .video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
         width: 120px;
     }
 }
-.vjs-v6.video-js .vjs-control-enabled {
+.video-js .vjs-control-enabled {
     background: none;
     font-size: 10px;
 }
-.vjs-v6.video-js .vjs-control-enabled:before {
+.video-js .vjs-control-enabled:before {
     padding: 0;
 }
-body .vjs-v6.video-js .vjs-custom-caption-button {
+body .video-js .vjs-custom-caption-button {
     right: 0 !important;
 }
 /* div.vjs-control-bar > div.vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-cc.vjs-singleton:hover .vjs-menu,
@@ -647,8 +647,8 @@ div.vjs-control-bar > div.vjs-custom-caption-button.vjs-menu-button.vjs-menu-but
 div.vjs-control-bar > div.vjs-menu-button.vjs-menu-button-popup.vjs-control.vjs-button.icon.fa.fa-cc.vjs-singleton > div > ul,
 body .video-js .fa-quote-left .vjs-menu,
 body .video-js .fa-cc .vjs-menu,
-body .vjs-v6 .vjs-custom-caption-button .vjs-menu-content,
-body .vjs-v6 .vjs-custom-transcript-button .vjs-menu-content {
+body  .vjs-custom-caption-button .vjs-menu-content,
+body  .vjs-custom-transcript-button .vjs-menu-content {
     display: none !important;
 } */
 body .vjs-custom-transcript-button:focus .vjs-menu,

@@ -20,7 +20,7 @@ class DummyPlayer(BaseVideoPlayer):
         """
         Return a Fragment required to render video player on the client side.
         """
-        return Fragment(u'[Here be Video]')
+        return Fragment('[Here be Video]')
 
     def media_id(self, href):  # pylint: disable=unused-argument
         """

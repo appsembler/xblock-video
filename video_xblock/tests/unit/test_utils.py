@@ -28,7 +28,7 @@ class UtilsTest(unittest.TestCase):
         """
         Test string conversion from underscore to mixedcase
         """
-        for string, expected_result in test_data.items():
+        for string, expected_result in list(test_data.items()):
             self.assertEqual(underscore_to_mixedcase(string), expected_result)
 
     @patch('video_xblock.utils.import_module')

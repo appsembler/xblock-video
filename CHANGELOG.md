@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.0] - 2021-07-30
+
+### Added
+
+- Python 3 compatibliity.
+
+## [1.0.0-community-alpha] - 2021-08-05
+
+### Added
+
+- Partial Py3/Juniper compat updates, not backward compat to Python 2.
+
+## [0.10.7] - 2021-08-05
+
+### Fixed
+
+- Don't override account_id with a blank form value for new XBlock instances when value available from settings
+
+## [0.10.6] - 2021-08-05
+
+### Fixed
+
+- Fix BrightCove styling for players based on video.js v6+ (breaks video.js5 but that's very old now)
+- a11y fix - title on video iframe
+
+## [0.10.5] - 2021-08-05
+
+Released 2021-08-05, fix commit was made 2021-04-19
+
+### Fixed
+
+-  Added mute before playing video for chrome to avoid autoplay policy restriction
+
 ## [0.10.4] - 2021-08-05
 
 Released 2021-08-05, fix commit on 2020-09-18
@@ -317,4 +350,12 @@ Released 2021-08-05, fix commit on 2020-09-18
 [0.9.4]: https://github.com/raccoongang/xblock-video/compare/v0.9.3...v0.9.4
 [0.10.0]: https://github.com/raccoongang/xblock-video/compare/v0.9.4...v0.10.0
 [0.10.1]: https://github.com/raccoongang/xblock-video/compare/v0.10.0...v0.10.1
-[Unreleased]: https://github.com/raccoongang/xblock-video/compare/v0.10.1...HEAD
+[0.10.2]: https://github.com/raccoongang/xblock-video/compare/v0.10.1...v0.10.2
+[0.10.3]: https://github.com/appsembler/xblock-video/compare/v0.10.2...v0.10.3
+[0.10.4]: https://github.com/appsembler/xblock-video/compare/v0.10.3...v0.10.4
+[0.10.5]: https://github.com/appsembler/xblock-video/compare/v0.10.4...v0.10.5
+[0.10.6]: https://github.com/appsembler/xblock-video/compare/v0.10.5...v0.10.6
+[0.10.7]: https://github.com/appsembler/xblock-video/compare/v0.10.6...v0.10.7
+[0.10.7]: https://github.com/appsembler/xblock-video/compare/v0.10.7...1.0.0-community-alpha
+[1.0.0]: https://github.com/appsembler/xblock-video/compare/1.0.0-community-alpha...v1.0.0
+[Unreleased]: https://github.com/appsembler/xblock-video/compare/v1.0.0...HEAD
