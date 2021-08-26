@@ -3,7 +3,7 @@
 Vimeo Video player plugin.
 """
 
-import httplib
+import http.client
 import json
 import logging
 import re
@@ -57,7 +57,7 @@ class VimeoApiClient(BaseApiClient):
         if headers is not None:
             headers_.update(headers)
         resp = requests.get(url, headers=headers_)
-        if resp.status_code == httplib.OK:
+        if resp.status_code == http.client.OK:
             return resp.json()
         else:
             raise VimeoApiClientError(_("Can't fetch requested data from API."))
