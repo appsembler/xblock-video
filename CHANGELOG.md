@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.2] - 2021-08-27
+
+### Fixed
+
+- Fix for BrightCove transcripts which weren't scrolling.
+- Autoplay Chrome checks don't throw TypeError if no player.cache_.src property.
+ 
 ## [1.0.1] - 2021-08-24
 
 ### Fixed
