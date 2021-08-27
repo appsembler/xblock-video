@@ -45,7 +45,7 @@ var PlayerState = function(player, playerState) {
           && !/Edg/.test(navigator.userAgent)
           && !/Edge/.test(navigator.userAgent)
           && /Google Inc/.test(navigator.vendor);
-        if ( player.cache_.src.includes("vimeo") && isChrome ) {
+        if ( player.cache_.hasOwnProperty('src') && player.cache_.src.includes("vimeo") && isChrome ) {
             state.muted = true;
         }
         player.volume(state.volume);
