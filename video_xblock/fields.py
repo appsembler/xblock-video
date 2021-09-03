@@ -73,7 +73,7 @@ class RelativeTime(JSONField):
         if isinstance(value, float):
             return datetime.timedelta(seconds=value)
 
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             return self.isotime_to_timedelta(value)
 
         msg = "RelativeTime Field {0} has bad value '{1!r}'".format(self.name, value)

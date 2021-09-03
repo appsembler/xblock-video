@@ -380,6 +380,7 @@ body {
 }
 
 .transcript-body {
+    height:  100%;
     max-height: 100%;
     overflow: scroll;
     padding: 0 0 0 20px;

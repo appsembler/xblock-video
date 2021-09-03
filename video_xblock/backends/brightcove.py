@@ -5,7 +5,7 @@ Brightcove Video player plugin.
 
 from datetime import datetime
 import json
-import httplib
+import http.client
 import logging
 import re
 
@@ -80,7 +80,7 @@ class BrightcoveApiClient(BaseApiClient):
         response = requests.post(url, json=data, headers=headers)
         response_data = response.json()
         # New resource must have been created.
-        if response.status_code == httplib.CREATED and response_data:
+        if response.status_code == http.client.CREATED and response_data:
             client_secret = response_data.get('client_secret')
             client_id = response_data.get('client_id')
             error_message = ''
@@ -104,7 +104,7 @@ class BrightcoveApiClient(BaseApiClient):
 
         try:
             resp = requests.post(url, auth=basicauth, headers=headers, data=params)
-            if resp.status_code == httplib.OK:
+            if resp.status_code == http.client.OK:
                 result = resp.json()
                 return result['access_token']
         except IOError:
@@ -126,9 +126,9 @@ class BrightcoveApiClient(BaseApiClient):
         if headers is not None:
             headers_.update(headers)
         resp = requests.get(url, headers=headers_)
-        if resp.status_code == httplib.OK:
+        if resp.status_code == http.client.OK:
             return resp.json()
-        elif resp.status_code == httplib.UNAUTHORIZED and can_retry:
+        elif resp.status_code == http.client.UNAUTHORIZED and can_retry:
             self.access_token = self._refresh_access_token()
             return self.get(url, headers, can_retry=False)
         else:
@@ -155,9 +155,9 @@ class BrightcoveApiClient(BaseApiClient):
 
         resp = requests.post(url, data=payload, headers=headers_)
         log.debug("BC response status: {}".format(resp.status_code))
-        if resp.status_code in (httplib.OK, httplib.CREATED):
+        if resp.status_code in (http.client.OK, http.client.CREATED):
             return resp.json()
-        elif resp.status_code == httplib.UNAUTHORIZED and can_retry:
+        elif resp.status_code == http.client.UNAUTHORIZED and can_retry:
             self.access_token = self._refresh_access_token()
             return self.post(url, payload, headers, can_retry=False)
 
