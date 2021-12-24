@@ -1,6 +1,6 @@
 bok-choy==0.7.1
 coverage>=4.3.4,<5.0.0
-Django==2.2
+Django==2.2.24
 ddt>=1.1.1,<2.0.0
 edx-lint==1.5.2
 Mako>=1.0.6,<2.0.0
