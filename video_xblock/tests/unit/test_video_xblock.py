@@ -11,12 +11,12 @@ from web_fragments.fragment import FragmentResource
 from xblock.fragment import Fragment
 
 from video_xblock import VideoXBlock, __version__
-from video_xblock.constants import PlayerName
+from video_xblock.constants import PlayerName, TranscriptSource
 from video_xblock.utils import ugettext as _
 from video_xblock.tests.unit.base import VideoXBlockTestBase
 
 
-class VideoXBlockTests(VideoXBlockTestBase):
+class VideoXBlockTests(VideoXBlockTestBase):  # pylint: disable=test-inherits-tests
     """
     Test cases for video_xblock.
     """
@@ -112,7 +112,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
         request_mock.assert_not_called()
         suffix_mock.assert_not_called()
 
-    @patch('video_xblock.video_xblock.render_resource')
+    @patch('video_xblock.video_xblock.render_template')
     @patch('video_xblock.video_xblock.resource_string')
     @patch.object(VideoXBlock, 'route_transcripts')
     def test_student_view(self, route_transcripts, resource_string_mock, render_resource_mock):
@@ -134,7 +134,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
         # Assert
         self.assertIsInstance(student_view, Fragment)
         render_resource_mock.assert_called_once_with(
-            'static/html/student_view.html',
+            'student_view.html',
             display_name='Video',
             download_transcript_allowed=False,
             transcripts_streaming_enabled=True,
@@ -146,6 +146,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
             transcripts=['transcripts.vtt'],
             usage_id='usage_id',
             version=__version__,
+            i18n_service=self.xblock.runtime.service(self.xblock, 'i18n'),
         )
         resource_string_mock.assert_called_with('static/css/student-view.css')
         handler_url.assert_called_with(self.xblock, 'download_transcript')
@@ -185,6 +186,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
             'static/css/transcripts-upload.css',
             'static/css/studio-edit.css',
             'static/css/studio-edit-accordion.css',
+            'static/js/translations/en/text.js',
             'static/js/runtime-handlers.js',
             'static/js/studio-edit/utils.js',
             'static/js/studio-edit/studio-edit.js',
@@ -205,12 +207,13 @@ class VideoXBlockTests(VideoXBlockTestBase):
             'languages': [{'code': 'en', 'label': 'English'}],
             'player_name': self.xblock.player_name,
             'players': PlayerName,
-            'sources': list({'DEFAULT' : 'default', 'MANUAL': 'manual', 'THREE_PLAY_MEDIA': '3play-media'}.items()),
+            'sources': list(TranscriptSource.to_dict().items()),
             'three_pm_fields': three_pm_fields_stub,
             'transcripts': [],
             'transcripts_fields': transcripts_fields_stub,
             'transcripts_autoupload_message': 'Stub autoupload messate',
             'transcripts_type': 'manual',
+            'i18n_service': self.xblock.runtime.service(self.xblock, 'i18n'),
         }
 
         # Act
@@ -249,6 +252,7 @@ class VideoXBlockTests(VideoXBlockTestBase):
             'static/css/transcripts-upload.css',
             'static/css/studio-edit.css',
             'static/css/studio-edit-accordion.css',
+            'static/js/translations/en/text.js',
             'static/js/runtime-handlers.js',
             'static/js/studio-edit/utils.js',
             'static/js/studio-edit/studio-edit.js',

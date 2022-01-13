@@ -5,7 +5,7 @@ YouTube Video player plugin.
 
 from html.parser import unescape, HTMLParser
 import json
-import http.client as httplib
+import http.client as http_client
 import re
 import textwrap
 import urllib.request, urllib.parse, urllib.error
@@ -124,7 +124,7 @@ class YoutubePlayer(BaseVideoPlayer):
                       'Error: {}'.format(str(exception))
             return available_languages, message
 
-        if data.status_code == httplib.OK and data.text:
+        if data.status_code == http_client.OK and data.text:
             youtube_data = etree.fromstring(data.content, parser=utf8_parser)
             empty_subs = False if [el.get('transcript_list') for el in youtube_data] else True
             available_languages = [
@@ -241,4 +241,3 @@ class YoutubePlayer(BaseVideoPlayer):
         """
         Youtube dispatch method.
         """
-        pass

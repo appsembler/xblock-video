@@ -2,6 +2,7 @@
 Test cases for video_xblock backends.
 """
 import unittest
+from urllib import parse
 
 import babelfish
 import requests
@@ -38,7 +39,7 @@ class TestBaseBackendFunctionality(unittest.TestCase):
     Unit tests for base video xblock backend.
     """
 
-    def setUp(self):
+    def setUp(self):  # pylint: disable=super-method-not-called
         base.BaseVideoPlayer.__abstractmethods__ = set()  # the way we can instantiate abstract class during testing
         self.base_player = base.BaseVideoPlayer(xblock=Mock())  # pylint: disable=abstract-class-instantiated
 
@@ -50,7 +51,7 @@ class TestBaseBackendFunctionality(unittest.TestCase):
         self.assertEqual(self.base_player.media_id(href=Mock()), "")
 
 
-@ddt
+@ddt  # pylint: disable=test-inherits-tests
 class TestCustomBackends(VideoXBlockTestBase):
     """
     Unit tests for custom video xblock backends.
@@ -282,6 +283,53 @@ class TestCustomBackends(VideoXBlockTestBase):
             expected_error = mock.expected_value[-1]
             self.assertIn(expected_error, error)
 
+    def split_transcript_data(self, transcripts):
+        """
+        Split transcript data.
+
+        Divides the transcripts into:
+            - url_params (dict) - split query params of the url to params
+            - other data (dict)
+        Arguments:
+            - transcripts (list): list of dicts with transcript's data, e.g.
+            [
+                {
+                    'lang': 'en',
+                    'url': 'http://video.google.com/timedtext?lang=en&name=&v=set_video_id_here',
+                    'source': 'default',
+                    'label': 'English'
+                },
+                {
+                    'lang': 'uk',
+                    'url': 'http://video.google.com/timedtext?lang=uk&name=&v=set_video_id_here',
+                    'source': 'default',
+                    'label': 'Ukrainian'
+                }
+            ]
+        Returns:
+            - urls, trans - [{url_params}], [{other transcript data}]
+        """
+        urls = []
+        trans = []
+        for transcript in transcripts:
+            other_tr_data = {}
+            for key, value in transcript.items():
+                if key == 'url':
+                    split_url = parse.urlsplit(value)
+                    url_data = {
+                        'scheme': split_url.scheme,
+                        'hostname': split_url.hostname,
+                        'path': split_url.path,
+                        'query': dict(
+                            parse.parse_qsl(split_url.query)
+                        )
+                    }
+                    urls.append(url_data)
+                else:
+                    other_tr_data[key] = value
+            trans.append(other_tr_data)
+        return urls, trans
+
     @override_settings(ALL_LANGUAGES=ALL_LANGUAGES)
     @data(*(list(zip(backends, media_ids, default_trans_mocks))))
     @unpack
@@ -296,8 +344,18 @@ class TestCustomBackends(VideoXBlockTestBase):
             try:
                 default_transcripts, message = res = player(self.xblock).get_default_transcripts(video_id=media_id)
                 expected_default_transcripts = mock.expected_value[0]
+
+                # NOTE: Due to the urllib.parse.urlencode function prepares a not ordered dict,
+                # we get a different order of query params in url,
+                # that's why we need to split transcript's data to url params and other data
+                # then parse the url query params to compare dict data rather than string url
+                default_tr_urls, default_tr_data = self.split_transcript_data(default_transcripts)
+                expected_tr_urls, expected_tr_data = self.split_transcript_data(expected_default_transcripts)
+
                 self.assertIsInstance(res, tuple)
-                self.assertEqual(default_transcripts, expected_default_transcripts)
+                self.assertEqual(default_tr_urls, expected_tr_urls)
+                self.assertEqual(default_tr_data, expected_tr_data)
+
             except brightcove.BrightcoveApiClientError as ex:
                 message = ex.detail
             except babelfish.converters.LanguageReverseError:
@@ -377,7 +435,7 @@ class TestCustomBackends(VideoXBlockTestBase):
         self.assertEqual(download_video_url, delegate_mock)
 
 
-class VimeoApiClientTest(VideoXBlockTestBase):
+class VimeoApiClientTest(VideoXBlockTestBase):  # pylint: disable=test-inherits-tests
     """
     Test Vimeo backend API client.
     """
@@ -581,7 +639,7 @@ class VimeoApiClientTest(VideoXBlockTestBase):
         self.assertTrue(unescape_mock.called)
 
 
-class WistiaPlayerTest(VideoXBlockTestBase):
+class WistiaPlayerTest(VideoXBlockTestBase):  # pylint: disable=test-inherits-tests
     """
     Test Wistia backend player functionality.
     """
@@ -810,7 +868,7 @@ class WistiaPlayerTest(VideoXBlockTestBase):
         requests_get_mock.assert_called_once_with(test_url)
 
 
-class BrightcovePlayerTest(VideoXBlockTestBase):
+class BrightcovePlayerTest(VideoXBlockTestBase):  # pylint: disable=test-inherits-tests
     """
     Test Brightcove backend.
     """

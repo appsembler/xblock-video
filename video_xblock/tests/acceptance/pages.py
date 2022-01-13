@@ -21,7 +21,7 @@ class VideoJsPlayButton(ClassPageElement):
     locator = 'vjs-play-control'
 
 
-class VideojsPlayerPage(object):
+class VideojsPlayerPage:
     """
     VideoJs player page-object.
     """

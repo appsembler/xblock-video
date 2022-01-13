@@ -7,13 +7,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.1.0] - 2022-01-13
+
+### Feat: Sync with Raccoongang
+
+- Add translations support.
+- Remove brightcove.css to fix player control buttons duplication.
+- Minor fixes according to relocation to py3.
+
+
 ## [1.0.2] - 2021-08-27
 
 ### Fixed
 
 - Fix for BrightCove transcripts which weren't scrolling.
 - Autoplay Chrome checks don't throw TypeError if no player.cache_.src property.
- 
+
 ## [1.0.1] - 2021-08-24
 
 ### Fixed

@@ -11,7 +11,7 @@ import requests
 from video_xblock.exceptions import VideoXBlockMockException
 
 
-class ResponseStub(object):
+class ResponseStub:
     """
     Dummy ResponseStub class.
     """

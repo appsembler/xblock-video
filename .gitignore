@@ -51,7 +51,6 @@ coverage*.json
 .noseids
 
 # Translations
-*.mo
 *.pot
 
 # Django stuff:

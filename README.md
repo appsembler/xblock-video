@@ -188,6 +188,30 @@ Run tests:
 VideoXBlock is bundled with a set of XBlock-SDK Workbench scenarios.
 See [workbench docs](/video_xblock/workbench/README.md) for details.
 
+## Translations
+
+Run docker container to work with translations, tests etc.
+
+```shell
+> cd xblock-video
+> docker run -it --rm --name video-xblock-tests -v $(pwd):/app seriallab/python3.5dev  bash
+> cd app
+> export VIRTUAL_ENV=$(pwd)
+> apt-get install -y gettext
+> make deps-test
+```
+
+To add new language for translation:
+
+- add appropriate language to the translations.settings.LANGUAGE variable
+- create `<lang>`/LC_MESSAGES/ directory and copy there the text.po file from english language
+- run:
+
+```shell
+> make compile_translations
+```
+
+
 ## License
 
 The code in this repository is licensed under the GPL v3 licence unless
