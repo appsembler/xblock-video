@@ -643,7 +643,7 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
         )
         # Act:
         result_response = self.xblock.validate_three_play_media_config(request_mock)
-        result = result_response.body.decode()  # pylint: disable=no-member
+        result = result_response.body  # pylint: disable=no-member
 
         # Assert:
         self.assertEqual(
@@ -662,7 +662,7 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
         )
         # Act:
         result_response = self.xblock.validate_three_play_media_config(request_mock)
-        result = result_response.body.decode()  # pylint: disable=no-member
+        result = result_response.body  # pylint: disable=no-member
 
         # Assert:
         self.assertEqual(
@@ -681,7 +681,7 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
         )
         # Act:
         result_response = self.xblock.validate_three_play_media_config(request_mock)
-        result = result_response.body.decode()  # pylint: disable=no-member
+        result = result_response.body  # pylint: disable=no-member
 
         # Assert:
         self.assertEqual(
@@ -704,7 +704,7 @@ class TranscriptsMixinTests(VideoXBlockTestBase):  # pylint: disable=test-inheri
         )
         # Act:
         result_response = self.xblock.validate_three_play_media_config(request_mock)
-        result = result_response.body.decode()  # pylint: disable=no-member
+        result = result_response.body  # pylint: disable=no-member
 
         # Assert:
         self.assertEqual(
