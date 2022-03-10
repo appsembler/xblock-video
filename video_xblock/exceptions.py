@@ -2,8 +2,6 @@
 Custom, VideoXblock specific Exceptions.
 """
 
-
-
 from .utils import ugettext as _
 
 

@@ -48,7 +48,7 @@ setup(
         'video_xblock',
     ],
     dependency_links=[
-         # Replace dependency links with numbered versions when it's released on PyPI
+        # Replace dependency links with numbered versions when it's released on PyPI
         'git+https://github.com/edx/xblock-utils.git@v1.0.5#egg=xblock-utils==1.0.5',
     ],
     install_requires=[

@@ -8,7 +8,9 @@ import json
 import http.client as httplib
 import re
 import textwrap
-import urllib.request, urllib.parse, urllib.error
+import urllib.error
+import urllib.parse
+import urllib.request
 
 import requests
 from lxml import etree
